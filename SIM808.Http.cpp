@@ -80,7 +80,7 @@ bool SIM808::setHttpBody(const char* body)
 	print(',');
 	print((uint16_t)10000);
 
-	if (sendAssertResponse("DOWNLOAD")) return false;
+	if (!sendAssertResponse("DOWNLOAD")) return false;
 
 	SENDARROW;
 	print(body);
