@@ -72,10 +72,10 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 
 	send();
 	readLine(1000);
-	if (strstr(_replyBuffer, "+CGREG") == 0) return result;
+	if (strstr(replyBuffer, "+CGREG") == 0) return result;
 
-	if (!parseReply(',', SIM9082_REGISTRATION_STATUS_RESPONSE::N, &n) ||
-		!parseReply(',', SIM9082_REGISTRATION_STATUS_RESPONSE::STAT, &stat)) return result;
+	if (!parseReply(',', SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
+		!parseReply(',', SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat)) return result;
 
 	readLine(1000);
 	if (!assertResponse(_ok)) return result;
