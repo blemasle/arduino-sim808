@@ -36,19 +36,19 @@ size_t SIMComAT::readLine(uint16_t timeout)
 					break;
 				}
 			}
-			_replyBuffer[i] = c;
+			replyBuffer[i] = c;
 			i++;
 		}
 
 		delay(1);
 	}
 
-	_replyBuffer[i] = 0; //string term
+	replyBuffer[i] = 0; //string term
 
 	RECEIVEARROW;
-	PRINTLN(_replyBuffer);
+	PRINTLN(replyBuffer);
 
-	return strlen(_replyBuffer);
+	return strlen(replyBuffer);
 }
 
 size_t SIMComAT::sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
@@ -63,11 +63,11 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 	send();
 	readLine(timeout);
 	
-	size_t len = strlen(_replyBuffer);
+	size_t len = strlen(replyBuffer);
 	if (response != NULL) {
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
 
-		strncpy(response, _replyBuffer, maxLen);
+		strncpy(response, replyBuffer, maxLen);
 		response[maxLen] = '\0';
 	}
 
@@ -89,12 +89,12 @@ bool SIMComAT::sendAssertResponse(const char* expectedResponse, uint16_t timeout
 bool SIMComAT::assertResponse(const char* expectedResponse)
 {
 	PRINT(F("assertResponse : ["));
-	PRINT(_replyBuffer);
+	PRINT(replyBuffer);
 	PRINT("], [");
 	PRINT(expectedResponse);
 	PRINTLN("]");
 
-	return !strcasecmp(_replyBuffer, expectedResponse);
+	return !strcasecmp(replyBuffer, expectedResponse);
 }
 
 bool SIMComAT::parseReply(char divider, uint8_t index, uint8_t* result) 
@@ -113,10 +113,10 @@ bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result)
 	PRINT(", ");
 	PRINT(index);
 	PRINT(", ");
-	PRINT(_replyBuffer);
+	PRINT(replyBuffer);
 	PRINTLN("]");
 
-	const char* p = strchr(_replyBuffer, ':');
+	const char* p = strchr(replyBuffer, ':');
 	if (p == NULL) return false;
 
 	for (uint8_t i = 0; i < index; i++)
@@ -133,7 +133,7 @@ bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result)
 	PRINT(", ");
 	PRINT(index);
 	PRINT(", ");
-	PRINT(_replyBuffer);
+	PRINT(replyBuffer);
 	PRINT("], [");
 	PRINT(*result);
 	PRINTLN("]");

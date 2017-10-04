@@ -57,7 +57,7 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	print((char)0x1A);
 
 	readLine(10000);
-	if (strstr(_replyBuffer, "+CMGS") == 0) return false;
+	if (strstr(replyBuffer, "+CMGS") == 0) return false;
 
 	readLine(1000);
 	if (!assertResponse(_ok)) return false;

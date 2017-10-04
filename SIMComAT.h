@@ -26,7 +26,7 @@ private:
 	Stream* _port;
 
 protected:
-	char _replyBuffer[BUFFER_SIZE];
+	char replyBuffer[BUFFER_SIZE];
 	
 	void flushInput();
 	void send();

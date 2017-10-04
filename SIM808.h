@@ -8,7 +8,10 @@
 class SIM808 : public SIMComAT
 {
 private:
-	int8_t _resetPin;
+	uint8_t _resetPin;
+	uint8_t _statusPin;
+	uint8_t _pwrKeyPin;
+
 	const char* _ok;
 	const char* _userAgent;
 
@@ -31,8 +34,12 @@ private:
 	bool getGpsPowerState(bool *state);
 
 public:
-	SIM808(int8_t resetPin);
+	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
 	~SIM808();
+
+	bool powered();
+	void powerOnOff(bool power);
+	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
 
 	void reset();
 

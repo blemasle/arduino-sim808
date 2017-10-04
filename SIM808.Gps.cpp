@@ -39,7 +39,7 @@ bool SIM808::getGpsPowerState(bool *state)
 
 	send();
 	readLine(1000);
-	if (strstr(_replyBuffer, "+CGNSPWR") == 0) return false;
+	if (strstr(replyBuffer, "+CGNSPWR") == 0) return false;
 
 	if (!parseReply(',', 0, &result)) return false;
 
