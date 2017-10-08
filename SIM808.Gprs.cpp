@@ -65,7 +65,7 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 {
 	uint8_t n;
 	uint8_t stat;
-	SIM808RegistrationStatus result = { n = -1, stat = -1 };
+	SIM808RegistrationStatus result = { -1, -1 };
 
 	SENDARROW;
 	print("AT+CGREG?");
