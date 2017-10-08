@@ -35,7 +35,7 @@ private:
 
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
-	~SIM808();
+	~SIM808();	
 
 	bool powered();
 	void powerOnOff(bool power);
@@ -45,7 +45,7 @@ public:
 
 	size_t sendCommand(const char *cmd, char *response);
 
-	bool setEcho(SIM808_BOOL state);
+	bool setEcho(bool state);
 	bool simUnlock(const char *pin);
 	size_t getSimState(char *state);
 	size_t getImei(char *imei);
@@ -60,6 +60,7 @@ public:
 
 	bool enableGps();
 	bool disableGps();
+	SIM808_GPS_STATUS getGpsStatus();
 	bool getGpsPosition(char *response);
 
 	uint16_t httpGet(const char *url, char *response, size_t responseSize);

@@ -2,12 +2,6 @@
 
 #include "Arduino.h"
 
-enum SIM808_BOOL
-{
-	OFF = 0,
-	ON = 1
-};
-
 enum SIM808_SMS_MESSAGE_FORMAT
 {
 	PDU = 0,
@@ -41,6 +35,15 @@ enum SIM808_PHONE_FUNCTIONALITY
 	MINIMUM = 0,
 	FULL = 1,
 	DISABLED = 4
+};
+
+enum SIM808_GPS_STATUS
+{
+	FAIL = -1,
+	OFF = 0,
+	NO_FIX = 1,
+	FIX = 2,
+	ACCURATE_FIX = 3
 };
 
 struct SIM808RegistrationStatus
