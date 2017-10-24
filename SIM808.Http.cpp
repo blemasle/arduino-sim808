@@ -93,14 +93,14 @@ bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCo
 {
 	SENDARROW;
 	print("AT+HTTPACTION=");
-	print(action);
+	print((uint8_t)action);
 
 	if (!sendAssertResponse(_ok)) return false;
 
 	readLine(_httpTimeout);
 
-	return parseReply(',', SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
-		parseReply(',', SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
+	return parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
+		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
 }
 
 bool SIM808::readHttpResponse(char *response, size_t responseSize)

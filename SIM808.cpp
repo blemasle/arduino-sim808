@@ -22,8 +22,8 @@ void SIM808::init()
 	waitForReady();
 	delay(3000);
 
-	setEcho(false);
-	setEcho(false);
+	setEcho(SIM808_ECHO::OFF);
+	setEcho(SIM808_ECHO::OFF);
 }
 
 void SIM808::reset()
@@ -51,11 +51,11 @@ void SIM808::waitForReady()
 
 }
 
-bool SIM808::setEcho(bool state)
+bool SIM808::setEcho(SIM808_ECHO mode)
 {
 	SENDARROW;
 	print("ATE");
-	print(state ? 1 : 0);
+	print((uint8_t)mode);
 
 	return sendAssertResponse(_ok);
 }

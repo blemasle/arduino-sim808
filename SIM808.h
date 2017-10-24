@@ -45,7 +45,7 @@ public:
 
 	size_t sendCommand(const char *cmd, char *response);
 
-	bool setEcho(bool state);
+	bool setEcho(SIM808_ECHO mode);
 	bool simUnlock(const char *pin);
 	size_t getSimState(char *state);
 	size_t getImei(char *imei);
