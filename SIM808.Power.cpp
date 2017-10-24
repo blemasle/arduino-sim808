@@ -18,7 +18,7 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 {
 	SENDARROW;
 	print("AT+CFUN=");
-	print(fun);
+	print((uint8_t)fun);
 
 	return sendAssertResponse(_ok, 10000);
 }

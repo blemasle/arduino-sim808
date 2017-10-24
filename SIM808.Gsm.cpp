@@ -35,7 +35,7 @@ bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
 {
 	SENDARROW;
 	print("AT+CMGF=");
-	print(format);
+	print((uint8_t)format);
 
 	return sendAssertResponse(_ok);
 }
