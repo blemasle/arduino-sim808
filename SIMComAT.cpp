@@ -97,38 +97,27 @@ bool SIMComAT::assertResponse(const char* expectedResponse)
 	return !strcasecmp(replyBuffer, expectedResponse);
 }
 
-bool SIMComAT::parseReply(char divider, uint8_t index, uint8_t* result) 
+char* SIMComAT::find(const char* str, char divider, uint8_t index);
 {
-	uint16_t tmpResult;
-	if (!parseReply(divider, index, &tmpResult)) return false;
-
-	*result = (uint8_t)tmpResult;
-	return true;
-}
-
-bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result) 
-{
-	PRINT("parseReply : [");
+	PRINT("parse : [");
+	PRINT(str);
+	PRINT(", ");
 	PRINT(divider);
 	PRINT(", ");
 	PRINT(index);
-	PRINT(", ");
-	PRINT(replyBuffer);
 	PRINTLN("]");
 
-	const char* p = strchr(replyBuffer, ':');
-	if (p == NULL) return false;
+	const char* p = strchr(str, ':');
+	if (p == NULL) return NULL;
 
 	for (uint8_t i = 0; i < index; i++)
 	{
 		p = strchr(p, divider);
-		if (p == NULL) return false;
+		if (p == NULL) return NULL;
 		p++;
 	}
 
-	*result = atoi(p); //TODO : unsigned
-
-	PRINT("parseReply : [");
+	PRINT("parse : [");
 	PRINT(divider);
 	PRINT(", ");
 	PRINT(index);
@@ -138,5 +127,47 @@ bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result)
 	PRINT(*result);
 	PRINTLN("]");
 
+	return p;
+}
+
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint8_t* result)
+{
+	uint16_t tmpResult;
+	if (!parseReply(str, divider, index, &tmpResult)) return false;
+
+	*result = (uint8_t)tmpResult;
 	return true;
+}
+
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint16_t* result)
+{
+	char* p = find(str, divider, index);
+	if (p == NULL) return false;
+
+	*result = (uint16_t)atoi(p);
+	return true;
+}
+
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, float* result)
+{
+	char* p = find(str, divider, index);
+	if (p == NULL) return false;
+
+	*result = atof(p);
+	return true;
+}
+
+bool SIMComAT::parseReply(char divider, uint8_t index, uint8_t* result) 
+{
+	return parse(replyBuffer, divider, index, result);
+}
+
+bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result) 
+{
+	return parse(replyBuffer, divider, index, result);
+}
+
+bool SIMComAT::parseReply(char divider, uint8_t index, float* result)
+{
+	return parse(replyBuffer, divider, index, result);
 }

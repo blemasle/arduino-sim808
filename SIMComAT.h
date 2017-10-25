@@ -25,6 +25,7 @@ class SIMComAT : public Stream
 private:
 	Stream* _port;
 
+	char* find(const char* str, char divider, uint8_t index); //TODO : rename
 protected:
 	char replyBuffer[BUFFER_SIZE];
 	
@@ -40,8 +41,13 @@ protected:
 
 	bool assertResponse(const char* expectedResponse);
 
+	bool parse(const char* str, char divider, uint8_t index, uint8_t* result);
+	bool parse(const char* str, char divider, uint8_t index, uint16_t* result);
+	bool parse(const char* str, char divider, uint8_t index, float* result);
+
 	bool parseReply(char divider, uint8_t index, uint8_t* result);
 	bool parseReply(char divider, uint8_t index, uint16_t* result);
+	bool parseReply(char divider, uint8_t index, float* result);
 
 	virtual void init();
 public:	
