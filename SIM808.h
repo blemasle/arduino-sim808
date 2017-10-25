@@ -43,27 +43,30 @@ public:
 
 	void reset();
 
-	size_t sendCommand(const char *cmd, char *response);
+	size_t sendCommand(const char* cmd, char* response);
 
 	bool setEcho(SIM808_ECHO mode);
-	bool simUnlock(const char *pin);
-	size_t getSimState(char *state);
-	size_t getImei(char *imei);
+	bool simUnlock(const char* pin);
+	size_t getSimState(char* state);
+	size_t getImei(char* imei);
 
 	bool setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format);
-	bool sendSms(const char *addr, const char *msg);
+	bool sendSms(const char* addr, const char* msg);
 
-	bool enableGprs(const char *apn);
-	bool enableGprs(const char *apn, const char* user, const char *password);
+	bool enableGprs(const char* apn);
+	bool enableGprs(const char* apn, const char* user, const char *password);
 	bool disableGprs();
 	SIM808RegistrationStatus getNetworkRegistrationStatus();
 
 	bool enableGps();
 	bool disableGps();
 	SIM808_GPS_STATUS getGpsStatus();
-	bool getGpsPosition(char *response);
+	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result);
+	bool getGpsField(const char* response, SIM808_GPS_FIELD field, float* result);
+	bool getGpsPosition(char* response);
 
-	uint16_t httpGet(const char *url, char *response, size_t responseSize);
-	uint16_t httpPost(const char *url, const char *contentType, const char *body, char *response, size_t responseSize);	
+
+	uint16_t httpGet(const char* url, char* response, size_t responseSize);
+	uint16_t httpPost(const char* url, const char* contentType, const char* body, char* response, size_t responseSize);	
 };
 
