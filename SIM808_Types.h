@@ -52,6 +52,17 @@ enum class SIM808_GPS_STATUS : int8_t
 	ACCURATE_FIX = 3
 };
 
+enum class SIM808_GPS_FIELD : uint8_t
+{
+	UTC = 2,
+	LATITUDE = 3,
+	LONGITUDE = 4,
+	SPEED = 5,
+	COURSE = 6,
+	GPS_IN_VIEW = 14,
+	GNSS_USED = 15
+};
+
 struct SIM808RegistrationStatus
 {
 	byte n;
