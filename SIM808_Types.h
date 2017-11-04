@@ -63,6 +63,13 @@ enum class SIM808_GPS_FIELD : uint8_t
 	GNSS_USED = 15
 };
 
+enum class SIM808_SLOW_CLOCK : uint8_t
+{
+	DISABLE = 0,
+	ENABLE = 1,
+	AUTO = 2
+};
+
 struct SIM808RegistrationStatus
 {
 	byte n;

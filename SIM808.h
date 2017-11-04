@@ -40,6 +40,7 @@ public:
 	bool powered();
 	void powerOnOff(bool power);
 	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
+	bool setSlowClock(SIM808_SLOW_CLOCK mode);
 
 	void reset();
 

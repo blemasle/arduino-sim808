@@ -22,3 +22,13 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 
 	return sendAssertResponse(_ok, 10000);
 }
+
+bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
+{
+	SENDARROW;
+	print("AT+CSCLK=");
+	print((uint8_t)mode);
+
+	return sendAssertResponse(_ok, 1000);
+}
+
