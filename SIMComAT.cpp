@@ -97,7 +97,7 @@ bool SIMComAT::assertResponse(const char* expectedResponse)
 	return !strcasecmp(replyBuffer, expectedResponse);
 }
 
-char* SIMComAT::find(const char* str, char divider, uint8_t index);
+char* SIMComAT::find(const char* str, char divider, uint8_t index)
 {
 	PRINT("parse : [");
 	PRINT(str);
@@ -107,7 +107,7 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index);
 	PRINT(index);
 	PRINTLN("]");
 
-	const char* p = strchr(str, ':');
+	char* p = strchr(str, ':');
 	if (p == NULL) return NULL;
 
 	for (uint8_t i = 0; i < index; i++)
@@ -124,7 +124,7 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index);
 	PRINT(", ");
 	PRINT(replyBuffer);
 	PRINT("], [");
-	PRINT(*result);
+	PRINT(*p);
 	PRINTLN("]");
 
 	return p;
@@ -133,7 +133,7 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index);
 bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint8_t* result)
 {
 	uint16_t tmpResult;
-	if (!parseReply(str, divider, index, &tmpResult)) return false;
+	if (!parse(str, divider, index, &tmpResult)) return false;
 
 	*result = (uint8_t)tmpResult;
 	return true;
