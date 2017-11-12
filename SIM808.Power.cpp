@@ -2,16 +2,20 @@
 
 bool SIM808::powered()
 {
-	return digitalRead(_pwrKeyPin) != 0;
+	return digitalRead(_statusPin) == HIGH;
 }
 
 void SIM808::powerOnOff(bool power)
 {
 	if (powered() == power) return;
 
-	digitalWrite(_pwrKeyPin, HIGH);
-	delay(1200);
+	PRINT("powerOnOff :");
+	PRINTLN(power);
+
 	digitalWrite(_pwrKeyPin, LOW);
+	delay(2000);
+	digitalWrite(_pwrKeyPin, HIGH);
+}
 }
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
