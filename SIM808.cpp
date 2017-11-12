@@ -6,6 +6,13 @@ SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 	_pwrKeyPin = pwrKeyPin;
 	_statusPin = statusPin;
 	_ok = "OK";
+
+	pinMode(_resetPin, OUTPUT);
+	pinMode(_pwrKeyPin, OUTPUT);
+	pinMode(_statusPin, INPUT);
+	
+	digitalWrite(_pwrKeyPin, HIGH);
+	digitalWrite(_resetPin, HIGH);
 }
 
 SIM808::~SIM808() { }
@@ -14,10 +21,6 @@ SIM808::~SIM808() { }
 
 void SIM808::init()
 {
-	pinMode(_resetPin, OUTPUT);
-	pinMode(_pwrKeyPin, OUTPUT);
-	pinMode(_statusPin, INPUT);
-
 	reset();
 	waitForReady();
 	delay(3000);
