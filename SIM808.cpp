@@ -43,12 +43,12 @@ void SIM808::waitForReady()
 {
 	do
 	{
-		PRINTLN(F("Waiting for echo..."));
+		SIM808_PRINTLN(F("Waiting for echo..."));
 	} while (!sendAssertResponse("AT", "AT"));
 
 	do
 	{
-		PRINTLN(F("Waiting for RDY..."));
+		SIM808_PRINTLN(F("Waiting for RDY..."));
 		readLine(1000);
 	} while (!assertResponse("RDY"));
 

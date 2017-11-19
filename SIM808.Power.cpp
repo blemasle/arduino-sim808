@@ -9,13 +9,33 @@ void SIM808::powerOnOff(bool power)
 {
 	if (powered() == power) return;
 
-	PRINT("powerOnOff :");
-	PRINTLN(power);
+	SIM808_PRINT("powerOnOff :");
+	SIM808_PRINTLN(power);
 
 	digitalWrite(_pwrKeyPin, LOW);
 	delay(2000);
 	digitalWrite(_pwrKeyPin, HIGH);
 }
+
+SIM808ChargingStatus SIM808::getChargingState()
+{
+	SENDARROW;
+	print("AT+CBC");
+	send();
+
+	readLine(1000);
+	if (strstr(replyBuffer, "+CBC") == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
+
+	uint8_t state;
+	uint8_t level;
+	uint16_t voltage;
+	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state);
+	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level);
+
+	readLine(1000);
+	if (!assertResponse(_ok)) return { SIM808_CHARGING_STATE::ERROR, 0 };
+
+	return { (SIM808_CHARGING_STATE)state, level };
 }
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)

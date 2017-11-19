@@ -4,8 +4,8 @@
 
 enum class SIM808_ECHO : uint8_t
 {
-	ON = 0,
-	OFF = 1
+	OFF = 0,
+	ON = 1
 };
 
 enum class SIM808_SMS_MESSAGE_FORMAT : uint8_t
@@ -63,6 +63,13 @@ enum class SIM808_GPS_FIELD : uint8_t
 	GNSS_USED = 15
 };
 
+enum class SIM808_BATTERY_CHARGE_FIELD : uint8_t
+{
+	BCS = 0,
+	BCL = 1,
+	VOLTAGE = 2
+};
+
 enum class SIM808_SLOW_CLOCK : uint8_t
 {
 	DISABLE = 0,
@@ -70,8 +77,23 @@ enum class SIM808_SLOW_CLOCK : uint8_t
 	AUTO = 2
 };
 
+enum class SIM808_CHARGING_STATE : int8_t
+{
+	ERROR = -1,
+	NOT_CHARGING = 0,
+	CHARGING = 1,
+	CHARGING_DONE = 2
+};
+
 struct SIM808RegistrationStatus
 {
-	byte n;
-	byte stat;
+	uint8_t n;
+	uint8_t stat;
+};
+
+struct SIM808ChargingStatus
+{
+	SIM808_CHARGING_STATE state;
+	int8_t level;
+	int16_t voltage;
 };
