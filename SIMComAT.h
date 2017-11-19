@@ -1,18 +1,17 @@
 #pragma once
 
 #include "Arduino.h"
-//#include <inttypes.h>
-//#include <Stream.h>
-//#include <avr/pgmspace.h>
 
-#ifdef _DEBUG
-#define PRINT(...) Serial.print(__VA_ARGS__)
-#define PRINTLN(...) Serial.println(__VA_ARGS__);
-#define RECEIVEARROW PRINT(F("<--"))
-#define SENDARROW PRINT(F("-->"))
+//#define _SIM808_DEBUG _DEBUG
+
+#ifdef _SIM808_DEBUG
+#define SIM808_PRINT(...) Serial.print(__VA_ARGS__)
+#define SIM808_PRINTLN(...) Serial.println(__VA_ARGS__);
+#define RECEIVEARROW SIM808_PRINT(F("<--"))
+#define SENDARROW SIM808_PRINT(F("-->"))
 #else
-#define PRINT(x)
-#define PRINTLN(x)
+#define SIM808_PRINT(x)
+#define SIM808_PRINTLN(x)
 #define RECEIVEARROW 
 #define SENDARROW
 #endif // _DEBUG
@@ -42,11 +41,15 @@ protected:
 	bool assertResponse(const char* expectedResponse);
 
 	bool parse(const char* str, char divider, uint8_t index, uint8_t* result);
+	bool parse(const char* str, char divider, uint8_t index, int8_t* result);
 	bool parse(const char* str, char divider, uint8_t index, uint16_t* result);
+	bool parse(const char* str, char divider, uint8_t index, int16_t* result);
 	bool parse(const char* str, char divider, uint8_t index, float* result);
 
 	bool parseReply(char divider, uint8_t index, uint8_t* result);
+	bool parseReply(char divider, uint8_t index, int8_t* result);
 	bool parseReply(char divider, uint8_t index, uint16_t* result);
+	bool parseReply(char divider, uint8_t index, int16_t* result);
 	bool parseReply(char divider, uint8_t index, float* result);
 
 	virtual void init();
@@ -55,7 +58,7 @@ public:
 
 #pragma region Stream implementation
 	int available() { return _port->available(); }
-	size_t write(uint8_t x) { PRINT((char)x); return _port->write(x); }
+	size_t write(uint8_t x) { SIM808_PRINT((char)x); return _port->write(x); }
 	int read() { return _port->read(); }
 	int peek() { return _port->peek(); }
 	void flush() { return _port->flush(); }

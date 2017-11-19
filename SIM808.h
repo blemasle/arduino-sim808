@@ -16,8 +16,7 @@ private:
 	const char* _userAgent;
 
 	int16_t _httpTimeout = 10000;
-
-	void init();
+	
 	void waitForReady();	
 
 	bool setupHttpRequest(const char* url);
@@ -39,9 +38,12 @@ public:
 
 	bool powered();
 	void powerOnOff(bool power);
+	SIM808ChargingStatus getChargingState();
+
 	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
 	bool setSlowClock(SIM808_SLOW_CLOCK mode);
 
+	void init();
 	void reset();
 
 	size_t sendCommand(const char* cmd, char* response);

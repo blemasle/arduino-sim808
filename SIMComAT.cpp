@@ -1,4 +1,5 @@
 #include "SIMComAT.h"
+#include <errno.h>
 
 void SIMComAT::begin(Stream& port)
 {
@@ -46,7 +47,7 @@ size_t SIMComAT::readLine(uint16_t timeout)
 	replyBuffer[i] = 0; //string term
 
 	RECEIVEARROW;
-	PRINTLN(replyBuffer);
+	SIM808_PRINTLN(replyBuffer);
 
 	return strlen(replyBuffer);
 }
@@ -88,28 +89,29 @@ bool SIMComAT::sendAssertResponse(const char* expectedResponse, uint16_t timeout
 
 bool SIMComAT::assertResponse(const char* expectedResponse)
 {
-	PRINT(F("assertResponse : ["));
-	PRINT(replyBuffer);
-	PRINT("], [");
-	PRINT(expectedResponse);
-	PRINTLN("]");
+	SIM808_PRINT(F("assertResponse : ["));
+	SIM808_PRINT(replyBuffer);
+	SIM808_PRINT("], [");
+	SIM808_PRINT(expectedResponse);
+	SIM808_PRINTLN("]");
 
 	return !strcasecmp(replyBuffer, expectedResponse);
 }
 
 char* SIMComAT::find(const char* str, char divider, uint8_t index)
 {
-	PRINT("parse : [");
-	PRINT(str);
-	PRINT(", ");
-	PRINT(divider);
-	PRINT(", ");
-	PRINT(index);
-	PRINTLN("]");
+	SIM808_PRINT("find : [");
+	SIM808_PRINT(str);
+	SIM808_PRINT(", ");
+	SIM808_PRINT(divider);
+	SIM808_PRINT(", ");
+	SIM808_PRINT(index);
+	SIM808_PRINTLN("]");
 
 	char* p = strchr(str, ':');
 	if (p == NULL) return NULL;
 
+	p++;
 	for (uint8_t i = 0; i < index; i++)
 	{
 		p = strchr(p, divider);
@@ -117,15 +119,15 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index)
 		p++;
 	}
 
-	PRINT("parse : [");
-	PRINT(divider);
-	PRINT(", ");
-	PRINT(index);
-	PRINT(", ");
-	PRINT(replyBuffer);
-	PRINT("], [");
-	PRINT(*p);
-	PRINTLN("]");
+	SIM808_PRINT("find : [");
+	SIM808_PRINT(str);
+	SIM808_PRINT(", ");
+	SIM808_PRINT(divider);
+	SIM808_PRINT(", ");
+	SIM808_PRINT(index);
+	SIM808_PRINT("], [");
+	SIM808_PRINT(p);
+	SIM808_PRINTLN("]");
 
 	return p;
 }
@@ -139,13 +141,37 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint8_t* resu
 	return true;
 }
 
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, int8_t* result)
+{
+	int16_t tmpResult;
+	if (!parse(str, divider, index, &tmpResult)) return false;
+
+	*result = (int8_t)tmpResult;
+	return true;
+}
+
 bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint16_t* result)
 {
 	char* p = find(str, divider, index);
 	if (p == NULL) return false;
 
-	*result = (uint16_t)atoi(p);
-	return true;
+	errno = 0;
+	//*result = (uint16_t)atol(p);
+	*result = strtoul(p, NULL, 10);
+
+	return errno == 0;
+}
+
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, int16_t* result)
+{	
+	char* p = find(str, divider, index);
+	if (p == NULL) return false;
+
+	errno = 0;
+	//*result = atol(p);
+	*result = strtol(p, NULL, 10);
+	
+	return errno == 0;
 }
 
 bool SIMComAT::parse(const char* str, char divider, uint8_t index, float* result)
@@ -153,8 +179,10 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, float* result
 	char* p = find(str, divider, index);
 	if (p == NULL) return false;
 
-	*result = atof(p);
-	return true;
+	errno = 0;
+	*result = strtod(str, NULL);
+
+	return errno == 0;
 }
 
 bool SIMComAT::parseReply(char divider, uint8_t index, uint8_t* result) 

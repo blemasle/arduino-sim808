@@ -80,10 +80,10 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	readLine(1000);
 	if (!assertResponse(_ok)) return result;
 
-	PRINT("getNetworkRegistrationStatus : ");
-	PRINT(n);
-	PRINT(", ");
-	PRINTLN(stat);
+	SIM808_PRINT("getNetworkRegistrationStatus : ");
+	SIM808_PRINT(n);
+	SIM808_PRINT(", ");
+	SIM808_PRINTLN(stat);
 
 	result.n = n;
 	result.stat = stat;
