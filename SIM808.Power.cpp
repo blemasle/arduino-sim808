@@ -15,6 +15,7 @@ void SIM808::powerOnOff(bool power)
 	digitalWrite(_pwrKeyPin, LOW);
 	delay(2000);
 	digitalWrite(_pwrKeyPin, HIGH);
+	delay(150);
 }
 
 SIM808ChargingStatus SIM808::getChargingState()
