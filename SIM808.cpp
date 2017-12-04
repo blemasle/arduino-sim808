@@ -1,5 +1,7 @@
 #include "SIM808.h"
 
+SIM808_COMMAND(SET_ECHO, "ATE%d");
+
 SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 {
 	_resetPin = resetPin;
@@ -26,7 +28,7 @@ void SIM808::init()
 	delay(3000);
 
 	setEcho(SIM808_ECHO::OFF);
-	setEcho(SIM808_ECHO::OFF);
+	setEcho(SIM808_ECHO::OFF); //two times make asserts headache-less
 }
 
 void SIM808::reset()
@@ -43,12 +45,12 @@ void SIM808::waitForReady()
 {
 	do
 	{
-		SIM808_PRINTLN(F("Waiting for echo..."));
+		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
 	} while (!sendAssertResponse("AT", "AT"));
 
 	do
 	{
-		SIM808_PRINTLN(F("Waiting for RDY..."));
+		SIM808_PRINT_SIMPLE_P("Waiting for RDY...");
 		readLine(1000);
 	} while (!assertResponse("RDY"));
 
@@ -57,8 +59,7 @@ void SIM808::waitForReady()
 bool SIM808::setEcho(SIM808_ECHO mode)
 {
 	SENDARROW;
-	print("ATE");
-	print((uint8_t)mode);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_ECHO), mode);
 
 	return sendAssertResponse(_ok);
 }
@@ -66,7 +67,7 @@ bool SIM808::setEcho(SIM808_ECHO mode)
 size_t SIM808::sendCommand(const char *cmd, char *response)
 {
 	flushInput();
-	print(cmd);
+	_output.verbose(cmd);
 	sendGetResponse(response);
 	readLine(1000);
 

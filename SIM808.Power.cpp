@@ -1,5 +1,9 @@
 #include "SIM808.h"
 
+SIM808_COMMAND(GET_CHARGING_STATE, "AT+CBC");
+SIM808_COMMAND(SET_PHONE_FUNCTIONNALITY, "AT+CFUN=%d");
+SIM808_COMMAND(SET_SLOW_CLOCK, "AT+CSCLK=%d");
+
 bool SIM808::powered()
 {
 	return digitalRead(_statusPin) == HIGH;
@@ -9,8 +13,7 @@ void SIM808::powerOnOff(bool power)
 {
 	if (powered() == power) return;
 
-	SIM808_PRINT("powerOnOff :");
-	SIM808_PRINTLN(power);
+	SIM808_PRINT_P("powerOnOff: %t", power);
 
 	digitalWrite(_pwrKeyPin, LOW);
 	delay(2000);
@@ -21,11 +24,11 @@ void SIM808::powerOnOff(bool power)
 SIM808ChargingStatus SIM808::getChargingState()
 {
 	SENDARROW;
-	print("AT+CBC");
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_CHARGING_STATE));
 	send();
 
 	readLine(1000);
-	if (strstr(replyBuffer, "+CBC") == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
+	if (strstr_P(replyBuffer, PSTR("+CBC")) == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
 
 	uint8_t state;
 	uint8_t level;
@@ -42,8 +45,7 @@ SIM808ChargingStatus SIM808::getChargingState()
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 {
 	SENDARROW;
-	print("AT+CFUN=");
-	print((uint8_t)fun);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_PHONE_FUNCTIONNALITY), fun);
 
 	return sendAssertResponse(_ok, 10000);
 }
@@ -51,8 +53,7 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
 {
 	SENDARROW;
-	print("AT+CSCLK=");
-	print((uint8_t)mode);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_SLOW_CLOCK), mode);
 
 	return sendAssertResponse(_ok, 1000);
 }

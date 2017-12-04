@@ -1,5 +1,11 @@
 #include "SIM808.h"
 
+SIM808_COMMAND(SET_GPS_POWER, "AT+CGNSPWR=%d");
+SIM808_COMMAND(GET_GPS_POWER, "AT+CGNSPWR?");
+SIM808_COMMAND(GET_GPS_INFO, "AT+CGNSINF");
+
+const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF:";
+
 void shiftLeft(uint8_t i, char* str)
 {
 	uint8_t j = i;
@@ -8,13 +14,13 @@ void shiftLeft(uint8_t i, char* str)
 	while (j--) *p = *(p + sizeof(char));	
 }
 
-bool SIM808::enableGps()
+bool SIM808::enableGps() //TODO : merge enableGps & disableGps
 {
-	bool currentState = false;
+	bool currentState = true;
 	if (!getGpsPowerState(&currentState) || currentState) return false;
 
 	SENDARROW;
-	print("AT+CGNSPWR=1");
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 1);
 
 	return sendAssertResponse(_ok);
 }
@@ -25,7 +31,7 @@ bool SIM808::disableGps()
 	if (!getGpsPowerState(&currentState) || !currentState) return false;
 
 	SENDARROW;
-	print("AT+CGNSPWR=0");
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 0);
 
 	return sendAssertResponse(_ok);
 }
@@ -33,10 +39,10 @@ bool SIM808::disableGps()
 bool SIM808::getGpsPosition(char *response)
 {
 	SENDARROW;
-	print("AT+CGNSINF");
+	_output.verbose(SIM808_COMMAND_GET_GPS_INFO);
 
 	if (!sendGetResponse(response)) return false;
-	shiftLeft(strlen_PF(F("+CGNSINF:")), response);
+	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
 
 	readLine(1000);
 	if (!assertResponse(_ok)) return false;
@@ -69,10 +75,10 @@ SIM808_GPS_STATUS SIM808::getGpsStatus()
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
 	SENDARROW;
-	print("AT+CGNSINF");
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
 
 	if (!sendGetResponse(NULL)) return SIM808_GPS_STATUS::FAIL;
-	shiftLeft(strlen_PF(F("+CGNSINF:")), replyBuffer);
+	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), replyBuffer);
 
 	if (replyBuffer[0] == '0') result = SIM808_GPS_STATUS::OFF;
 	if (replyBuffer[2] == '1')
@@ -93,11 +99,11 @@ bool SIM808::getGpsPowerState(bool *state)
 {
 	uint8_t result;
 	SENDARROW;
-	print("AT+CGNSPWR?");
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_POWER));
 
 	send();
 	readLine(1000);
-	if (strstr(replyBuffer, "+CGNSPWR") == 0) return false;
+	if(strstr_P(replyBuffer, PSTR("+CGNSPWR")) == 0) return false;
 
 	if (!parseReply(',', 0, &result)) return false;
 
