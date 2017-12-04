@@ -4,6 +4,11 @@
 void SIMComAT::begin(Stream& port)
 {
 	_port = &port;
+	_output.begin(LOG_LEVEL_VERBOSE, this, false);
+#ifdef _SIM808_DEBUG
+	_debug.begin(LOG_LEVEL_VERBOSE, &Serial, false);
+#endif // _SIM808_DEBUG
+
 	init();
 }
 
@@ -18,7 +23,7 @@ void SIMComAT::send()
 	_port->println();
 }
 
-size_t SIMComAT::readLine(uint16_t timeout)
+size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	uint8_t i = 0;
 
@@ -47,7 +52,8 @@ size_t SIMComAT::readLine(uint16_t timeout)
 	replyBuffer[i] = 0; //string term
 
 	RECEIVEARROW;
-	SIM808_PRINTLN(replyBuffer);
+	SIM808_PRINT(replyBuffer);
+	SIM808_PRINT(CR);
 
 	return strlen(replyBuffer);
 }
@@ -89,24 +95,14 @@ bool SIMComAT::sendAssertResponse(const char* expectedResponse, uint16_t timeout
 
 bool SIMComAT::assertResponse(const char* expectedResponse)
 {
-	SIM808_PRINT(F("assertResponse : ["));
-	SIM808_PRINT(replyBuffer);
-	SIM808_PRINT("], [");
-	SIM808_PRINT(expectedResponse);
-	SIM808_PRINTLN("]");
+	SIM808_PRINT_P("assertResponse : [%s], [%s]", replyBuffer, expectedResponse);
 
 	return !strcasecmp(replyBuffer, expectedResponse);
 }
 
 char* SIMComAT::find(const char* str, char divider, uint8_t index)
 {
-	SIM808_PRINT("find : [");
-	SIM808_PRINT(str);
-	SIM808_PRINT(", ");
-	SIM808_PRINT(divider);
-	SIM808_PRINT(", ");
-	SIM808_PRINT(index);
-	SIM808_PRINTLN("]");
+	SIM808_PRINT_P("find : [%s, %c, %i]", str, divider, index);
 
 	char* p = strchr(str, ':');
 	if (p == NULL) return NULL;
@@ -119,15 +115,7 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index)
 		p++;
 	}
 
-	SIM808_PRINT("find : [");
-	SIM808_PRINT(str);
-	SIM808_PRINT(", ");
-	SIM808_PRINT(divider);
-	SIM808_PRINT(", ");
-	SIM808_PRINT(index);
-	SIM808_PRINT("], [");
-	SIM808_PRINT(p);
-	SIM808_PRINTLN("]");
+	SIM808_PRINT_P("find : [%s, %c, %i], [%s]", str, divider, index, p);
 
 	return p;
 }
@@ -183,19 +171,4 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, float* result
 	*result = strtod(str, NULL);
 
 	return errno == 0;
-}
-
-bool SIMComAT::parseReply(char divider, uint8_t index, uint8_t* result) 
-{
-	return parse(replyBuffer, divider, index, result);
-}
-
-bool SIMComAT::parseReply(char divider, uint8_t index, uint16_t* result) 
-{
-	return parse(replyBuffer, divider, index, result);
-}
-
-bool SIMComAT::parseReply(char divider, uint8_t index, float* result)
-{
-	return parse(replyBuffer, divider, index, result);
 }

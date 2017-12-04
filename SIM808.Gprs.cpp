@@ -1,14 +1,15 @@
 #include "SIM808.h"
 
+SIM808_COMMAND(SET_BEARER_SETTING, "AT+SAPBR=3,1,\"%s\",\"%s\"");
+SIM808_COMMAND(GPRS_START_TASK, "AT+CSTT=\"%s\"");
+SIM808_COMMAND(GET_NETWORK_REGISTRATION, "AT+CGREG?");
+
+const char SIM808_COMMAND_STRING_PARAMETER[] PROGMEM = ",\"%s\"";
+
 bool SIM808::setBearerSetting(const char* parameter, const char* value)
 {
-	SENDARROW;
-	print("AT+SAPBR=3,1,\"");
-	print(parameter);
-	print("\",\"");
-	print(value);
-	print('"');
-
+	SENDARROW;	
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_BEARER_SETTING), parameter, value); //TODO : "%S" format which act like %s but from flash => parameter from flash
 	return sendAssertResponse(_ok);
 }
 
@@ -29,20 +30,14 @@ bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 	if (!success) return false;
 
 	SENDARROW;
-	print("AT+CSTT=\"");
-	print(apn);
-	print('"');
+	_output.verbose(SIM808_COMMAND_GPRS_START_TASK, apn);
 
 	if (user) {
-		print(",\"");
-		print(user);
-		print('"');
+		_output.verbose(PSTRPTR(SIM808_COMMAND_STRING_PARAMETER), user);
 	}
 
 	if (password) {
-		print(",\"");
-		print(password);
-		print('"');
+		_output.verbose(PSTRPTR(SIM808_COMMAND_STRING_PARAMETER), password);
 	}
 
 	if (!sendAssertResponse(_ok)) return false;
@@ -68,22 +63,18 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	SIM808RegistrationStatus result = { -1, -1 };
 
 	SENDARROW;
-	print("AT+CGREG?");
+	_output.verbose(SIM808_COMMAND_GET_NETWORK_REGISTRATION);
 
 	send();
 	readLine(1000);
-	if (strstr(replyBuffer, "+CGREG") == 0) return result;
+	
+	if (strstr_P(replyBuffer, PSTR("+CGREG")) == 0) return result;
 
 	if (!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
 		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat)) return result;
 
 	readLine(1000);
 	if (!assertResponse(_ok)) return result;
-
-	SIM808_PRINT("getNetworkRegistrationStatus : ");
-	SIM808_PRINT(n);
-	SIM808_PRINT(", ");
-	SIM808_PRINTLN(stat);
 
 	result.n = n;
 	result.stat = stat;

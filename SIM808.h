@@ -2,8 +2,7 @@
 
 #include "SIMComAT.h"
 #include "SIM808_Types.h"
-
-#define BUFFER_SIZE 255
+#include "SIM808_Commands.h"
 
 class SIM808 : public SIMComAT
 {
@@ -28,7 +27,7 @@ private:
 	bool httpInit();
 	bool httpEnd();
 
-	bool setBearerSetting(const char* parameter, const char* value);
+	bool setBearerSetting(const char *parameter, const char* value);
 
 	bool getGpsPowerState(bool *state);
 
