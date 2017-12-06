@@ -8,6 +8,8 @@ SIM808_COMMAND(GET_IMEI, "AT+GSN");
 SIM808_COMMAND(SET_SMS_MESSAGE_FORMAT, "AT+CMGF=%d");
 SIM808_COMMAND(SEND_SMS, "AT+CMGS=\"%s\"");
 
+const char SIM808_COMMAND_SEND_SMS_RESPONSE[] PROGMEM = "+CMGS:";
+
 bool SIM808::simUnlock(const char* pin)
 {
 	SENDARROW;
@@ -22,7 +24,7 @@ size_t SIM808::getSimState(char *state)
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_CPIN));
 	sendGetResponse(state);
 
-	readLine(1000);
+	readLine();
 	return strlen(state);
 }
 
@@ -32,7 +34,7 @@ size_t SIM808::getImei(char *imei)
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_IMEI));
 	sendGetResponse(imei);
 
-	readLine(1000);
+	readLine();
 	return assertResponse(_ok) ?
 		strlen(imei) :
 		0;
@@ -53,7 +55,7 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SEND_SMS), addr);
 
-	if (!sendAssertResponse("> ")) return false;
+	if (!sendAssertResponse(F("> "))) return false;
 
 	SENDARROW;
 	println(msg);
@@ -61,9 +63,9 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	print((char)0x1A);
 
 	readLine(10000);
-	if (strstr_P(replyBuffer, PSTR("+CMGS")) == 0) return false;
+	if (strstr_P(replyBuffer, SIM808_COMMAND_SEND_SMS_RESPONSE) == 0) return false;
 
-	readLine(1000);
+	readLine();
 	if (!assertResponse(_ok)) return false;
 
 	return true;

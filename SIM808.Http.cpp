@@ -1,5 +1,21 @@
 #include "SIM808.h"
 
+SIM808_COMMAND(HTTP_SET_PARAMETER_STRING, "AT+HTTPPARA=\"%S\",\"%s\"");
+SIM808_COMMAND(HTTP_SET_PARAMETER_INT, "AT+HTTPPARA=\"%S\",\"%d\"");
+SIM808_COMMAND(HTTP_SET_HTTP_DATA, "AT+HTTPPARA=%d,%d");
+SIM808_COMMAND(HTTP_ACTION, "AT+HTTPACTION=%d");
+SIM808_COMMAND(HTTP_READ, "AT+HTTPREAD=%d,%d");
+SIM808_COMMAND(HTTP_INIT, "AT+HTTPINIT");
+SIM808_COMMAND(HTTP_END, "AT+HTTPTERM");
+
+SIM808_COMMAND_PARAMETER(HTTP, CONTENT);
+SIM808_COMMAND_PARAMETER(HTTP, REDIR);
+SIM808_COMMAND_PARAMETER(HTTP, CID);
+SIM808_COMMAND_PARAMETER(HTTP, URL);
+SIM808_COMMAND_PARAMETER(HTTP, UA);
+
+SIM808_TOKEN(DOWNLOAD);
+
 uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 {
 	uint16_t statusCode = 0;
@@ -19,7 +35,7 @@ uint16_t SIM808::httpPost(const char *url, const char *contentType, const char *
 	size_t dataSize = 0;
 
 	bool result = setupHttpRequest(url) &&
-		setHttpParameter("CONTENT", contentType) &&
+		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
 		setHttpBody(body) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::POST, &statusCode, &dataSize) &&
 		readHttpResponse(response, min(dataSize, responseSize)) &&
@@ -33,41 +49,34 @@ bool SIM808::setupHttpRequest(const char* url)
 	httpEnd();
 
 	return httpInit() &&
-		setHttpParameter("REDIR", 1) &&
-		setHttpParameter("CID", 1) &&
-		setHttpParameter("URL", url) &&
-		(_userAgent == NULL || setHttpParameter("UA", _userAgent));
+		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
+		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_CID), 1) &&
+		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_URL), url) &&
+		(_userAgent == NULL || setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_UA), _userAgent));
 }
 
 bool SIM808::httpInit()
 {
-	return sendAssertResponse("AT+HTTPINIT", _ok);
+	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_INIT), _ok);
 }
 
 bool SIM808::httpEnd()
 {
-	return sendAssertResponse("AT+HTTPTERM", _ok);
+	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_END), _ok);
 }
 
-bool SIM808::setHttpParameter(const char* parameter, const char* value)
+bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const char* value)
 {
 	SENDARROW;
-	print("AT+HTTPPARA=\"");
-	print(parameter);
-	print("\",\"");
-	print(value);
-	print('"');
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING), parameter, value);
 
 	return sendAssertResponse(_ok);
 }
 
-bool SIM808::setHttpParameter(const char* parameter, const int8_t value)
+bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const int8_t value)
 {
 	SENDARROW;
-	print("AT+HTTPPARA=\"");
-	print(parameter);
-	print("\",");
-	print(value);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_INT), parameter, value);
 
 	return sendAssertResponse(_ok);
 }
@@ -75,25 +84,21 @@ bool SIM808::setHttpParameter(const char* parameter, const int8_t value)
 bool SIM808::setHttpBody(const char* body)
 {
 	SENDARROW;
-	print("AT+HTTPDATA=");
-	print(strlen(body));
-	print(',');
-	print((uint16_t)10000);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_HTTP_DATA), strlen(body), (uint16_t)10000);
 
-	if (!sendAssertResponse("DOWNLOAD")) return false;
+	if (!sendAssertResponse(PSTRPTR(SIM808_TOKEN_DOWNLOAD))) return false;
 
 	SENDARROW;
 	print(body);
 
-	readLine(1000);
+	readLine();
 	return assertResponse(_ok);
 }
 
 bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
 {
 	SENDARROW;
-	print("AT+HTTPACTION=");
-	print((uint8_t)action);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_ACTION), action);
 
 	if (!sendAssertResponse(_ok)) return false;
 
@@ -106,13 +111,10 @@ bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCo
 bool SIM808::readHttpResponse(char *response, size_t responseSize)
 {
 	SENDARROW;
-	print("AT+HTTPREAD=");
-	print((uint8_t)0);
-	print(',');
-	print(responseSize);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_READ), (uint8_t)0, responseSize);
 
 	send();
-	readLine(1000);
+	readLine();
 
 	int16_t length = responseSize;
 	int16_t i = 0;
@@ -128,6 +130,6 @@ bool SIM808::readHttpResponse(char *response, size_t responseSize)
 
 	*response = '\0';
 
-	readLine(1000);
+	readLine();
 	return assertResponse(_ok);
 }

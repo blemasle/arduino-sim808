@@ -1,12 +1,26 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(SET_BEARER_SETTING, "AT+SAPBR=3,1,\"%s\",\"%s\"");
+SIM808_COMMAND(SET_BEARER_SETTING, "AT+SAPBR=3,1,\"%S\",\"%s\"");
+SIM808_COMMAND(BEARER_CLOSE, "AT+SAPBR=0,1");
+SIM808_COMMAND(BEARER_OPEN, "AT+SAPBR=1,1");
 SIM808_COMMAND(GPRS_START_TASK, "AT+CSTT=\"%s\"");
 SIM808_COMMAND(GET_NETWORK_REGISTRATION, "AT+CGREG?");
+SIM808_COMMAND(GPRS_DISABLE_CONTEXT, "AT+CIPSHUT");
+SIM808_COMMAND(GPRS_ATTACH, "AT+CGATT=1");
+SIM808_COMMAND(GPRS_DETACH, "AT+CGATT=0");
+SIM808_COMMAND(CIICR, "AT+CIICR");
+
+SIM808_COMMAND_PARAMETER(BEARER, CONTYPE);
+SIM808_COMMAND_PARAMETER(BEARER, APN);
+SIM808_COMMAND_PARAMETER(BEARER, USER);
+SIM808_COMMAND_PARAMETER(BEARER, PWD);
+
+SIM808_TOKEN_COMPLEX(SHUT_OK, "SHUT_OK");
 
 const char SIM808_COMMAND_STRING_PARAMETER[] PROGMEM = ",\"%s\"";
+const char SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE[] PROGMEM = "+CGREG:";
 
-bool SIM808::setBearerSetting(const char* parameter, const char* value)
+bool SIM808::setBearerSetting(const __FlashStringHelper* parameter, const char* value)
 {
 	SENDARROW;	
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_BEARER_SETTING), parameter, value); //TODO : "%S" format which act like %s but from flash => parameter from flash
@@ -20,12 +34,12 @@ bool SIM808::enableGprs(const char *apn)
 
 bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 {
-	bool success = sendAssertResponse("AT+CIPSHUT", "SHUT OK", 65000) &&
-		sendAssertResponse("AT+CGATT=1", _ok, 10000) &&
-		setBearerSetting("CONTYPE", "GPRS") &&
-		setBearerSetting("APN", apn) &&
-		(user == NULL || setBearerSetting("USER", user)) &&
-		(password == NULL || setBearerSetting("PWD", password));
+	bool success = sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DISABLE_CONTEXT), PSTRPTR(SIM808_TOKEN_SHUT_OK), 65000) &&
+		sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_ATTACH), _ok, 10000) &&
+		setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_CONTYPE), "GPRS") &&
+		setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_APN), apn) &&
+		(user == NULL || setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_USER), user)) &&
+		(password == NULL || setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_PWD), password));
 
 	if (!success) return false;
 
@@ -42,16 +56,16 @@ bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 
 	if (!sendAssertResponse(_ok)) return false;
 
-	return sendAssertResponse("AT+SAPBR=1,1", _ok, 65000) &&
-		sendAssertResponse("AT+CIICR", _ok, 65000);
+	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_BEARER_OPEN), _ok, 65000) &&
+		sendAssertResponse(PSTRPTR(SIM808_COMMAND_CIICR), _ok, 65000);
 
 }
 
 bool SIM808::disableGprs()
 {
-	sendAssertResponse("AT+CIPSHUT", "SHUT OK", 65000);
-	sendAssertResponse("AT+SAPBR=0,1", _ok, 65000);
-	sendAssertResponse("AT+CGATT=0", _ok, 10000);
+	sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DISABLE_CONTEXT), PSTRPTR(SIM808_TOKEN_SHUT_OK), 65000);
+	sendAssertResponse(PSTRPTR(SIM808_COMMAND_BEARER_CLOSE), _ok, 65000);
+	sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DETACH), _ok, 10000);
 
 	return true;
 }
@@ -66,14 +80,14 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	_output.verbose(SIM808_COMMAND_GET_NETWORK_REGISTRATION);
 
 	send();
-	readLine(1000);
+	readLine();
 	
-	if (strstr_P(replyBuffer, PSTR("+CGREG")) == 0) return result;
+	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE) == 0) return result;
 
 	if (!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
 		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat)) return result;
 
-	readLine(1000);
+	readLine();
 	if (!assertResponse(_ok)) return result;
 
 	result.n = n;

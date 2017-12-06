@@ -47,13 +47,14 @@ protected:
 	void send();
 
 	size_t readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
+	size_t sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT); //TODO : use templates (like ArduinoLog) ?
 	size_t sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 	size_t sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 
-	bool sendAssertResponse(const char* msg, const char* expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	bool sendAssertResponse(const char* expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
+	bool sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
+	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 
-	bool assertResponse(const char* expectedResponse);
+	bool assertResponse(const __FlashStringHelper *expectedResponse);
 
 	bool parse(const char* str, char divider, uint8_t index, uint8_t* result);
 	bool parse(const char* str, char divider, uint8_t index, int8_t* result);

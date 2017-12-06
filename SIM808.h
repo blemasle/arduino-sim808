@@ -11,7 +11,7 @@ private:
 	uint8_t _statusPin;
 	uint8_t _pwrKeyPin;
 
-	const char* _ok;
+	const __FlashStringHelper *_ok;
 	const char* _userAgent;
 
 	int16_t _httpTimeout = 10000;
@@ -21,13 +21,13 @@ private:
 	bool setupHttpRequest(const char* url);
 	bool fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize);
 	bool readHttpResponse(char *response, size_t responseSize);
-	bool setHttpParameter(const char* parameter, const char* value);
-	bool setHttpParameter(const char* parameter, const int8_t value);
+	bool setHttpParameter(const __FlashStringHelper* parameter, const char* value);
+	bool setHttpParameter(const __FlashStringHelper* parameter, const int8_t value);
 	bool setHttpBody(const char* body);
 	bool httpInit();
 	bool httpEnd();
 
-	bool setBearerSetting(const char *parameter, const char* value);
+	bool setBearerSetting(const __FlashStringHelper *parameter, const char* value);
 
 	bool getGpsPowerState(bool *state);
 

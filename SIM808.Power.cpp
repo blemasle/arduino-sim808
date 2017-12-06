@@ -4,6 +4,9 @@ SIM808_COMMAND(GET_CHARGING_STATE, "AT+CBC");
 SIM808_COMMAND(SET_PHONE_FUNCTIONNALITY, "AT+CFUN=%d");
 SIM808_COMMAND(SET_SLOW_CLOCK, "AT+CSCLK=%d");
 
+const char SIM808_COMMAND_GET_CHARGING_STATE_RESPONSE[] PROGMEM = "+CBC:";
+
+
 bool SIM808::powered()
 {
 	return digitalRead(_statusPin) == HIGH;
@@ -27,8 +30,8 @@ SIM808ChargingStatus SIM808::getChargingState()
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_CHARGING_STATE));
 	send();
 
-	readLine(1000);
-	if (strstr_P(replyBuffer, PSTR("+CBC")) == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
+	readLine();
+	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_CHARGING_STATE_RESPONSE) == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
 
 	uint8_t state;
 	uint8_t level;
@@ -36,7 +39,7 @@ SIM808ChargingStatus SIM808::getChargingState()
 	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state);
 	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level);
 
-	readLine(1000);
+	readLine();
 	if (!assertResponse(_ok)) return { SIM808_CHARGING_STATE::ERROR, 0 };
 
 	return { (SIM808_CHARGING_STATE)state, level };
