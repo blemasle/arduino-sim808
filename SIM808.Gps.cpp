@@ -5,6 +5,7 @@ SIM808_COMMAND(GET_GPS_POWER, "AT+CGNSPWR?");
 SIM808_COMMAND(GET_GPS_INFO, "AT+CGNSINF");
 
 const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF:";
+const char SIM808_COMMAND_GET_GPS_POWER_RESPONSE[] PROGMEM = "+CGNSPWR:";
 
 void shiftLeft(uint8_t i, char* str)
 {
@@ -44,7 +45,7 @@ bool SIM808::getGpsPosition(char *response)
 	if (!sendGetResponse(response)) return false;
 	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
 
-	readLine(1000);
+	readLine();
 	if (!assertResponse(_ok)) return false;
 
 	return true;
@@ -89,7 +90,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus()
 			SIM808_GPS_STATUS::FIX;
 	}
 
-	readLine(1000);
+	readLine();
 	if (!assertResponse(_ok)) return SIM808_GPS_STATUS::FAIL;
 
 	return result;
@@ -102,13 +103,13 @@ bool SIM808::getGpsPowerState(bool *state)
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_POWER));
 
 	send();
-	readLine(1000);
-	if(strstr_P(replyBuffer, PSTR("+CGNSPWR")) == 0) return false;
+	readLine();
+	if(strstr_P(replyBuffer, SIM808_COMMAND_GET_GPS_INFO_RESPONSE) == 0) return false;
 
 	if (!parseReply(',', 0, &result)) return false;
 
 	*state = result;
 
-	readLine(1000);
+	readLine();
 	return assertResponse(_ok);
 }

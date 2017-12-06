@@ -2,12 +2,15 @@
 
 SIM808_COMMAND(SET_ECHO, "ATE%d");
 
+SIM808_TOKEN(RDY);
+SIM808_TOKEN(AT);
+
 SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 {
 	_resetPin = resetPin;
 	_pwrKeyPin = pwrKeyPin;
 	_statusPin = statusPin;
-	_ok = "OK";
+	_ok = PSTRPTR(SIM808_TOKEN_OK);
 
 	pinMode(_resetPin, OUTPUT);
 	pinMode(_pwrKeyPin, OUTPUT);
@@ -46,13 +49,13 @@ void SIM808::waitForReady()
 	do
 	{
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
-	} while (!sendAssertResponse("AT", "AT"));
+	} while (!sendAssertResponse(PSTRPTR(SIM808_TOKEN_AT), PSTRPTR(SIM808_TOKEN_AT)));
 
 	do
 	{
 		SIM808_PRINT_SIMPLE_P("Waiting for RDY...");
-		readLine(1000);
-	} while (!assertResponse("RDY"));
+		readLine();
+	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_RDY)));
 
 }
 
@@ -69,7 +72,7 @@ size_t SIM808::sendCommand(const char *cmd, char *response)
 	flushInput();
 	_output.verbose(cmd);
 	sendGetResponse(response);
-	readLine(1000);
+	readLine();
 
 	return strlen(response);
 }

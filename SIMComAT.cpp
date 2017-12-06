@@ -58,6 +58,13 @@ size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 	return strlen(replyBuffer);
 }
 
+size_t SIMComAT::sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+{
+	SENDARROW;
+	print(msg);
+	return sendGetResponse(response, timeout);
+}
+
 size_t SIMComAT::sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	SENDARROW;
@@ -81,23 +88,22 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 	return len;
 }
 
-bool SIMComAT::sendAssertResponse(const char* msg, const char* expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+bool SIMComAT::sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	if (!sendGetResponse(msg, NULL, timeout)) return false;
 	return assertResponse(expectedResponse);
 }
 
-bool SIMComAT::sendAssertResponse(const char* expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+bool SIMComAT::sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	if (!sendGetResponse(NULL, timeout)) return false;
 	return assertResponse(expectedResponse);
 }
 
-bool SIMComAT::assertResponse(const char* expectedResponse)
+bool SIMComAT::assertResponse(const __FlashStringHelper *expectedResponse)
 {
-	SIM808_PRINT_P("assertResponse : [%s], [%s]", replyBuffer, expectedResponse);
-
-	return !strcasecmp(replyBuffer, expectedResponse);
+	SIM808_PRINT_P("assertResponse : [%s], [%S]", replyBuffer, expectedResponse);
+	return !strcasecmp_P(replyBuffer, (char *)expectedResponse);
 }
 
 char* SIMComAT::find(const char* str, char divider, uint8_t index)
