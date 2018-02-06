@@ -38,11 +38,12 @@ SIM808ChargingStatus SIM808::getChargingState()
 	uint16_t voltage;
 	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state);
 	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level);
+	parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage);
 
 	readLine();
 	if (!assertResponse(_ok)) return { SIM808_CHARGING_STATE::ERROR, 0 };
 
-	return { (SIM808_CHARGING_STATE)state, level };
+	return { (SIM808_CHARGING_STATE)state, level, voltage };
 }
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
