@@ -12,9 +12,9 @@ bool SIM808::powered()
 	return digitalRead(_statusPin) == HIGH;
 }
 
-void SIM808::powerOnOff(bool power)
+bool SIM808::powerOnOff(bool power)
 {
-	if (powered() == power) return;
+	if (powered() == power) return false;
 
 	SIM808_PRINT_P("powerOnOff: %t", power);
 
@@ -22,6 +22,8 @@ void SIM808::powerOnOff(bool power)
 	delay(2000);
 	digitalWrite(_pwrKeyPin, HIGH);
 	delay(150);
+
+	return true;
 }
 
 SIM808ChargingStatus SIM808::getChargingState()

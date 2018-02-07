@@ -6,6 +6,7 @@ SIM808_COMMAND(BEARER_OPEN, "AT+SAPBR=1,1");
 SIM808_COMMAND(GPRS_START_TASK, "AT+CSTT=\"%s\"");
 SIM808_COMMAND(GET_NETWORK_REGISTRATION, "AT+CGREG?");
 SIM808_COMMAND(GPRS_DISABLE_CONTEXT, "AT+CIPSHUT");
+SIM808_COMMAND(GET_GPRS_STATE, "AT+CGATT?");
 SIM808_COMMAND(GPRS_ATTACH, "AT+CGATT=1");
 SIM808_COMMAND(GPRS_DETACH, "AT+CGATT=0");
 SIM808_COMMAND(CIICR, "AT+CIICR");
@@ -19,12 +20,31 @@ SIM808_TOKEN_COMPLEX(SHUT_OK, "SHUT_OK");
 
 const char SIM808_COMMAND_STRING_PARAMETER[] PROGMEM = ",\"%s\"";
 const char SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE[] PROGMEM = "+CGREG:";
+const char SIM808_COMMAND_GET_GPRS_STATE_RESPONSE[] PROGMEM = "+CGATT:";
 
 bool SIM808::setBearerSetting(const __FlashStringHelper* parameter, const char* value)
 {
 	SENDARROW;	
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_BEARER_SETTING), parameter, value); //TODO : "%S" format which act like %s but from flash => parameter from flash
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_BEARER_SETTING), parameter, value);
 	return sendAssertResponse(_ok);
+}
+
+bool SIM808::getGprsPowerState(bool *state)
+{
+	uint8_t result;
+	SENDARROW;
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPRS_STATE));
+
+	send();
+	readLine();
+	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_GPRS_STATE_RESPONSE) == 0) return false;
+
+	if (!parseReply(',', 0, &result)) return false;
+
+	*state = result;
+
+	readLine();
+	return assertResponse(_ok);
 }
 
 bool SIM808::enableGprs(const char *apn)

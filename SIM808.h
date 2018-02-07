@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SIMComAT.h"
-#include "SIM808_Types.h"
-#include "SIM808_Commands.h"
+#include <SIMComAT.h>
+#include <SIM808_Types.h>
+#include <SIM808_Commands.h>
 
 class SIM808 : public SIMComAT
 {
@@ -29,14 +29,12 @@ private:
 
 	bool setBearerSetting(const __FlashStringHelper *parameter, const char* value);
 
-	bool getGpsPowerState(bool *state);
-
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
 	~SIM808();	
 
 	bool powered();
-	void powerOnOff(bool power);
+	bool powerOnOff(bool power);
 	SIM808ChargingStatus getChargingState();
 
 	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
@@ -55,16 +53,19 @@ public:
 	bool setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format);
 	bool sendSms(const char* addr, const char* msg);
 
+	bool getGprsPowerState(bool *state);
 	bool enableGprs(const char* apn);
 	bool enableGprs(const char* apn, const char* user, const char *password);
 	bool disableGprs();
 	SIM808RegistrationStatus getNetworkRegistrationStatus();
 
+	bool getGpsPowerState(bool *state);
 	bool enableGps();
 	bool disableGps();
 	SIM808_GPS_STATUS getGpsStatus();
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result);
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, float* result);
+	void getGpsField(const char* response, SIM808_GPS_FIELD field, char* result);
 	bool getGpsPosition(char* response);
 
 

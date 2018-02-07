@@ -33,7 +33,6 @@ class SIMComAT : public Stream
 {
 private:
 
-	char* find(const char* str, char divider, uint8_t index); //TODO : rename
 protected:
 	Stream* _port;
 	Logging _output;
@@ -55,6 +54,8 @@ protected:
 	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 
 	bool assertResponse(const __FlashStringHelper *expectedResponse);
+
+	char* find(const char* str, char divider, uint8_t index); //TODO : rename
 
 	bool parse(const char* str, char divider, uint8_t index, uint8_t* result);
 	bool parse(const char* str, char divider, uint8_t index, int8_t* result);
