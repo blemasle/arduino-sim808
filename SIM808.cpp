@@ -26,9 +26,11 @@ SIM808::~SIM808() { }
 
 void SIM808::init()
 {
+	SIM808_PRINT_SIMPLE_P("Init...");
+
 	reset();
 	waitForReady();
-	delay(3000);
+	delay(1500);
 
 	setEcho(SIM808_ECHO::OFF);
 	setEcho(SIM808_ECHO::OFF); //two times make asserts headache-less
