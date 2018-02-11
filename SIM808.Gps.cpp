@@ -109,7 +109,7 @@ bool SIM808::getGpsPowerState(bool *state)
 
 	send();
 	readLine();
-	if(strstr_P(replyBuffer, SIM808_COMMAND_GET_GPS_INFO_RESPONSE) == 0) return false;
+	if(strstr_P(replyBuffer, SIM808_COMMAND_GET_GPS_POWER_RESPONSE) == 0) return false;
 
 	if (!parseReply(',', 0, &result)) return false;
 
