@@ -49,7 +49,10 @@ void SIM808::waitForReady()
 	do
 	{
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
-	} while (!sendAssertResponse(PSTRPTR(SIM808_TOKEN_AT), PSTRPTR(SIM808_TOKEN_AT)));
+		sendGetResponse(PSTRPTR(SIM808_TOKEN_AT), NULL);
+
+		if (assertResponse(PSTRPTR(SIM808_TOKEN_RDY))) return;
+	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_AT)));
 
 	do
 	{
