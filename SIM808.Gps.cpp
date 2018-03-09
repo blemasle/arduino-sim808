@@ -51,9 +51,10 @@ bool SIM808::getGpsPosition(char *response)
 	return true;
 }
 
-void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char* result) 
+void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** result) 
 {
-	result = find(response, ',', (uint8_t)field);
+	char *pTmp = find(response, ',', (uint8_t)field);
+	*result = pTmp;
 }
 
 bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result)

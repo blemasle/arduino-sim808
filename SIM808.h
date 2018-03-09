@@ -65,7 +65,7 @@ public:
 	SIM808_GPS_STATUS getGpsStatus();
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result);
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, float* result);
-	void getGpsField(const char* response, SIM808_GPS_FIELD field, char* result);
+	void getGpsField(const char* response, SIM808_GPS_FIELD field, char** result);
 	bool getGpsPosition(char* response);
 
 
