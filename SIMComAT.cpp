@@ -81,7 +81,7 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 	if (response != NULL) {
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
 
-		strncpy(response, replyBuffer, maxLen);
+		strlcpy(response, replyBuffer, maxLen);
 		response[maxLen] = '\0';
 	}
 
@@ -111,7 +111,7 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index)
 	SIM808_PRINT_P("find : [%s, %c, %i]", str, divider, index);
 
 	char* p = strchr(str, ':');
-	if (p == NULL) return NULL;
+	if (p == NULL) p = strchr(str, str[0]); //ditching eventual response header
 
 	p++;
 	for (uint8_t i = 0; i < index; i++)
