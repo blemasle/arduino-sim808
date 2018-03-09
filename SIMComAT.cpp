@@ -82,7 +82,6 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
 
 		strlcpy(response, replyBuffer, maxLen);
-		response[maxLen] = '\0';
 	}
 
 	return len;
