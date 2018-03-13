@@ -94,7 +94,7 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 {
 	uint8_t n;
 	uint8_t stat;
-	SIM808RegistrationStatus result = { -1, -1 };
+	SIM808RegistrationStatus result = { -1, SIM808_NETWORK_REGISTRATION_STATE::ERROR };
 
 	SENDARROW;
 	_output.verbose(SIM808_COMMAND_GET_NETWORK_REGISTRATION);
@@ -111,7 +111,7 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	if (!assertResponse(_ok)) return result;
 
 	result.n = n;
-	result.stat = stat;
+	result.stat = (SIM808_NETWORK_REGISTRATION_STATE)stat;
 
 	return result;
 }
