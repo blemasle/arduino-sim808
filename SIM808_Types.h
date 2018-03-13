@@ -85,10 +85,21 @@ enum class SIM808_CHARGING_STATE : int8_t
 	CHARGING_DONE = 2
 };
 
+enum class SIM808_NETWORK_REGISTRATION_STATE : int8_t
+{
+	ERROR = -1,
+	NOT_SEARCHING = 0,
+	REGISTERED = 1,
+	SEARCHING  = 2,
+	DENIED = 3,
+	UNKNOWN = 4,
+	ROAMING = 5
+};
+
 struct SIM808RegistrationStatus
 {
 	uint8_t n;
-	uint8_t stat;
+	SIM808_NETWORK_REGISTRATION_STATE stat;
 };
 
 struct SIM808ChargingStatus
