@@ -8,8 +8,6 @@ void SIMComAT::begin(Stream& port)
 #ifdef _SIM808_DEBUG
 	_debug.begin(LOG_LEVEL_VERBOSE, &Serial, false);
 #endif // _SIM808_DEBUG
-
-	init();
 }
 
 void SIMComAT::flushInput()
