@@ -13,7 +13,6 @@ void SIMComAT::begin(Stream& port)
 void SIMComAT::flushInput()
 {
 	while (available() || (delay(100), available())) {
-
 		readLine();
 	}
 }
@@ -26,35 +25,40 @@ void SIMComAT::send()
 
 size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
-	uint8_t i = 0;
+	uint16_t originalTimeout = timeout;
+	do {
 
-	while (timeout-- && i < BUFFER_SIZE)
-	{
-		while (available())
+		uint8_t i = 0;
+		timeout = originalTimeout;
+
+		while (timeout-- && i < BUFFER_SIZE)
 		{
-			char c = read();
-			if (c == '\r') continue;
-			if (c == '\n')
+			while (available())
 			{
-				if (i == 0) continue; //beginning of a new line
-				else //end of the line
+				char c = read();
+				if (c == '\r') continue;
+				if (c == '\n')
 				{
-					timeout = 0;
-					break;
+					if (i == 0) continue; //beginning of a new line
+					else //end of the line
+					{
+						timeout = 0;
+						break;
+					}
 				}
+				replyBuffer[i] = c;
+				i++;
 			}
-			replyBuffer[i] = c;
-			i++;
+
+			delay(1);
 		}
 
-		delay(1);
-	}
+		replyBuffer[i] = 0; //string term
 
-	replyBuffer[i] = 0; //string term
-
-	RECEIVEARROW;
-	SIM808_PRINT(replyBuffer);
-	SIM808_PRINT(CR);
+		RECEIVEARROW;
+		SIM808_PRINT(replyBuffer);
+		SIM808_PRINT(CR);
+	} while (strstr_P(replyBuffer, PSTR("OVER-VOLTAGE")) != NULL); //discard over voltage warnings
 
 	delay(100);
 	return strlen(replyBuffer);
