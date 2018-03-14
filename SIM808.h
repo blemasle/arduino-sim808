@@ -21,6 +21,7 @@ private:
 	bool setupHttpRequest(const char* url);
 	bool fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize);
 	bool readHttpResponse(char *response, size_t responseSize);
+	bool setHttpParameter(const __FlashStringHelper* parameter, const __FlashStringHelper* value);
 	bool setHttpParameter(const __FlashStringHelper* parameter, const char* value);
 	bool setHttpParameter(const __FlashStringHelper* parameter, const int8_t value);
 	bool setHttpBody(const char* body);
@@ -72,6 +73,6 @@ public:
 
 
 	uint16_t httpGet(const char* url, char* response, size_t responseSize);
-	uint16_t httpPost(const char* url, const char* contentType, const char* body, char* response, size_t responseSize);	
+	uint16_t httpPost(const char* url, const __FlashStringHelper* contentType, const char* body, char* response, size_t responseSize);	
 };
 
