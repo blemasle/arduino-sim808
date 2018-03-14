@@ -69,7 +69,7 @@ protected:
 	bool parseReply(char divider, uint8_t index, int16_t* result) { return parse(replyBuffer, divider, index, result); }
 	bool parseReply(char divider, uint8_t index, float* result) { return parse(replyBuffer, divider, index, result); }
 
-	virtual void init();
+	virtual void init()=0;
 public:	
 	void begin(Stream& port);
 
