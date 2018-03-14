@@ -53,7 +53,17 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_PHONE_FUNCTIONNALITY), fun);
 
-	return sendAssertResponse(_ok, 10000);
+	//TODO : refactor send etc to allow for such things
+	send();
+	//ditching URC given back by this command
+	readLine(10000);
+	if (assertResponse(_ok)) return true;
+
+	while (readLine(1000)) {
+		if (assertResponse(_ok)) return true;
+
+	}
+	return false;
 }
 
 bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
