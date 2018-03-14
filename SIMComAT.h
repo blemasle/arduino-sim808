@@ -26,7 +26,7 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 #define SENDARROW
 #endif // _DEBUG
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 128
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
 class SIMComAT : public Stream
