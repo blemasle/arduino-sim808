@@ -16,7 +16,7 @@ SIM808_COMMAND_PARAMETER(BEARER, APN);
 SIM808_COMMAND_PARAMETER(BEARER, USER);
 SIM808_COMMAND_PARAMETER(BEARER, PWD);
 
-SIM808_TOKEN_COMPLEX(SHUT_OK, "SHUT_OK");
+SIM808_TOKEN_COMPLEX(SHUT_OK, "SHUT OK");
 
 const char SIM808_COMMAND_STRING_PARAMETER[] PROGMEM = ",\"%s\"";
 const char SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE[] PROGMEM = "+CGREG:";
@@ -64,7 +64,7 @@ bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 	if (!success) return false;
 
 	SENDARROW;
-	_output.verbose(SIM808_COMMAND_GPRS_START_TASK, apn);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GPRS_START_TASK), apn);
 
 	if (user) {
 		_output.verbose(PSTRPTR(SIM808_COMMAND_STRING_PARAMETER), user);
@@ -97,7 +97,7 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	SIM808RegistrationStatus result = { -1, SIM808_NETWORK_REGISTRATION_STATE::ERROR };
 
 	SENDARROW;
-	_output.verbose(SIM808_COMMAND_GET_NETWORK_REGISTRATION);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_NETWORK_REGISTRATION));
 
 	send();
 	readLine();
