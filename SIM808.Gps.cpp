@@ -40,7 +40,7 @@ bool SIM808::disableGps()
 bool SIM808::getGpsPosition(char *response)
 {
 	SENDARROW;
-	_output.verbose(SIM808_COMMAND_GET_GPS_INFO);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
 
 	if (!sendGetResponse(response)) return false;
 	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
