@@ -36,6 +36,12 @@ enum class SIM808_REGISTRATION_STATUS_RESPONSE : uint8_t
 	CI = 3
 };
 
+enum class SIM808_SIGNAL_QUALITY_RESPONSE : uint8_t
+{
+	SIGNAL_STRENGTH = 0,
+	BIT_ERROR_RATE = 1
+};
+
 enum class SIM808_PHONE_FUNCTIONALITY : uint8_t
 {
 	MINIMUM = 0,
@@ -94,6 +100,13 @@ enum class SIM808_NETWORK_REGISTRATION_STATE : int8_t
 	DENIED = 3,
 	UNKNOWN = 4,
 	ROAMING = 5
+};
+
+struct SIM808SignalQualityReport
+{
+	uint8_t ssri;
+	uint8_t ber;
+	int8_t attenuation;
 };
 
 struct SIM808RegistrationStatus

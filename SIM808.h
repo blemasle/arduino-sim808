@@ -50,6 +50,8 @@ public:
 	size_t getSimState(char* state);
 	size_t getImei(char* imei);
 
+	SIM808SignalQualityReport getSignalQuality();
+
 	bool setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format);
 	bool sendSms(const char* addr, const char* msg);
 

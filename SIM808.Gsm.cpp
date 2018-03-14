@@ -5,10 +5,13 @@ SIM808_COMMAND(GET_CPIN, "AT+CPIN?");
 
 SIM808_COMMAND(GET_IMEI, "AT+GSN");
 
+SIM808_COMMAND(GET_SIGNAL_QUALITY, "AT+CSQ");
+
 SIM808_COMMAND(SET_SMS_MESSAGE_FORMAT, "AT+CMGF=%d");
 SIM808_COMMAND(SEND_SMS, "AT+CMGS=\"%s\"");
 
 const char SIM808_COMMAND_SEND_SMS_RESPONSE[] PROGMEM = "+CMGS:";
+const char SIM808_COMMAND_GET_SIGNAL_QUALITY_RESPONSE[] PROGMEM = "+CSQ:";
 
 bool SIM808::simUnlock(const char* pin)
 {
@@ -38,6 +41,34 @@ size_t SIM808::getImei(char *imei)
 	return assertResponse(_ok) ?
 		strlen(imei) :
 		0;
+}
+
+SIM808SignalQualityReport SIM808::getSignalQuality()
+{
+	SIM808SignalQualityReport report = {99, 99, 1};
+	SENDARROW;
+	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_SIGNAL_QUALITY));
+
+	send();
+	readLine();
+
+	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_SIGNAL_QUALITY_RESPONSE) == 0) return report;
+
+	uint8_t quality;
+	uint8_t errorRate;
+	if (!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
+		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate)) return report;
+
+	report.ssri = quality;
+	report.ber = errorRate;
+
+	if (quality == 0) report.attenuation = -115;
+	else if (quality == 1) report.attenuation = -111;
+	else if (quality == 31) report.attenuation = -52;
+	else if (quality > 31) report.attenuation = 1;
+	else report.attenuation = map(quality, 2, 30, -110, -54);
+
+	return report;
 }
 
 bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
