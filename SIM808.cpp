@@ -56,11 +56,11 @@ void SIM808::waitForReady()
 		if (assertResponse(PSTRPTR(SIM808_TOKEN_RDY))) return;
 	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_AT)));
 
-	do
-	{
-		SIM808_PRINT_SIMPLE_P("Waiting for RDY...");
-		readLine();
-	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_RDY)));
+	//do
+	//{
+	//	SIM808_PRINT_SIMPLE_P("Waiting for RDY...");
+	//	readLine();
+	//} while (!assertResponse(PSTRPTR(SIM808_TOKEN_RDY)));
 
 }
 
