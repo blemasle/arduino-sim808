@@ -1,8 +1,9 @@
 #include "SIM808.h"
 
 SIM808_COMMAND(HTTP_SET_PARAMETER_STRING, "AT+HTTPPARA=\"%S\",\"%s\"");
+SIM808_COMMAND(HTTP_SET_PARAMETER_STRING_PROGMEM, "AT+HTTPPARA=\"%S\",\"%S\"");
 SIM808_COMMAND(HTTP_SET_PARAMETER_INT, "AT+HTTPPARA=\"%S\",\"%d\"");
-SIM808_COMMAND(HTTP_SET_HTTP_DATA, "AT+HTTPPARA=%d,%d");
+SIM808_COMMAND(HTTP_SET_HTTP_DATA, "AT+HTTPDATA=%d,%d");
 SIM808_COMMAND(HTTP_ACTION, "AT+HTTPACTION=%d");
 SIM808_COMMAND(HTTP_READ, "AT+HTTPREAD=%d,%d");
 SIM808_COMMAND(HTTP_INIT, "AT+HTTPINIT");
@@ -29,7 +30,7 @@ uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 	return statusCode;
 }
 
-uint16_t SIM808::httpPost(const char *url, const char *contentType, const char *body, char *response, size_t responseSize)
+uint16_t SIM808::httpPost(const char *url, const __FlashStringHelper *contentType, const char *body, char *response, size_t responseSize)
 {
 	uint16_t statusCode = 0;
 	size_t dataSize = 0;
@@ -63,6 +64,14 @@ bool SIM808::httpInit()
 bool SIM808::httpEnd()
 {
 	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_END), _ok);
+}
+
+bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const __FlashStringHelper* value)
+{
+	SENDARROW;
+	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING_PROGMEM), parameter, value);
+
+	return sendAssertResponse(_ok);
 }
 
 bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const char* value)
