@@ -12,7 +12,10 @@ void SIMComAT::begin(Stream& port)
 
 void SIMComAT::flushInput()
 {
-	while (available()) read();
+	while (available() || (delay(100), available())) {
+
+		readLine();
+	}
 }
 
 void SIMComAT::send() 
@@ -53,6 +56,7 @@ size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 	SIM808_PRINT(replyBuffer);
 	SIM808_PRINT(CR);
 
+	delay(100);
 	return strlen(replyBuffer);
 }
 
