@@ -4,15 +4,19 @@ SIM808_COMMAND(SET_GPS_POWER, "AT+CGNSPWR=%d");
 SIM808_COMMAND(GET_GPS_POWER, "AT+CGNSPWR?");
 SIM808_COMMAND(GET_GPS_INFO, "AT+CGNSINF");
 
-const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF:";
+const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF: ";
 const char SIM808_COMMAND_GET_GPS_POWER_RESPONSE[] PROGMEM = "+CGNSPWR:";
 
-void shiftLeft(uint8_t i, char* str)
+void shiftLeft(uint8_t shift, char* str)
 {
-	uint8_t j = i;
-	char* p = str;
+	uint8_t i = shift;
+	uint8_t len = strlen(str);
 
-	while (j--) *p = *(p + sizeof(char));	
+	for (uint8_t i = 0; i < len - shift; i++) {
+		str[i] = str[i + shift];
+	}
+
+	str[len - shift] = '\0';
 }
 
 bool SIM808::enableGps() //TODO : merge enableGps & disableGps
