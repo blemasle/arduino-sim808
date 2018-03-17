@@ -9,7 +9,7 @@
 const char ARROW_LEFT[] PROGMEM = "<--";
 const char ARROW_RIGHT[] PROGMEM = "-->";
 
-#ifdef _SIM808_DEBUG
+#if _SIM808_DEBUG
 #define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 #define SIM808_PRINT_CHAR(x) Serial.print((char)x)
 #define SIM808_PRINT_P(fmt, ...) _debug.verbose(F(fmt "\n"), __VA_ARGS__)
@@ -18,7 +18,7 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 #define RECEIVEARROW _debug.verbose(PSTRPTR(ARROW_LEFT))
 #define SENDARROW _debug.verbose(PSTRPTR(ARROW_RIGHT))
 #else
-#define SIM808_PRINT(x)
+#define SIM808_PRINT(...)
 #define SIM808_PRINT_CHAR(x)
 #define SIM808_PRINT_P(x, ...)
 #define SIM808_PRINT_SIMPLE_P(x)
@@ -36,7 +36,7 @@ private:
 protected:
 	Stream* _port;
 	Logging _output;
-#ifdef _SIM808_DEBUG
+#if _SIM808_DEBUG
 	Logging _debug;
 #endif
 
