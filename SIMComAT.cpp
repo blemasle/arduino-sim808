@@ -5,7 +5,7 @@ void SIMComAT::begin(Stream& port)
 {
 	_port = &port;
 	_output.begin(LOG_LEVEL_VERBOSE, this, false);
-#ifdef _SIM808_DEBUG
+#if _SIM808_DEBUG
 	_debug.begin(LOG_LEVEL_VERBOSE, &Serial, false);
 #endif // _SIM808_DEBUG
 }
