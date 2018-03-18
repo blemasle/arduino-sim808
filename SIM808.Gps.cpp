@@ -63,8 +63,7 @@ void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** re
 
 bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result)
 {
-	if (field != SIM808_GPS_FIELD::GNSS_USED &&
-		field != SIM808_GPS_FIELD::GPS_IN_VIEW) return false;
+	if (field < SIM808_GPS_FIELD::ALTITUDE) return false; //using parse as a rough float values truncating
 
 	parse(response, ',', (uint8_t)field, result);
 	return true;

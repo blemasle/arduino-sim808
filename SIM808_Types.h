@@ -63,8 +63,9 @@ enum class SIM808_GPS_FIELD : uint8_t
 	UTC = 2,
 	LATITUDE = 3,
 	LONGITUDE = 4,
-	SPEED = 5,
-	COURSE = 6,
+	ALTITUDE = 5,
+	SPEED = 6,
+	COURSE = 7,
 	GPS_IN_VIEW = 14,
 	GNSS_USED = 15
 };
