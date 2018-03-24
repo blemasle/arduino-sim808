@@ -42,8 +42,9 @@ enum class SIM808_SIGNAL_QUALITY_RESPONSE : uint8_t
 	BIT_ERROR_RATE = 1
 };
 
-enum class SIM808_PHONE_FUNCTIONALITY : uint8_t
+enum class SIM808_PHONE_FUNCTIONALITY : int8_t
 {
+	FAIL = -1,
 	MINIMUM = 0,
 	FULL = 1,
 	DISABLED = 4

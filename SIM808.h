@@ -38,6 +38,7 @@ public:
 	bool powerOnOff(bool power);
 	SIM808ChargingStatus getChargingState();
 
+	SIM808_PHONE_FUNCTIONALITY getPhoneFunctionality();
 	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
 	bool setSlowClock(SIM808_SLOW_CLOCK mode);
 
