@@ -90,7 +90,7 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 
 	SENDARROW;
 	println(msg);
-	println();
+	flushInput(); //flushing all "> " that might have come because of a multiline message
 	print((char)0x1A);
 
 	readLine(10000);
