@@ -1,9 +1,8 @@
 #include "MainExample.h"
 #include "SIM808.h"
 
-SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
-SoftwareSerial *fonaSerial = &fonaSS;
-SIM808 sim = SIM808(FONA_RST);
+SoftwareSerial simSerial = SoftwareSerial(7, 6);
+SIM808 sim = SIM808(5, 9, 8);
 bool first = true;
 char buffer[512];
 
@@ -20,6 +19,12 @@ int freeRam()
 	extern int __heap_start, *__brkval;
 	int v;
 	return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
+}
+
+bool isAvailable(SIM808_NETWORK_REGISTRATION_STATE state) {
+	return static_cast<int8_t>(state) &
+		(static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::REGISTERED) | static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::ROAMING))
+		!= 0;
 }
 
 // the setup function runs once when you press reset or power the board
@@ -39,13 +44,18 @@ void loop() {
 	Serial.begin(115200);
 	Serial.println("Initialization...");
 
-	fonaSerial->begin(4800);
-	sim.begin(*fonaSerial);
-
+	simSerial.begin(4800);
+	sim.begin(simSerial);
+	sim.powerOnOff(true);
+	sim.init();
+	
 	sim.getImei(buffer);
 	Serial.print("IMEI :");
 	Serial.println(buffer);
 
+	sim.sendCommand("ATI", buffer);
+	Serial.print("ATI :");
+	Serial.println(buffer);
 	/*sim.enableGps();
 	while (true)
 	{
@@ -54,10 +64,10 @@ void loop() {
 	Serial.print(buffer);
 	}*/
 
-	Serial.println("Unlocking sim...");
-	bool unlocked = sim.simUnlock("1234");
-	Serial.println(unlocked);
-	delay(5000);
+	// Serial.println("Unlocking sim...");
+	// bool unlocked = sim.simUnlock("1234");
+	// Serial.println(unlocked);
+	// delay(5000);
 
 	//sendPrintResponse("AT+CCLK?");
 	/*sendPrintResponse("AT+CLTS=1");
@@ -79,28 +89,27 @@ void loop() {
 			Serial.print("Status : ");
 			Serial.print(status.n);
 			Serial.print(", ");
-			Serial.println(status.stat);
-		} while (status.stat != 3 && status.stat != 2 && status.stat != 5);
-		gprsEnabled = sim.enableGprs("Free");
+			Serial.println((uint8_t)status.stat);
+		} while (!isAvailable(status.stat));
+		gprsEnabled = sim.enableGprs("Vodafone");
 	} while (!gprsEnabled);
 
-	status = sim.getNetworkRegistrationStatus();
-	Serial.print("Status : ");
-	Serial.print(status.n);
-	Serial.print(", ");
-	Serial.println(status.stat);
+	uint16_t code = sim.httpGet("https://httpbin.org/anything", buffer, 512);
+	Serial.print("Server responded ");
+	Serial.println(code);
+	Serial.print(buffer);
 
 	/*while (true)
 	{
 	*/
-	uint16_t code = sim.httpGet("http://httpbin.org/anything", buffer, 512);
-	Serial.print("Server responded ");
-	Serial.println(code);
-	Serial.print(buffer);
+	// uint16_t code = sim.httpGet("https://httpbin.org/anything", buffer, 512);
+	// Serial.print("Server responded ");
+	// Serial.println(code);
+	// Serial.print(buffer);
 
-	code = sim.httpPost("http://httpbin.org/anything", "text/plain", "Hello world !", buffer, 512);
-	Serial.print("Server responded ");
-	Serial.println(code);
-	Serial.print(buffer);
+	// code = sim.httpPost("https://httpbin.org/anything", F("text/plain"), "Hello world !", buffer, 512);
+	// Serial.print("Server responded ");
+	// Serial.println(code);
+	// Serial.print(buffer);
 	//}
 }
