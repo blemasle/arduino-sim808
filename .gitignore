@@ -1,0 +1,5 @@
+# Build results
+[Bb]in/
+
+#Visual Studio code
+.vscode/
