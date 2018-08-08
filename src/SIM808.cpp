@@ -12,7 +12,7 @@ SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 	_statusPin = statusPin;
 	_ok = PSTRPTR(SIM808_TOKEN_OK);
 
-	if(_resetPin > 0) pinMode(_resetPin, OUTPUT);
+	pinMode(_resetPin, OUTPUT);
 	pinMode(_pwrKeyPin, OUTPUT);
 	pinMode(_statusPin, INPUT);
 	
