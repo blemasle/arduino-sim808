@@ -7,7 +7,7 @@ SIM808_COMMAND(GET_GPS_INFO, "AT+CGNSINF");
 const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF: ";
 const char SIM808_COMMAND_GET_GPS_POWER_RESPONSE[] PROGMEM = "+CGNSPWR:";
 
-void shiftLeft(uint8_t shift, char* str)
+void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if following todos in this file are done
 {
 	uint8_t i = shift;
 	uint8_t len = strlen(str);
@@ -46,6 +46,8 @@ bool SIM808::getGpsPosition(char *response)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
 
+	//TODO : read response directly into user supplied response like in readHttpResponse
+	//TODO : check for SIM808_COMMAND_GET_GPS_INFO_RESPONSE at the beginning of the response
 	if (!sendGetResponse(response)) return false;
 	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
 
@@ -88,7 +90,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus()
 	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
 
 	if (!sendGetResponse(NULL)) return SIM808_GPS_STATUS::FAIL;
-	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), replyBuffer);
+	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), replyBuffer); //TODO : use constant + strlen_P instead of shiftLeft
 
 	if (replyBuffer[0] == '0') result = SIM808_GPS_STATUS::OFF;
 	if (replyBuffer[2] == '1')
