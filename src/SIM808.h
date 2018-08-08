@@ -4,6 +4,8 @@
 #include <SIM808_Types.h>
 #include <SIM808_Commands.h>
 
+#define HTTP_TIMEOUT 10000L
+
 class SIM808 : public SIMComAT
 {
 private:
@@ -14,8 +16,6 @@ private:
 	const __FlashStringHelper *_ok;
 	const char* _userAgent;
 
-	int16_t _httpTimeout = 10000;
-	
 	void waitForReady();	
 
 	bool setupHttpRequest(const char* url);
