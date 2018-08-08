@@ -5,6 +5,8 @@ The library tries to reduces memory consumption as much as possible, but nonethe
 
 > No default instance is created when the library is included
 
+The library use [Arduino-Log](https://github.com/thijse/Arduino-Log/) to print formatted commands to the TTL. While it might not be the best choice regarding final hex size, this library was already used in the project for which this library was initially built.
+
 ## Features
  * Fine control over the module power management
  * Sending SMS
