@@ -11,3 +11,7 @@ The library tries to reduces memory consumption as much as possible, but nonethe
  * Sending GET and POST HTTP(s) requests
  * Acquiring GPS positions, with access to individual fields
  * Reading of the device states (battery, charging, gps, network)
+
+ ## Debugging
+ If you need to debug the communication with the SIM808 module, you can either define `_DEBUG` to `1`, or directly change `_SIM808_DEBUG` to `1` in [SIMComAT](/src/SIMComAT).
+ > Be aware that it will increase the final hex size.
