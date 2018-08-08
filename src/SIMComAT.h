@@ -27,6 +27,7 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 #define SENDARROW
 #endif // _DEBUG
 
+//TODO : the buffer size could be greatly reduced (around 64 bytes) if SIM808.Gps.cpp is reworked
 #define BUFFER_SIZE 128
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
