@@ -6,10 +6,11 @@
 
 #define _SIM808_DEBUG _DEBUG
 
+#if _SIM808_DEBUG
+
 const char ARROW_LEFT[] PROGMEM = "<--";
 const char ARROW_RIGHT[] PROGMEM = "-->";
 
-#if _SIM808_DEBUG
 #define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 #define SIM808_PRINT_CHAR(x) Serial.print((char)x)
 #define SIM808_PRINT_P(fmt, ...) _debug.verbose(F(fmt "\n"), __VA_ARGS__)
