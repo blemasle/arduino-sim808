@@ -66,7 +66,7 @@ public:
 	bool getGpsPowerState(bool *state);
 	bool enableGps();
 	bool disableGps();
-	SIM808_GPS_STATUS getGpsStatus();
+	SIM808_GPS_STATUS getGpsStatus(char * response);
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result);
 	bool getGpsField(const char* response, SIM808_GPS_FIELD field, float* result);
 	void getGpsField(const char* response, SIM808_GPS_FIELD field, char** result);

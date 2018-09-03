@@ -83,10 +83,14 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 	send();
 	readLine(timeout);
 	
+	return copyResponse(response);
+}
+
+size_t SIMComAT::copyResponse(char * response)
+{
 	size_t len = strlen(replyBuffer);
 	if (response != NULL) {
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
-
 		strlcpy(response, replyBuffer, maxLen);
 	}
 

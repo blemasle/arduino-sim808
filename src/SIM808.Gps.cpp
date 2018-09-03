@@ -9,7 +9,6 @@ const char SIM808_COMMAND_GET_GPS_POWER_RESPONSE[] PROGMEM = "+CGNSPWR:";
 
 void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if following todos in this file are done
 {
-	uint8_t i = shift;
 	uint8_t len = strlen(str);
 
 	for (uint8_t i = 0; i < len - shift; i++) {
@@ -82,7 +81,7 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 	return true;
 }
 
-SIM808_GPS_STATUS SIM808::getGpsStatus()
+SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
@@ -99,6 +98,8 @@ SIM808_GPS_STATUS SIM808::getGpsStatus()
 		result = getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed) && satellitesUsed > 4 ?
 			SIM808_GPS_STATUS::ACCURATE_FIX :
 			SIM808_GPS_STATUS::FIX;
+
+		copyResponse(response);
 	}
 
 	readLine();
