@@ -51,7 +51,8 @@ protected:
 	size_t sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT); //TODO : use templates (like ArduinoLog) ?
 	size_t sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 	size_t sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-
+	size_t copyResponse(char *response);
+	
 	bool sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 
