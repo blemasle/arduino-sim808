@@ -15,7 +15,7 @@
 #define SIM808_BAUDRATE 4800    ///< Control the baudrate use to communicate with the SIM808 module
 #define READ_GPS_DELAY  10000   ///< Delay between each GPS read
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX)
+SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 char position[128];
 
@@ -53,7 +53,7 @@ void loop() {
     sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &lat);
     sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &lon);
 
-    Log.notice(F("Sattelites used : %d", sattelites));
-    Log.notice(F("Latitude : %f", lat));
-    Log.notice(F("Longitude used : %f", lon));
+    Log.notice(F("Sattelites used : %d"), sattelites);
+    Log.notice(F("Latitude : %f"), lat);
+    Log.notice(F("Longitude used : %f"), lon);
 }
