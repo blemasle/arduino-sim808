@@ -1,4 +1,9 @@
+/**
+ * Acquire a GPS position and display it on Serial
+ */
+
 #include <SIM808.h>
+#include <ArduinoLog.h>
 #include <SoftwareSerial.h>
 
 #define SIM_RST		5	///< SIM808 RESET
@@ -16,15 +21,16 @@ char position[128];
 
 void setup() {
     Serial.begin(115200);
+    Log.begin(LOG_LEVEL_NOTICE, &Serial);
 
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Serial.println("Powering on SIM808...");
+    Log.notice(F("Powering on SIM808..."));
     sim808.powerOnOff(true);
     sim808.init();
 
-    Serial.println("Powering on SIM808's GPS...");
+    Log.notice(F("Powering on SIM808's GPS..."));
 	sim808.enableGps();
 }
 
@@ -32,16 +38,13 @@ void loop() {
     SIM808_GPS_STATUS status = sim808.getGpsStatus(position);
     
     if(status < SIM808_GPS_STATUS::FIX) {
-        Serial.println("No fix yet...");
+        Log.notice(F("No fix yet..."));
         delay(READ_GPS_DELAY);
         return;
     }
 
-    Serial.println(position);
-
-    Serial.print("Fix Type:");
-    if(status == SIM808_GPS_STATUS::FIX) Serial.print("Normal");
-    else Serial.print("Accurate");
+    Log.notice(position);
+    Log.notice(F("Fix type: %s"), status == SIM808_GPS_STATUS::FIX ? "Normal" : "Accurate");
 
     uint8_t sattelites;
     float lat, lon;
@@ -50,12 +53,7 @@ void loop() {
     sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &lat);
     sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &lon);
 
-    Serial.print("Sattelites used :");
-    Serial.println(tmpByte);
-
-    Serial.print("lat :");
-    Serial.print(lat);
-
-    Serial.print("lon :");
-    Serial.println(lon);
+    Log.notice(F("Sattelites used : %d", sattelites));
+    Log.notice(F("Latitude : %f", lat));
+    Log.notice(F("Longitude used : %f", lon));
 }
