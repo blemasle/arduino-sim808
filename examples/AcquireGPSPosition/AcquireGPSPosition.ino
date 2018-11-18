@@ -29,7 +29,6 @@ void setup() {
 }
 
 void loop() {
-    
     SIM808_GPS_STATUS status = sim808.getGpsStatus(position);
     
     if(status < SIM808_GPS_STATUS::FIX) {
@@ -40,7 +39,23 @@ void loop() {
 
     Serial.println(position);
 
-    if(status == SIM808_GPS_STATUS::FIX) Serial.print("Normal fix : ");
-    else Serial.print("Accurate fix : ");
+    Serial.print("Fix Type:");
+    if(status == SIM808_GPS_STATUS::FIX) Serial.print("Normal");
+    else Serial.print("Accurate");
 
+    uint8_t sattelites;
+    float lat, lon;
+
+    sim808.getGpsField(position, SIM808_GPS_FIELD::GNSS_USED, &sattelites);
+    sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &lat);
+    sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &lon);
+
+    Serial.print("Sattelites used :");
+    Serial.println(tmpByte);
+
+    Serial.print("lat :");
+    Serial.print(lat);
+
+    Serial.print("lon :");
+    Serial.println(lon);
 }
