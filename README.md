@@ -40,7 +40,8 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    sim808.powerOnOff(true);            //power on the SIM808
+    sim808.powerOnOff(true);    //power on the SIM808
+    sim808.init();
 }
 
 void loop() {
