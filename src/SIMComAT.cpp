@@ -12,6 +12,7 @@ void SIMComAT::begin(Stream& port)
 
 void SIMComAT::flushInput()
 {
+	//immediatly or soon available lines while be discarded
 	while (available() || (delay(100), available())) {
 		readLine();
 	}
