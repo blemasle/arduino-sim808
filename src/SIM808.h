@@ -5,6 +5,7 @@
 #include <SIM808_Commands.h>
 
 #define HTTP_TIMEOUT 10000L
+#define GPS_ACCURATE_FIX_MIN_SATELLITES 4
 
 class SIM808 : public SIMComAT
 {
