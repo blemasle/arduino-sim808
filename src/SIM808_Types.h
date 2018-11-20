@@ -106,7 +106,7 @@ enum class SIM808_NETWORK_REGISTRATION_STATE : int8_t
 
 struct SIM808SignalQualityReport
 {
-	uint8_t ssri;
+	uint8_t rssi;
 	uint8_t ber;
 	int8_t attenuation;
 };

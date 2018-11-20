@@ -59,7 +59,7 @@ SIM808SignalQualityReport SIM808::getSignalQuality()
 	if (!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
 		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate)) return report;
 
-	report.ssri = quality;
+	report.rssi = quality;
 	report.ber = errorRate;
 
 	if (quality == 0) report.attenuation = -115;
