@@ -61,7 +61,7 @@ void loop() {
     }
 
     Log.notice(F("Network is ready."));
-    Log.notice(F("Attenuation : %d dB, Estimated quality : %d"), report.attenuation, report.ssri);
+    Log.notice(F("Attenuation : %d dB, Estimated quality : %d"), report.attenuation, report.rssi);
 
     strncpy_P(buffer, PSTR("This is the body"), BUFFER_SIZE);
     //notice that we're using the same buffer for both body and response
