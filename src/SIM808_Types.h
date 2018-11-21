@@ -118,9 +118,9 @@ enum class SIM808_NETWORK_REGISTRATION_STATE : int8_t
 
 struct SIM808SignalQualityReport
 {
-	uint8_t ssri;		///< Received Signal Strength Indication, from 0 (worst) to 31 (best). 99 means unknown. 
+	uint8_t rssi;		///< Received Signal Strength Indication, from 0 (worst) to 31 (best). 99 means unknown. 
 	uint8_t ber;		///< Bit Error Rate, from 0 to 7. 99 means unknown.
-	int8_t attenuation;	///< Estimad signal attenuation from ssri, expressed in dBm.
+	int8_t attenuation;	///< Estimad signal attenuation from rssi, expressed in dBm.
 };
 
 struct SIM808RegistrationStatus
