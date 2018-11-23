@@ -5,8 +5,6 @@ The library tries to reduces memory consumption as much as possible, but nonethe
 
 > No default instance is created when the library is included
 
-The library use a modified version of [Arduino-Log](https://github.com/thijse/Arduino-Log/) to print formatted commands to the TTL. Until a [pull request](https://github.com/thijse/Arduino-Log/pull/10) is merged, you will need to replace the core version of Arduino-Log by this [fork](https://github.com/blemasle/Arduino-Log).
-
 While it might not be the best choice regarding final hex size, Arduino-Log was already used in the project for which this library was initially built. Moreover, it allows cleaner and more readable code rather than ugly string concatenation or successive prints.
 
 ## Features
