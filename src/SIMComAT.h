@@ -31,6 +31,7 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 #define BUFFER_SIZE 128
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
+typedef 
 class SIMComAT : public Stream
 {
 private:
@@ -44,6 +45,44 @@ protected:
 
 	char replyBuffer[BUFFER_SIZE];
 	
+	template<typename T> void writeStream(T last)
+	{
+		print(last);
+	}
+
+	template<typename T, typename... Args> void writeStream(T head, Args... tail)
+	{
+		print(head);
+		writeStream(tail...);
+	}
+
+	template<typename... Args> void sendAT(Args... cmd)
+	{
+		writeStream(TOKEN_AT, cmd..., TOKEN_NL);
+	}
+
+	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
+	{
+		writeStream(TOKEN_AT);
+		_output.print(format, args...);
+		writeStream(TOKEN_NL);
+	}
+
+	void readNextLine(uint16_t timeout);
+	int8_t waitResponse(
+		Sim808ConstStr s1 = SFP(TOKEN_OK),
+		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+		Sim808ConstStr s3 = NULL,
+		Sim808ConstStr s4 = NULL) {
+			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
+		};
+
+	int8_t waitResponse(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT, 
+		Sim808ConstStr s1 = SFP(TOKEN_OK),
+		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+		Sim808ConstStr s3 = NULL,
+		Sim808ConstStr s4 = NULL);
+		
 	/**
 	 * Flush all lines currently in the buffer.
 	 */

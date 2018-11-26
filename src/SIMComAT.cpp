@@ -65,6 +65,48 @@ size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 	return strlen(replyBuffer);
 }
 
+void SIMComAT::readNextLine(uint16_t timeout)
+{
+	uint8_t i = 0;
+	memset(replyBuffer, 0, BUFFER_SIZE);
+
+	uint16_t start = millis();
+
+	do {
+		while(available()) {
+			char c = read();
+			replyBuffer[i] = c;
+			i++;
+
+			if(c == '\n') {
+				timeout = 0;
+				break;
+			}
+		}
+	} while(millis() - start < timeout);
+
+	replyBuffer[i] = '\0';
+}
+
+int8_t SIMComAT::waitResponse(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT, 
+	Sim808ConstStr s1 = SFP(TOKEN_OK),
+	Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+	Sim808ConstStr s3 = NULL,
+	Sim808ConstStr s4 = NULL)
+{
+	uint16_t start = millis();
+	Sim808ConstStr wantedTokens[4] = { s1, s2, s3, s4 };
+
+	do {
+		readNextLine(timeout - (millis() - start));
+		for(uint8_t i = 0; i < 4; i++) {
+			if(wantedTokens[i] && strstr_P(replyBuffer, SFPT(wantedTokens[i])) == replyBuffer) return i;
+		}
+	} while(!millis() - start < timeout);
+
+	return -1;
+}
+
 template<typename T>size_t SIMComAT::sendGetResponse(T msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	SENDARROW;
@@ -153,7 +195,6 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint16_t* res
 	if (p == NULL) return false;
 
 	errno = 0;
-	//*result = (uint16_t)atol(p);
 	*result = strtoul(p, NULL, 10);
 
 	return errno == 0;
@@ -165,7 +206,6 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, int16_t* resu
 	if (p == NULL) return false;
 
 	errno = 0;
-	//*result = atol(p);
 	*result = strtol(p, NULL, 10);
 	
 	return errno == 0;
