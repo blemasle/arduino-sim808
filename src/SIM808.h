@@ -156,7 +156,7 @@ public:
 	bool powerOnOffGps(bool power);
 	/**
 	 * Get the latest GPS parsed sequence and a value indicating the current
-	 * fix status.
+	 * fix status. response is only filled if a fixed is acquired.
 	 */
 	SIM808_GPS_STATUS getGpsStatus(char * response);
 	/**
