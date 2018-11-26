@@ -26,7 +26,7 @@ bool SIM808::enableGps() //TODO : merge enableGps & disableGps
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 1);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::disableGps()
@@ -37,7 +37,7 @@ bool SIM808::disableGps()
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 0);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::getGpsPosition(char *response)
@@ -51,7 +51,7 @@ bool SIM808::getGpsPosition(char *response)
 	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
 
 	readLine();
-	if (!assertResponse(_ok)) return false;
+	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return false;
 
 	return true;
 }
@@ -104,7 +104,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 	}
 
 	readLine();
-	if (!assertResponse(_ok)) return SIM808_GPS_STATUS::FAIL;
+	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return SIM808_GPS_STATUS::FAIL;
 
 	return result;
 }
@@ -124,5 +124,5 @@ bool SIM808::getGpsPowerState(bool *state)
 	*state = result;
 
 	readLine();
-	return assertResponse(_ok);
+	return assertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }

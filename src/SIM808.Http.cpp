@@ -55,18 +55,18 @@ bool SIM808::setupHttpRequest(const char* url)
 		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
 		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_CID), 1) &&
 		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_URL), url) &&
-		(url[4] != 's' || sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_SSL), _ok)) &&
+		(url[4] != 's' || sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_SSL), PSTRPTR(SIM808_TOKEN_OK))) &&
 		(_userAgent == NULL || setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_UA), _userAgent));
 }
 
 bool SIM808::httpInit()
 {
-	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_INIT), _ok);
+	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_INIT), PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::httpEnd()
 {
-	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_END), _ok);
+	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_END), PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const __FlashStringHelper* value)
@@ -74,7 +74,7 @@ bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const __Flas
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING_PROGMEM), parameter, value);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const char* value)
@@ -82,7 +82,7 @@ bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const char* 
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING), parameter, value);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const int8_t value)
@@ -90,7 +90,7 @@ bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const int8_t
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_INT), parameter, value);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::setHttpBody(const char* body)
@@ -104,7 +104,7 @@ bool SIM808::setHttpBody(const char* body)
 	print(body);
 
 	readLine();
-	return assertResponse(_ok);
+	return assertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
@@ -112,7 +112,7 @@ bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCo
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_ACTION), action);
 
-	if (!sendAssertResponse(_ok)) return false;
+	if (!sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK))) return false;
 
 	readLine(HTTP_TIMEOUT);
 
@@ -143,5 +143,5 @@ bool SIM808::readHttpResponse(char *response, size_t responseSize)
 	*response = '\0';
 
 	readLine();
-	return assertResponse(_ok);
+	return assertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }

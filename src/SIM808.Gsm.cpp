@@ -18,7 +18,7 @@ bool SIM808::simUnlock(const char* pin)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_CPIN), pin);
 
-	return sendAssertResponse(_ok, 5000);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK), 5000);
 }
 
 size_t SIM808::getSimState(char *state)
@@ -38,7 +38,7 @@ size_t SIM808::getImei(char *imei)
 	sendGetResponse(imei);
 
 	readLine();
-	return assertResponse(_ok) ?
+	return assertResponse(PSTRPTR(SIM808_TOKEN_OK)) ?
 		strlen(imei) :
 		0;
 }
@@ -76,7 +76,7 @@ bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_SMS_MESSAGE_FORMAT), format);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 bool SIM808::sendSms(const char *addr, const char *msg)
@@ -97,7 +97,7 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	if (strstr_P(replyBuffer, SIM808_COMMAND_SEND_SMS_RESPONSE) == 0) return false;
 
 	readLine();
-	if (!assertResponse(_ok)) return false;
+	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return false;
 
 	return true;
 }

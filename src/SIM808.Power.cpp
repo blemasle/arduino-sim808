@@ -45,7 +45,7 @@ SIM808ChargingStatus SIM808::getChargingState()
 	parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage);
 
 	readLine();
-	if (!assertResponse(_ok)) return { SIM808_CHARGING_STATE::ERROR, 0 };
+	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return { SIM808_CHARGING_STATE::ERROR, 0 };
 
 	return { (SIM808_CHARGING_STATE)state, level, voltage };
 }
@@ -63,7 +63,7 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 	parseReply(',', 0, &state);
 
 	readLine();
-	if (!assertResponse(_ok)) return SIM808_PHONE_FUNCTIONALITY::FAIL;
+	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return SIM808_PHONE_FUNCTIONALITY::FAIL;
 
 	return (SIM808_PHONE_FUNCTIONALITY)state;
 }
@@ -77,10 +77,10 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 	send();
 	//ditching URC given back by this command
 	readLine(10000);
-	if (assertResponse(_ok)) return true;
+	if (assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return true;
 
 	while (readLine(1000)) {
-		if (assertResponse(_ok)) return true;
+		if (assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return true;
 
 	}
 	return false;
@@ -91,6 +91,6 @@ bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_SLOW_CLOCK), mode);
 
-	return sendAssertResponse(_ok, 1000);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK), 1000);
 }
 

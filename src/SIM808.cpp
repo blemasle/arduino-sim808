@@ -10,7 +10,6 @@ SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 	_resetPin = resetPin;
 	_pwrKeyPin = pwrKeyPin;
 	_statusPin = statusPin;
-	_ok = PSTRPTR(SIM808_TOKEN_OK);
 
 	pinMode(_resetPin, OUTPUT);
 	pinMode(_pwrKeyPin, OUTPUT);
@@ -70,7 +69,7 @@ bool SIM808::setEcho(SIM808_ECHO mode)
 	SENDARROW;
 	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_ECHO), mode);
 
-	return sendAssertResponse(_ok);
+	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }
 
 size_t SIM808::sendCommand(const char *cmd, char *response)

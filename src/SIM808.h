@@ -13,8 +13,6 @@ private:
 	uint8_t _resetPin;
 	uint8_t _statusPin;
 	uint8_t _pwrKeyPin;
-
-	const __FlashStringHelper *_ok;	///< Stored once and reused accross several functions
 	const char* _userAgent;
 
 	/**
