@@ -2,8 +2,7 @@
 
 SIM808_COMMAND(SET_ECHO, "ATE%d");
 
-SIM808_TOKEN(RDY);
-SIM808_TOKEN(AT);
+TOKEN(RDY);
 
 SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 {
@@ -50,11 +49,9 @@ void SIM808::waitForReady()
 	do
 	{
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
-		sendGetResponse(PSTRPTR(SIM808_TOKEN_AT), NULL);
-
-		if (assertResponse(PSTRPTR(SIM808_TOKEN_RDY))) return;
+		sendAT(SF(""));
 	// Despite official documentation, we can get an "AT" back without a "RDY" first.
-	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_AT)));
+	} while (waitResponse(SFP(TOKEN_AT), SFP(TOKEN_RDY)));
 
 	//do
 	//{
