@@ -18,24 +18,13 @@ void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if fo
 	str[len - shift] = '\0';
 }
 
-bool SIM808::enableGps() //TODO : merge enableGps & disableGps
+bool SIM808::powerOnOffGps(bool power)
 {
-	bool currentState = true;
-	if (!getGpsPowerState(&currentState) || currentState) return false;
+	bool currentState;
+	if(!getGpsPowerState(&currentState) || (currentState == power)) return false;
 
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 1);
-
-	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
-}
-
-bool SIM808::disableGps()
-{
-	bool currentState = false;
-	if (!getGpsPowerState(&currentState) || !currentState) return false;
-
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 0);
+	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), (uint8_t)power);
 
 	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
 }

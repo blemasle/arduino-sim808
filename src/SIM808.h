@@ -151,13 +151,9 @@ public:
 	 */
 	bool getGpsPowerState(bool *state);
 	/**
-	 * Turn on the GPS.
+	 * Power on or off the gps only if the requested state is different than the actual state.
 	 */
-	bool enableGps();
-	/**
-	 * Turn off the GPS.
-	 */
-	bool disableGps();
+	bool powerOnOffGps(bool power);
 	/**
 	 * Get the latest GPS parsed sequence and a value indicating the current
 	 * fix status.

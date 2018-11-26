@@ -11,7 +11,7 @@ really easy, and avoid successive prints or string concatenation.
 ## Features
  * Fine control over the module power management
  * Sending SMS
- * Sending GET and POST HTTP(s) requests
+ * Sending GET and POST [HTTP(s)](#a-note-about-https) requests
  * Acquiring GPS positions, with access to individual fields
  * Reading of the device states (battery, gps, network)
 
@@ -59,3 +59,8 @@ void loop() {
 }
  ```
 See examples for further usage.
+
+## A note about https
+
+While technically, SIM808 module support HTTPS requests, it is particularly unreliable and sketchy. 7 times out of 10, the request won't succeed. This is a bummer
+and I strongly recommand to stick with HTTP requests if you need reliability.
