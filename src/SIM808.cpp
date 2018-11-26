@@ -54,6 +54,7 @@ void SIM808::waitForReady()
 		sendGetResponse(PSTRPTR(SIM808_TOKEN_AT), NULL);
 
 		if (assertResponse(PSTRPTR(SIM808_TOKEN_RDY))) return;
+	// Despite official documentation, we can get an "AT" back without a "RDY" first.
 	} while (!assertResponse(PSTRPTR(SIM808_TOKEN_AT)));
 
 	//do

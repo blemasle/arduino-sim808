@@ -1,27 +1,35 @@
 # SIM808
-This library allows to access many of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GSM module. It requires at least 3 pins to work and a TTL Serial. If using a SoftwareSerial instance, 2 more pins are then required.  
+This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GSM module. It requires at least 3 pins (power, status and reset pins) to work and a TTL Serial.
 
 The library tries to reduces memory consumption as much as possible, but nonetheless use a 128 bytes buffer to communicate with the SIM808 module. When available, SIM808 responses are parsed to ensure that commands are correctly executed by the module. Commands timeouts are also set according to SIMCOM documentation.  
 
 > No default instance is created when the library is included
 
-The library use a modified version of [Arduino-Log](https://github.com/thijse/Arduino-Log/) to print formatted commands to the TTL. Until modification suggestion are merged, you will need to replace the core version of Arduino-Log by this [fork](https://github.com/blemasle/Arduino-Log).
-
-While it might not be the best choice regarding final hex size, Arduino-Log was already used in the project for which this library was initially built. Moreover, it allows cleaner and more readable code rather than ugly string concatenation or successive prints.
+[Arduino-Log](https://github.com/thijse/Arduino-Log) is used to output formatted commands in a `printf` style. This make implementation of new commands
+really easy, and avoid successive prints or string concatenation.
 
 ## Features
  * Fine control over the module power management
  * Sending SMS
  * Sending GET and POST HTTP(s) requests
  * Acquiring GPS positions, with access to individual fields
- * Reading of the device states (battery, charging, gps, network)
+ * Reading of the device states (battery, gps, network)
 
- ## Debugging
- If you need to debug the communication with the SIM808 module, you can either define `_DEBUG` to `1`, or directly change `_SIM808_DEBUG` to `1` in [SIMComAT](/src/SIMComAT).
- > Be aware that it will increase the final hex size.
+## Why another library ?
+Their is a number of libraries out there which support this modem ([Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA), [TinyGSM](https://github.com/vshymanskyy/TinyGSM) for instance), so why build another one ? None fit the needs I had for a project. FONA is more a giant example for testing commands individually and I was getting unreliable results with it. TinyGSM seems great but what it gains in chips support it lacks in fine grained control 
+over each modules, which I needed.
+
+This library is then greatly inspired by FONA, which served as the reference implementation, but mostly only support the features I needed for my project and has been
+tested thoroughly and successfully in that configuration. It also tries to reduce the final HEX size as this was a real problem for the project it was built (currently using 30660 bytes out of 30720).  
+
+It does *not* have the pretention to become the new SIM808 standard library, but can be useful to others as a source of inspiration or documentation to understand how AT commands works.
+
+## Debugging
+ If you need to debug the communication with the SIM808 module, you can either define `_DEBUG` to `1`, or directly change `_SIM808_DEBUG` to `1` in [SIMComAT.h](/src/SIMComAT.h).
+ > Be aware that it will greatly increase the final hex size as debug strings are stored in flash.
 
  ## Usage
- Unlike most Arduino library, no default instance is created when the library is included. It's up to you to create one with the appropriate parameters.
+ No default instance is created when the library is included. It's up to you to create one with the appropriate parameters.
 
  ```cpp
 #include <SIM808.h>
