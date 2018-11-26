@@ -2,6 +2,18 @@
 
 #include <Arduino.h>
 
+#if defined(__AVR__)
+    #define S_PROGMEM PROGMEM
+    typedef const __FlashStringHelper* Sim808ConstStr;
+    #define SFP(x)  (reinterpret_cast<Sim808ConstStr>(x))
+    #define SF(x)   F(x)
+#else
+    #define S_PROGMEM
+    typedef const char* Sim808ConstStr;
+    #define SFP(x)  x
+    #define SF(x)   x
+#endif
+
 #define PSTRPTR(x) reinterpret_cast<const __FlashStringHelper *>(x)
 #define SIM808_COMMAND(name, text) const char SIM808_COMMAND_##name[] PROGMEM = text
 #define SIM808_COMMAND_PARAMETER(category, name) const char SIM808_COMMAND_PARAMETER_##category##_##name[] PROGMEM = #name
