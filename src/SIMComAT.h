@@ -57,14 +57,11 @@ protected:
 	 * Read the next line into replyBuffer or bail out after timeout.
 	 */
 	size_t readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
+
 	/**
 	 * Send a command and wait for a response back.
 	 */
-	size_t sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT); //TODO : use templates (like ArduinoLog) ?
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	size_t sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
+	template<typename T>size_t sendGetResponse(T msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
 	/**
 	 * Validate the current command and wait for a response back.
 	 */

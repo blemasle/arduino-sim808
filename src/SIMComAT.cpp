@@ -65,14 +65,7 @@ size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 	return strlen(replyBuffer);
 }
 
-size_t SIMComAT::sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	SENDARROW;
-	print(msg);
-	return sendGetResponse(response, timeout);
-}
-
-size_t SIMComAT::sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+template<typename T>size_t SIMComAT::sendGetResponse(T msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 {
 	SENDARROW;
 	print(msg);
