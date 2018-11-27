@@ -16,12 +16,11 @@
     #define SF(x)   x
 #endif
 
-#define TOKEN_TEXT(name, text) const char TOKEN_##name[] PROGMEM = #text
+#define TOKEN_TEXT(name, text) const char TOKEN_##name[] S_PROGMEM = #text
 #define TOKEN(name) TOKEN_TEXT(name, name)
 
-#define AT_COMMAND(name, text) const char AT_COMMAND_##name[] PROGMEM = #text
-#define AT_COMMAND_PARAMETER(category, name) const char AT_COMMAND_PARAMETER_##category##_##name[] PROGMEM = #name
-#define PSTRPTR(x) reinterpret_cast<const __FlashStringHelper *>(x)
+#define AT_COMMAND(name, text) const char AT_COMMAND_##name[] S_PROGMEM = #text
+#define AT_COMMAND_PARAMETER(category, name) const char AT_COMMAND_PARAMETER_##category##_##name[] S_PROGMEM = #name
 
 TOKEN(AT);
 TOKEN(OK);
