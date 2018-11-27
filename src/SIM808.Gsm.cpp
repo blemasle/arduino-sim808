@@ -42,7 +42,7 @@ SIM808SignalQualityReport SIM808::getSignalQuality()
 	SIM808SignalQualityReport report = {99, 99, 1};
 
 	sendAT(SFP(TOKEN_CSQ));
-	if(waitResponse(SFP(TOKEN_CSQ) != 0 ||
+	if(waitResponse(SFP(TOKEN_CSQ)) != 0 ||
 		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
 		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate) ||
 		waitResponse())
@@ -78,5 +78,5 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	print((char)0x1A);
 
 	return waitResponse(60000L, SFP(TOKEN_CMGS)) == 0 &&
-		waitResponse())
+		waitResponse();
 }
