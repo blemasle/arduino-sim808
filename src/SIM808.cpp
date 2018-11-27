@@ -62,12 +62,10 @@ bool SIM808::setEcho(SIM808_ECHO mode)
 
 size_t SIM808::sendCommand(const char *cmd, char *response)
 {
-	flushInput();
-	_output.verbose(cmd);
-	sendGetResponse(response);
-	readLine();
-
-	return strlen(response);
+	sendAT(cmd);
+	
+	if(waitResponse() != 0) return 0;
+	return copyResponse(response);
 }
 
 #pragma endregion
