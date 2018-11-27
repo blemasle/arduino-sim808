@@ -65,7 +65,7 @@ size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
 	return strlen(replyBuffer);
 }
 
-void SIMComAT::readNextLine(uint16_t timeout)
+void SIMComAT::readNextLine(uint32_t timeout)
 {
 	uint8_t i = 0;
 	memset(replyBuffer, 0, BUFFER_SIZE);
@@ -88,7 +88,7 @@ void SIMComAT::readNextLine(uint16_t timeout)
 	replyBuffer[i] = '\0';
 }
 
-int8_t SIMComAT::waitResponse(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT, 
+int8_t SIMComAT::waitResponse(uint32_t timeout, 
 	Sim808ConstStr s1 = SFP(TOKEN_OK),
 	Sim808ConstStr s2 = SFP(TOKEN_ERROR),
 	Sim808ConstStr s3 = NULL,
@@ -124,10 +124,15 @@ size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEF
 
 size_t SIMComAT::copyResponse(char * response)
 {
-	size_t len = strlen(replyBuffer);
-	if (response != NULL) {
+	return safeCopy(replyBuffer, response);
+}
+
+size_t SIMComAT::safeCopy(const char *src, char *dst)
+{
+	size_t len = strlen(src);
+	if (dst != NULL) {
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
-		strlcpy(response, replyBuffer, maxLen);
+		strlcpy(dst, src, maxLen);
 	}
 
 	return len;

@@ -64,11 +64,11 @@ protected:
 	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
 	{
 		writeStream(TOKEN_AT);
-		_output.print(format, args...);
+		_output.verbose(format, args...);
 		writeStream(TOKEN_NL);
 	}
 
-	void readNextLine(uint16_t timeout);
+	void readNextLine(uint32_t timeout);
 	int8_t waitResponse(
 		Sim808ConstStr s1 = SFP(TOKEN_OK),
 		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
@@ -77,7 +77,7 @@ protected:
 			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
 		};
 
-	int8_t waitResponse(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT, 
+	int8_t waitResponse(uint32_t timeout, 
 		Sim808ConstStr s1 = SFP(TOKEN_OK),
 		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
 		Sim808ConstStr s3 = NULL,
@@ -109,6 +109,7 @@ protected:
 	 * Copy the content of response into replyBuffer.
 	 */
 	size_t copyResponse(char *response);
+	size_t safeCopy(const char *src, char *dst);
 	
 	/**
 	 * Send a command and check that the response matches the expectedResponse.
