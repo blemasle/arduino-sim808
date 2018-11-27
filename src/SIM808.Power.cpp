@@ -1,13 +1,7 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(GET_CHARGING_STATE, "AT+CBC");
-SIM808_COMMAND(GET_PHONE_FUNCTIONNALITY, "AT+CFUN?");
-SIM808_COMMAND(SET_PHONE_FUNCTIONNALITY, "AT+CFUN=%d");
-SIM808_COMMAND(SET_SLOW_CLOCK, "AT+CSCLK=%d");
-
-const char SIM808_COMMAND_GET_CHARGING_STATE_RESPONSE[] PROGMEM = "+CBC:";
-const char SIM808_COMMAND_GET_PHONE_FUNCTIONNALITY_RESPONSE[] PROGMEM = "+CFUN:";
-
+TOKEN_TEXT(CBC, "+CBC");
+TOKEN_TEXT(CFUN, "+CFUN");
 
 bool SIM808::powered()
 {
@@ -30,67 +24,51 @@ bool SIM808::powerOnOff(bool power)
 
 SIM808ChargingStatus SIM808::getChargingState()
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_CHARGING_STATE));
-	send();
-
-	readLine();
-	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_CHARGING_STATE_RESPONSE) == 0) return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
-
 	uint8_t state;
 	uint8_t level;
 	uint16_t voltage;
-	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state);
-	parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level);
-	parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage);
 
-	readLine();
-	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return { SIM808_CHARGING_STATE::ERROR, 0 };
+	SENDARROW;
+	sendAT(SFP(TOKEN_CBC));
 
-	return { (SIM808_CHARGING_STATE)state, level, voltage };
+	if (waitResponse(SFP(TOKEN_CBC)) == 0 &&
+		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state) &&
+		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level) &&
+		parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage) &&
+		waitResponse() == 0)
+		return { (SIM808_CHARGING_STATE)state, level, voltage };
+			
+	return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
 }
 
 SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 {
+	uint8_t state;
+
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_PHONE_FUNCTIONNALITY));
-	send();
+	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_READ));
 
-	readLine();
-	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_PHONE_FUNCTIONNALITY_RESPONSE) == 0) return SIM808_PHONE_FUNCTIONALITY::FAIL;
-
-	int8_t state;
-	parseReply(',', 0, &state);
-
-	readLine();
-	if (!assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return SIM808_PHONE_FUNCTIONALITY::FAIL;
-
-	return (SIM808_PHONE_FUNCTIONALITY)state;
+	if (waitResponse(10000L, SFP(TOKEN_CFUN)) == 0 &&
+		parseReply(',', 0, &state) &&
+		waitResponse() == 0)
+		return (SIM808_PHONE_FUNCTIONALITY)state;
+	
+	return SIM808_PHONE_FUNCTIONALITY::FAIL;
 }
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 {
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_PHONE_FUNCTIONNALITY), fun);
+	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_WRITE), (uint8_t)fun);
 
-	//TODO : refactor send etc to allow for such things
-	send();
-	//ditching URC given back by this command
-	readLine(10000);
-	if (assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return true;
-
-	while (readLine(1000)) {
-		if (assertResponse(PSTRPTR(SIM808_TOKEN_OK))) return true;
-
-	}
-	return false;
+	return waitResponse(10000L) == 0;
 }
 
 bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
 {
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_SLOW_CLOCK), mode);
+	sendAT(SF("+CSCLK"), SFP(TOKEN_WRITE), (uint8_t)mode);
 
-	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK), 1000);
+	return waitResponse() == 0;
 }
 
