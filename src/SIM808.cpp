@@ -55,7 +55,6 @@ void SIM808::waitForReady()
 
 bool SIM808::setEcho(SIM808_ECHO mode)
 {
-	SENDARROW;
 	sendAT(SF("E"), (uint8_t)mode);
 
 	return waitResponse() == 0;

@@ -58,11 +58,15 @@ protected:
 
 	template<typename... Args> void sendAT(Args... cmd)
 	{
+		SENDARROW;
+		
 		writeStream(TOKEN_AT, cmd..., TOKEN_NL);
 	}
 
 	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
 	{
+		SENDARROW;
+
 		writeStream(TOKEN_AT);
 		_output.verbose(format, args...);
 		writeStream(TOKEN_NL);
