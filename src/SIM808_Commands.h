@@ -29,6 +29,7 @@ TOKEN_TEXT(READ, "?");
 TOKEN_TEXT(WRITE, "=");
 TOKEN_TEXT(QUOTE, "\"");
 TOKEN_TEXT(RESPONSE, ":");
+TOKEN_TEXT(COMMA, ":");
 TOKEN_TEXT(NL, "\n");
 
 #define PSTRPTR(x) reinterpret_cast<const __FlashStringHelper *>(x)
