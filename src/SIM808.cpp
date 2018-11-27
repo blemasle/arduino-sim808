@@ -1,7 +1,5 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(SET_ECHO, "ATE%d");
-
 TOKEN(RDY);
 
 SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
@@ -31,6 +29,7 @@ void SIM808::init()
 	delay(1500);
 
 	setEcho(SIM808_ECHO::OFF);
+	//this might not be needed anymore with the new "read until" strategy
 	setEcho(SIM808_ECHO::OFF); //two times make asserts headache-less
 }
 
@@ -51,22 +50,15 @@ void SIM808::waitForReady()
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
 		sendAT(SF(""));
 	// Despite official documentation, we can get an "AT" back without a "RDY" first.
-	} while (waitResponse(SFP(TOKEN_AT), SFP(TOKEN_RDY)));
-
-	//do
-	//{
-	//	SIM808_PRINT_SIMPLE_P("Waiting for RDY...");
-	//	readLine();
-	//} while (!assertResponse(PSTRPTR(SIM808_TOKEN_RDY)));
-
+	} while (waitResponse(SFP(TOKEN_AT), SFP(TOKEN_RDY)) == -1);
 }
 
 bool SIM808::setEcho(SIM808_ECHO mode)
 {
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_ECHO), mode);
+	sendAT(SF("E"), (uint8_t)mode);
 
-	return sendAssertResponse(PSTRPTR(SIM808_TOKEN_OK));
+	return waitResponse() == 0;
 }
 
 size_t SIM808::sendCommand(const char *cmd, char *response)
