@@ -30,7 +30,6 @@ SIM808ChargingStatus SIM808::getChargingState()
 	uint8_t level;
 	uint16_t voltage;
 
-	SENDARROW;
 	sendAT(SFP(TOKEN_CBC));
 
 	if (waitResponse(SFP(TOKEN_CBC)) == 0 &&
@@ -47,7 +46,6 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 {
 	uint8_t state;
 
-	SENDARROW;
 	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_READ));
 
 	if (waitResponse(10000L, SFP(TOKEN_CFUN)) == 0 &&
@@ -60,7 +58,6 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 {
-	SENDARROW;
 	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_WRITE), (uint8_t)fun);
 
 	return waitResponse(10000L) == 0;
@@ -68,7 +65,6 @@ bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 
 bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
 {
-	SENDARROW;
 	sendAT(SF("+CSCLK"), SFP(TOKEN_WRITE), (uint8_t)mode);
 
 	return waitResponse() == 0;
