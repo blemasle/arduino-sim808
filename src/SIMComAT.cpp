@@ -10,62 +10,7 @@ void SIMComAT::begin(Stream& port)
 #endif // _SIM808_DEBUG
 }
 
-void SIMComAT::flushInput()
-{
-	//immediatly or soon available lines while be discarded
-	while (available() || (delay(100), available())) {
-		readLine();
-	}
-}
-
-void SIMComAT::send() 
-{
-	flushInput();
-	_port->println();
-}
-
-size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	uint16_t originalTimeout = timeout;
-	do {
-
-		uint8_t i = 0;
-		timeout = originalTimeout;
-
-		while (timeout-- && i < BUFFER_SIZE)
-		{
-			while (available())
-			{
-				char c = read();
-				if (c == '\r') continue;
-				if (c == '\n')
-				{
-					if (i == 0) continue; //beginning of a new line
-					else //end of the line
-					{
-						timeout = 0;
-						break;
-					}
-				}
-				replyBuffer[i] = c;
-				i++;
-			}
-
-			delay(1);
-		}
-
-		replyBuffer[i] = 0; //string term
-
-		RECEIVEARROW;
-		SIM808_PRINT(replyBuffer);
-		SIM808_PRINT(CR);
-	} while (strstr_P(replyBuffer, PSTR("OVER-VOLTAGE")) != NULL); //discard over voltage warnings
-
-	delay(100);
-	return strlen(replyBuffer);
-}
-
-void SIMComAT::readNextLine(uint32_t timeout)
+size_t SIMComAT::readNext(uint32_t timeout = 0)
 {
 	uint8_t i = 0;
 	memset(replyBuffer, 0, BUFFER_SIZE);
@@ -73,19 +18,26 @@ void SIMComAT::readNextLine(uint32_t timeout)
 	uint16_t start = millis();
 
 	do {
-		while(available()) {
+		while(i < BUFFER_SIZE - 1 && available()) {
 			char c = read();
 			replyBuffer[i] = c;
 			i++;
 
 			if(c == '\n') {
-				timeout = 0;
+				timeout = 0; //forcing the outer loop to break
 				break;
 			}
 		}
-	} while(millis() - start < timeout);
+	} while(i < BUFFER_SIZE - 1 && millis() - start < timeout);
 
 	replyBuffer[i] = '\0';
+
+	RECEIVEARROW;
+	SIM808_PRINT(replyBuffer);
+	if(i > 0 && replyBuffer[i - 1] == '\n')
+		SIM808_PRINT(CR);
+
+	return strlen(replyBuffer);
 }
 
 int8_t SIMComAT::waitResponse(uint32_t timeout, 
@@ -98,7 +50,7 @@ int8_t SIMComAT::waitResponse(uint32_t timeout,
 	Sim808ConstStr wantedTokens[4] = { s1, s2, s3, s4 };
 
 	do {
-		readNextLine(timeout - (millis() - start));
+		readNext(timeout - (millis() - start));
 		for(uint8_t i = 0; i < 4; i++) {
 			if(wantedTokens[i] && strstr_P(replyBuffer, SFPT(wantedTokens[i])) == replyBuffer) return i;
 		}
@@ -107,24 +59,20 @@ int8_t SIMComAT::waitResponse(uint32_t timeout,
 	return -1;
 }
 
-template<typename T>size_t SIMComAT::sendGetResponse(T msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+size_t SIMComAT::copyResponse(char * response, uint16_t shift = 0)
 {
-	SENDARROW;
-	print(msg);
-	return sendGetResponse(response, timeout);
-}
-
-size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT) 
-{
-	send();
-	readLine(timeout);
 	
-	return copyResponse(response);
-}
+	size_t lenght = 0;
+	char *p = response;
+	
+	p += safeCopy(replyBuffer + shift, p);
 
-size_t SIMComAT::copyResponse(char * response)
-{
-	return safeCopy(replyBuffer, response);
+	while(strstr_P(replyBuffer, TOKEN_NL) == 0) {
+		readNext();
+		p += safeCopy(replyBuffer, p);
+	}
+
+	return response - p;
 }
 
 size_t SIMComAT::safeCopy(const char *src, char *dst)
@@ -136,24 +84,6 @@ size_t SIMComAT::safeCopy(const char *src, char *dst)
 	}
 
 	return len;
-}
-
-bool SIMComAT::sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	if (!sendGetResponse(msg, NULL, timeout)) return false;
-	return assertResponse(expectedResponse);
-}
-
-bool SIMComAT::sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	if (!sendGetResponse(NULL, timeout)) return false;
-	return assertResponse(expectedResponse);
-}
-
-bool SIMComAT::assertResponse(const __FlashStringHelper *expectedResponse)
-{
-	SIM808_PRINT_P("assertResponse : [%s], [%S]", replyBuffer, expectedResponse);
-	return !strcasecmp_P(replyBuffer, (char *)expectedResponse);
 }
 
 char* SIMComAT::find(const char* str, char divider, uint8_t index)

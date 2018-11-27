@@ -72,7 +72,11 @@ protected:
 		writeStream(TOKEN_NL);
 	}
 
-	void readNextLine(uint32_t timeout);
+	/**
+	 * Read the next line into replyBuffer until timeout is expired, 
+	 * or until the replyBuffer is full.
+	 */
+	size_t readNext(uint32_t timeout = 0);
 	int8_t waitResponse(
 		Sim808ConstStr s1 = SFP(TOKEN_OK),
 		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
@@ -88,47 +92,11 @@ protected:
 		Sim808ConstStr s4 = NULL);
 		
 	/**
-	 * Flush all lines currently in the buffer.
-	 */
-	void flushInput();
-	/**
-	 * Send a line return, effectively validating the current command. 
-	 */
-	void send();
-
-	/**
-	 * Read the next line into replyBuffer or bail out after timeout.
-	 */
-	size_t readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	template<typename T>size_t sendGetResponse(T msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and wait for a response back.
-	 */
-	size_t sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
 	 * Copy the content of response into replyBuffer.
 	 */
-	size_t copyResponse(char *response);
+	size_t copyResponse(char *response, uint16_t shift = 0);
 	size_t safeCopy(const char *src, char *dst);
 	
-	/**
-	 * Send a command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-
-	/**
-	 * Check that replyBuffer matches expectedResponse.
-	 */
-	bool assertResponse(const __FlashStringHelper *expectedResponse);
-
 	/**
 	 * Find and return a pointer to the nth field of a string.
 	 */
