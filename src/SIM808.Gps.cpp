@@ -1,11 +1,7 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(SET_GPS_POWER, "AT+CGNSPWR=%d");
-SIM808_COMMAND(GET_GPS_POWER, "AT+CGNSPWR?");
-SIM808_COMMAND(GET_GPS_INFO, "AT+CGNSINF");
-
-const char SIM808_COMMAND_GET_GPS_INFO_RESPONSE[] PROGMEM = "+CGNSINF: ";
-const char SIM808_COMMAND_GET_GPS_POWER_RESPONSE[] PROGMEM = "+CGNSPWR:";
+TOKEN_TEXT(GPS_POWER, "+CGNSPWR");
+TOKEN_TEXT(GPS_INFO, "+CGNSINF");
 
 void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if following todos in this file are done
 {
@@ -18,42 +14,24 @@ void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if fo
 	str[len - shift] = '\0';
 }
 
-bool SIM808::enableGps() //TODO : merge enableGps & disableGps
+bool SIM808::powerOnOffGps(bool power)
 {
-	bool currentState = true;
-	if (!getGpsPowerState(&currentState) || currentState) return false;
+	bool currentState;
+	if(!getGpsPowerState(&currentState) || (currentState == power)) return false;
 
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 1);
-
-	return sendAssertResponse(_ok);
-}
-
-bool SIM808::disableGps()
-{
-	bool currentState = false;
-	if (!getGpsPowerState(&currentState) || !currentState) return false;
-
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_GPS_POWER), 0);
-
-	return sendAssertResponse(_ok);
+	sendAT(SFP(TOKEN_GPS_POWER), SFP(TOKEN_WRITE), (uint8_t)power);
+	return  waitResponse() == 0;
 }
 
 bool SIM808::getGpsPosition(char *response)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
+	sendAT(SFP(TOKEN_GPS_INFO));
 
-	//TODO : read response directly into user supplied response like in readHttpResponse
-	//TODO : check for SIM808_COMMAND_GET_GPS_INFO_RESPONSE at the beginning of the response
-	if (!sendGetResponse(response)) return false;
-	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), response);
+	if(waitResponse(SFP(TOKEN_GPS_INFO)) != 0)
+		return false;
 
-	readLine();
-	if (!assertResponse(_ok)) return false;
-
-	return true;
+	// GPSINF response might be too long for the reply buffer
+	copyCurrentLine(response, strlen_P(TOKEN_GPS_INFO) + 2);
 }
 
 void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** result) 
@@ -62,9 +40,11 @@ void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** re
 	*result = pTmp;
 }
 
+//TODO : change to int16_t : altitude can be negative, and course > 255
 bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result)
 {
-	if (field < SIM808_GPS_FIELD::ALTITUDE) return false; //using parse as a rough float values truncating
+	// it is possible to get float fields as int. They will be truncated by parse
+	if (field < SIM808_GPS_FIELD::ALTITUDE) return false;
 
 	parse(response, ',', (uint8_t)field, result);
 	return true;
@@ -75,6 +55,7 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 	if (field != SIM808_GPS_FIELD::COURSE && 
 		field != SIM808_GPS_FIELD::LATITUDE &&
 		field != SIM808_GPS_FIELD::LONGITUDE &&
+		field != SIM808_GPS_FIELD::ALTITUDE &&
 		field != SIM808_GPS_FIELD::SPEED) return false;
 
 	parse(response, ',', (uint8_t)field, result);
@@ -82,29 +63,32 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 }
 
 __attribute__((__optimize__("O2")))
+//TODO : add accurate_fix_threshold = GPS_ACCURATE_FIX_MIN_SATELLITES parameter
 SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_INFO));
+	sendAT(SFP(TOKEN_GPS_INFO));
 
-	if (!sendGetResponse(NULL)) return SIM808_GPS_STATUS::FAIL;
-	shiftLeft(strlen_P(SIM808_COMMAND_GET_GPS_INFO_RESPONSE), replyBuffer); //TODO : use constant + strlen_P instead of shiftLeft
+	if(waitResponse(SFP(TOKEN_GPS_INFO)) != 0)
+		return SIM808_GPS_STATUS::FAIL;
 
-	if (replyBuffer[0] == '0') result = SIM808_GPS_STATUS::OFF;
-	if (replyBuffer[2] == '1')
+	uint16_t shift = strlen_P(TOKEN_GPS_INFO) + 2;
+
+	if(replyBuffer[shift] == '0') result = SIM808_GPS_STATUS::OFF;
+	if(replyBuffer[shift + 2] == '1') // fix acquired
 	{
 		uint8_t satellitesUsed;
-		result = getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed) && satellitesUsed > GPS_ACCURATE_FIX_MIN_SATELLITES ?
+		getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed);
+
+		result = satellitesUsed > GPS_ACCURATE_FIX_MIN_SATELLITES ?
 			SIM808_GPS_STATUS::ACCURATE_FIX :
 			SIM808_GPS_STATUS::FIX;
 
-		copyResponse(response);
+		copyCurrentLine(response, shift);
 	}
 
-	readLine();
-	if (!assertResponse(_ok)) return SIM808_GPS_STATUS::FAIL;
+	if(waitResponse() != 0) return SIM808_GPS_STATUS::FAIL;
 
 	return result;
 }
@@ -112,17 +96,14 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 bool SIM808::getGpsPowerState(bool *state)
 {
 	uint8_t result;
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPS_POWER));
 
-	send();
-	readLine();
-	if(strstr_P(replyBuffer, SIM808_COMMAND_GET_GPS_POWER_RESPONSE) == 0) return false;
+	sendAT(SFP(TOKEN_GPS_POWER), SFP(TOKEN_READ));
 
-	if (!parseReply(',', 0, &result)) return false;
+	if(waitResponse(10000L, SFP(TOKEN_GPS_POWER)) != 0 ||
+		!parseReply(',', 0, &result) ||
+		waitResponse())
+		return false;
 
 	*state = result;
-
-	readLine();
-	return assertResponse(_ok);
+	return true;
 }

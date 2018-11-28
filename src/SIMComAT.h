@@ -8,16 +8,13 @@
 
 #if _SIM808_DEBUG
 
-const char ARROW_LEFT[] PROGMEM = "<--";
-const char ARROW_RIGHT[] PROGMEM = "-->";
-
 #define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 #define SIM808_PRINT_CHAR(x) Serial.print((char)x)
-#define SIM808_PRINT_P(fmt, ...) _debug.verbose(F(fmt "\n"), __VA_ARGS__)
-#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(F(fmt "\n"))
+#define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
+#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
 
-#define RECEIVEARROW _debug.verbose(PSTRPTR(ARROW_LEFT))
-#define SENDARROW _debug.verbose(PSTRPTR(ARROW_RIGHT))
+#define RECEIVEARROW _debug.verbose(SF("<--"))
+#define SENDARROW _debug.verbose(SF("\n-->"))
 #else
 #define SIM808_PRINT(...)
 #define SIM808_PRINT_CHAR(x)
@@ -31,6 +28,7 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 #define BUFFER_SIZE 128
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
+typedef 
 class SIMComAT : public Stream
 {
 private:
@@ -44,50 +42,60 @@ protected:
 
 	char replyBuffer[BUFFER_SIZE];
 	
+	template<typename T> void writeStream(T last)
+	{
+		print(last);
+	}
+
+	template<typename T, typename... Args> void writeStream(T head, Args... tail)
+	{
+		print(head);
+		writeStream(tail...);
+	}
+
+	template<typename... Args> void sendAT(Args... cmd)
+	{
+		SENDARROW;
+		writeStream(SFP(TOKEN_AT), cmd..., SFP(TOKEN_NL));
+	}
+
+	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
+	{
+		SENDARROW;
+		writeStream(SFP(TOKEN_AT));
+		_output.verbose(format, args...);
+		writeStream(SFP(TOKEN_NL));
+	}
+
 	/**
-	 * Flush all lines currently in the buffer.
+	 * Read and discard all content already waiting to be parsed. 
 	 */
 	void flushInput();
 	/**
-	 * Send a line return, effectively validating the current command. 
+	 * Read data into replyBuffer and stops when the buffer is full, a new line is encountered,
+	 * or when the timeout is expired.
 	 */
-	void send();
+	size_t readNext(uint16_t *timeout);
+	int8_t waitResponse(
+		Sim808ConstStr s1 = SFP(TOKEN_OK),
+		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+		Sim808ConstStr s3 = NULL,
+		Sim808ConstStr s4 = NULL) {
+			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
+		};
 
+	int8_t waitResponse(uint16_t timeout, 
+		Sim808ConstStr s1 = SFP(TOKEN_OK),
+		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+		Sim808ConstStr s3 = NULL,
+		Sim808ConstStr s4 = NULL);
+		
 	/**
-	 * Read the next line into replyBuffer or bail out after timeout.
+	 * Read the current response line and copy it in response. Start at replyBuffer + shift
 	 */
-	size_t readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	size_t sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT); //TODO : use templates (like ArduinoLog) ?
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	size_t sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and wait for a response back.
-	 */
-	size_t sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Copy the content of response into replyBuffer.
-	 */
-	size_t copyResponse(char *response);
+	size_t copyCurrentLine(char *dst, uint16_t shift = 0);
+	size_t safeCopy(const char *src, char *dst);
 	
-	/**
-	 * Send a command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-
-	/**
-	 * Check that replyBuffer matches expectedResponse.
-	 */
-	bool assertResponse(const __FlashStringHelper *expectedResponse);
-
 	/**
 	 * Find and return a pointer to the nth field of a string.
 	 */

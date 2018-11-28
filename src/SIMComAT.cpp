@@ -10,116 +10,96 @@ void SIMComAT::begin(Stream& port)
 #endif // _SIM808_DEBUG
 }
 
-void SIMComAT::flushInput()
-{
-	//immediatly or soon available lines while be discarded
-	while (available() || (delay(100), available())) {
-		readLine();
-	}
+void SIMComAT::flushInput(); {
+	uint16_t timeout = 0;
+	while(readNext(&timeout));
 }
 
-void SIMComAT::send() 
+size_t SIMComAT::readNext(uint16_t * timeout)
 {
-	flushInput();
-	_port->println();
-}
+	uint8_t i = 0;
+	bool gotNewLine = false;
+	memset(replyBuffer, 0, BUFFER_SIZE);
 
-size_t SIMComAT::readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	uint16_t originalTimeout = timeout;
 	do {
+		while(i < BUFFER_SIZE - 1 && available()) {
+			char c = read();
+			replyBuffer[i] = c;
+			i++;
 
-		uint8_t i = 0;
-		timeout = originalTimeout;
-
-		while (timeout-- && i < BUFFER_SIZE)
-		{
-			while (available())
-			{
-				char c = read();
-				if (c == '\r') continue;
-				if (c == '\n')
-				{
-					if (i == 0) continue; //beginning of a new line
-					else //end of the line
-					{
-						timeout = 0;
-						break;
-					}
-				}
-				replyBuffer[i] = c;
-				i++;
+			if(c == '\n') {
+				gotNewLine = true; //forcing the outer loop to break
+				break;
 			}
-
-			delay(1);
 		}
 
-		replyBuffer[i] = 0; //string term
+		delay(1);
+		if(*timeout) (*timeout)--;
+	} while(!gotNewLine && i < BUFFER_SIZE - 1 && *timeout);
 
+	replyBuffer[i] = '\0';
+
+	if(i) {
 		RECEIVEARROW;
 		SIM808_PRINT(replyBuffer);
-		SIM808_PRINT(CR);
-	} while (strstr_P(replyBuffer, PSTR("OVER-VOLTAGE")) != NULL); //discard over voltage warnings
+	}
 
-	delay(100);
-	return strlen(replyBuffer);
+	return i;
 }
 
-size_t SIMComAT::sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+int8_t SIMComAT::waitResponse(uint16_t timeout, 
+	Sim808ConstStr s1 = SFP(TOKEN_OK),
+	Sim808ConstStr s2 = SFP(TOKEN_ERROR),
+	Sim808ConstStr s3 = NULL,
+	Sim808ConstStr s4 = NULL)
 {
-	SENDARROW;
-	print(msg);
-	return sendGetResponse(response, timeout);
+	Sim808ConstStr wantedTokens[4] = { s1, s2, s3, s4 };
+	size_t length;
+
+	do {
+		length = readNext(&timeout);
+
+		if(!length) continue; 					//read nothing
+		if(wantedTokens[0] == NULL) return 0;	//looking for a line with any content
+
+		for(uint8_t i = 0; i < 4; i++) {
+			if(wantedTokens[i]) {
+				char *p = strstr_P(replyBuffer, SFPT(wantedTokens[i]));
+				if(replyBuffer == p) return i;				
+			}
+		}
+	} while(timeout);
+
+	return -1;
 }
 
-size_t SIMComAT::sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
+size_t SIMComAT::copyCurrentLine(char * dst, uint16_t shift = 0)
 {
-	SENDARROW;
-	print(msg);
-	return sendGetResponse(response, timeout);
+	char *p = dst;
+	p += safeCopy(replyBuffer + shift, p);
+
+	while(strstr_P(replyBuffer, TOKEN_NL) == 0) {
+		waitResponse((uint16_t)0, NULL);
+		p += safeCopy(replyBuffer, p);
+	}
+
+	if(*(p - 1) == '\n') *(p - 1) = '\0';
+	return strlen(dst);
 }
 
-size_t SIMComAT::sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT) 
+size_t SIMComAT::safeCopy(const char *src, char *dst)
 {
-	send();
-	readLine(timeout);
-	
-	return copyResponse(response);
-}
-
-size_t SIMComAT::copyResponse(char * response)
-{
-	size_t len = strlen(replyBuffer);
-	if (response != NULL) {
+	size_t len = strlen(src);
+	if (dst != NULL) {
 		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
-		strlcpy(response, replyBuffer, maxLen);
+		strlcpy(dst, src, maxLen);
 	}
 
 	return len;
 }
 
-bool SIMComAT::sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	if (!sendGetResponse(msg, NULL, timeout)) return false;
-	return assertResponse(expectedResponse);
-}
-
-bool SIMComAT::sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT)
-{
-	if (!sendGetResponse(NULL, timeout)) return false;
-	return assertResponse(expectedResponse);
-}
-
-bool SIMComAT::assertResponse(const __FlashStringHelper *expectedResponse)
-{
-	SIM808_PRINT_P("assertResponse : [%s], [%S]", replyBuffer, expectedResponse);
-	return !strcasecmp_P(replyBuffer, (char *)expectedResponse);
-}
-
 char* SIMComAT::find(const char* str, char divider, uint8_t index)
 {
-	SIM808_PRINT_P("find : [%s, %c, %i]", str, divider, index);
-
 	char* p = strchr(str, ':');
 	if (p == NULL) p = strchr(str, str[0]); //ditching eventual response header
 
@@ -130,8 +110,6 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index)
 		if (p == NULL) return NULL;
 		p++;
 	}
-
-	SIM808_PRINT_P("find : [%s, %c, %i], [%s]", str, divider, index, p);
 
 	return p;
 }
@@ -160,7 +138,6 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint16_t* res
 	if (p == NULL) return false;
 
 	errno = 0;
-	//*result = (uint16_t)atol(p);
 	*result = strtoul(p, NULL, 10);
 
 	return errno == 0;
@@ -172,7 +149,6 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, int16_t* resu
 	if (p == NULL) return false;
 
 	errno = 0;
-	//*result = atol(p);
 	*result = strtol(p, NULL, 10);
 	
 	return errno == 0;

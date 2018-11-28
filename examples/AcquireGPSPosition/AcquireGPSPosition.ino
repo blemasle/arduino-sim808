@@ -31,7 +31,7 @@ void setup() {
     sim808.init();
 
     Log.notice(F("Powering on SIM808's GPS..."));
-	sim808.enableGps();
+	sim808.powerOnOffGps(true);
 }
 
 void loop() {

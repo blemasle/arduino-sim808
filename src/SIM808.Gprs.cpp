@@ -1,50 +1,41 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(SET_BEARER_SETTING, "AT+SAPBR=3,1,\"%S\",\"%s\"");
-SIM808_COMMAND(BEARER_CLOSE, "AT+SAPBR=0,1");
-SIM808_COMMAND(BEARER_OPEN, "AT+SAPBR=1,1");
-SIM808_COMMAND(GPRS_START_TASK, "AT+CSTT=\"%s\"");
-SIM808_COMMAND(GET_NETWORK_REGISTRATION, "AT+CGREG?");
-SIM808_COMMAND(GPRS_DISABLE_CONTEXT, "AT+CIPSHUT");
-SIM808_COMMAND(GET_GPRS_STATE, "AT+CGATT?");
-SIM808_COMMAND(GPRS_ATTACH, "AT+CGATT=1");
-SIM808_COMMAND(GPRS_DETACH, "AT+CGATT=0");
-SIM808_COMMAND(CIICR, "AT+CIICR");
+AT_COMMAND(SET_BEARER_SETTING_PARAMETER, "+SAPBR=3,1,\"%S\",\"%s\"");
+AT_COMMAND(SET_BEARER_SETTING, "+SAPBR=%d,%d");
+AT_COMMAND(GPRS_START_TASK, "+CSTT=\"%s\",\"%s\",\"%s\"");
+AT_COMMAND(GPRS_ATTACH, "+CGATT=%d");
 
-SIM808_COMMAND_PARAMETER(BEARER, CONTYPE);
-SIM808_COMMAND_PARAMETER(BEARER, APN);
-SIM808_COMMAND_PARAMETER(BEARER, USER);
-SIM808_COMMAND_PARAMETER(BEARER, PWD);
+AT_COMMAND_PARAMETER(BEARER, CONTYPE);
+AT_COMMAND_PARAMETER(BEARER, APN);
+AT_COMMAND_PARAMETER(BEARER, USER);
+AT_COMMAND_PARAMETER(BEARER, PWD);
 
-SIM808_TOKEN_COMPLEX(SHUT_OK, "SHUT OK");
+TOKEN_TEXT(CGATT, "+CGATT");
+TOKEN_TEXT(CIPSHUT, "+CIPSHUT");
+TOKEN_TEXT(CSTT, "+CSTT");
+TOKEN_TEXT(CIICR, "+CIICR");
+TOKEN_TEXT(SHUT_OK, "SHUT OK");
+TOKEN_TEXT(CGREG, "+CGREG");
 
-const char SIM808_COMMAND_STRING_PARAMETER[] PROGMEM = ",\"%s\"";
-const char SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE[] PROGMEM = "+CGREG:";
-const char SIM808_COMMAND_GET_GPRS_STATE_RESPONSE[] PROGMEM = "+CGATT:";
-
-bool SIM808::setBearerSetting(const __FlashStringHelper* parameter, const char* value)
+bool SIM808::setBearerSetting(Sim808ConstStr parameter, const char *value)
 {
-	SENDARROW;	
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_BEARER_SETTING), parameter, value);
-	return sendAssertResponse(_ok);
+	sendFormatAT(SFP(AT_COMMAND_SET_BEARER_SETTING_PARAMETER), parameter, value);
+	return waitResponse() == 0;
 }
 
 bool SIM808::getGprsPowerState(bool *state)
 {
 	uint8_t result;
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_GPRS_STATE));
 
-	send();
-	readLine();
-	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_GPRS_STATE_RESPONSE) == 0) return false;
+	sendAT(SFP(TOKEN_CGATT), SFP(TOKEN_READ));
 
-	if (!parseReply(',', 0, &result)) return false;
+	if(waitResponse(10000L, SFP(TOKEN_CGATT)) != 0 ||
+		!parseReply(',', 0, &result) ||
+		waitResponse())
+		return false;
 
 	*state = result;
-
-	readLine();
-	return assertResponse(_ok);
+	return true;
 }
 
 bool SIM808::enableGprs(const char *apn)
@@ -54,40 +45,24 @@ bool SIM808::enableGprs(const char *apn)
 
 bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 {
-	bool success = sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DISABLE_CONTEXT), PSTRPTR(SIM808_TOKEN_SHUT_OK), 65000) &&
-		sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_ATTACH), _ok, 10000) &&
-		setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_CONTYPE), "GPRS") &&
-		setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_APN), apn) &&
-		(user == NULL || setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_USER), user)) &&
-		(password == NULL || setBearerSetting(PSTRPTR(SIM808_COMMAND_PARAMETER_BEARER_PWD), password));
+	return (sendAT(SFP(TOKEN_CIPSHUT)), waitResponse(65000L, SFP(TOKEN_SHUT_OK)) == 0) &&					//AT+CIPSHUT
+		(sendFormatAT(SFP(AT_COMMAND_GPRS_ATTACH), 1), waitResponse(10000L) == 0) &&						//AT+CGATT=1
 
-	if (!success) return false;
+		setBearerSetting(SFP(AT_COMMAND_PARAMETER_BEARER_CONTYPE), "GPRS") &&
+		setBearerSetting(SFP(AT_COMMAND_PARAMETER_BEARER_APN), apn) &&
+		(user == NULL || setBearerSetting(SFP(AT_COMMAND_PARAMETER_BEARER_USER), user)) &&
+		(password == NULL || setBearerSetting(SFP(AT_COMMAND_PARAMETER_BEARER_PWD), password)) &&
 
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GPRS_START_TASK), apn);
-
-	if (user) {
-		_output.verbose(PSTRPTR(SIM808_COMMAND_STRING_PARAMETER), user);
-	}
-
-	if (password) {
-		_output.verbose(PSTRPTR(SIM808_COMMAND_STRING_PARAMETER), password);
-	}
-
-	if (!sendAssertResponse(_ok)) return false;
-
-	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_BEARER_OPEN), _ok, 65000) &&
-		sendAssertResponse(PSTRPTR(SIM808_COMMAND_CIICR), _ok, 65000);
-
+		(sendFormatAT(SFP(AT_COMMAND_GPRS_START_TASK), apn, user, password), waitResponse() == 0) &&		//AT+CSTT="apn","user","password"
+		(sendFormatAT(SFP(AT_COMMAND_SET_BEARER_SETTING), 1, 1), waitResponse(65000L) == 0) &&				//AT+SAPBR=1,1
+		(sendAT(SFP(TOKEN_CIICR)), waitResponse(65000L) == 0);												//AT+CIICR
 }
 
 bool SIM808::disableGprs()
 {
-	sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DISABLE_CONTEXT), PSTRPTR(SIM808_TOKEN_SHUT_OK), 65000);
-	sendAssertResponse(PSTRPTR(SIM808_COMMAND_BEARER_CLOSE), _ok, 65000);
-	sendAssertResponse(PSTRPTR(SIM808_COMMAND_GPRS_DETACH), _ok, 10000);
-
-	return true;
+	return (sendAT(SFP(TOKEN_CIPSHUT)), waitResponse(65000L, SFP(TOKEN_SHUT_OK)) == 0) &&					//AT+CIPSHUT
+		(sendFormatAT(SFP(AT_COMMAND_SET_BEARER_SETTING), 0, 1), waitResponse(65000L) != -1) &&				//AT+SAPBR=0,1
+		(sendFormatAT(SFP(AT_COMMAND_GPRS_ATTACH), 0), waitResponse(10000L) == 0);							//AT+CGATT=0
 }
 
 SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
@@ -96,19 +71,13 @@ SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
 	uint8_t stat;
 	SIM808RegistrationStatus result = { -1, SIM808_NETWORK_REGISTRATION_STATE::ERROR };
 
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_NETWORK_REGISTRATION));
-
-	send();
-	readLine();
+	sendAT(SFP(TOKEN_CGREG), SFP(TOKEN_READ));
 	
-	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_NETWORK_REGISTRATION_RESPONSE) == 0) return result;
-
-	if (!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
-		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat)) return result;
-
-	readLine();
-	if (!assertResponse(_ok)) return result;
+	if(waitResponse(SFP(TOKEN_CGREG)) != 0 ||
+		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
+		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat) ||
+		waitResponse() != 0)
+		return result;
 
 	result.n = n;
 	result.stat = (SIM808_NETWORK_REGISTRATION_STATE)stat;

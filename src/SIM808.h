@@ -13,8 +13,6 @@ private:
 	uint8_t _resetPin;
 	uint8_t _statusPin;
 	uint8_t _pwrKeyPin;
-
-	const __FlashStringHelper *_ok;	///< Stored once and reused accross several functions
 	const char* _userAgent;
 
 	/**
@@ -34,18 +32,11 @@ private:
 	 * Read the last HTTP response body into response.
 	 */
 	bool readHttpResponse(char *response, size_t responseSize);
-	/**
-	 * Set a HTTP parameter value using a PROGMEM string.
-	 */
-	bool setHttpParameter(const __FlashStringHelper* parameter, const __FlashStringHelper* value);
-	/**
-	 * Set a HTTP parameter value using a string.
-	 */
-	bool setHttpParameter(const __FlashStringHelper* parameter, const char* value);
-	/**
-	 * Set a HTTP parameter value using an integer.
-	 */
-	bool setHttpParameter(const __FlashStringHelper* parameter, const int8_t value);
+	template<typename T> bool setHttpParameter(Sim808ConstStr parameter, T value)
+	{
+		sendAT(SFP("AT+HTTPPARA="), SFP(TOKEN_QUOTE), parameter, SFP(TOKEN_QUOTE), SFP(TOKEN_COMMA), SFP(TOKEN_QUOTE), value, SFP(TOKEN_QUOTE));
+		return waitResponse() == 0;
+	}	
 	/**
 	 * Set the HTTP body of the next request to be fired.
 	 */
@@ -62,7 +53,7 @@ private:
 	/**
 	 * Set one of the bearer settings for application based on IP.
 	 */
-	bool setBearerSetting(const __FlashStringHelper *parameter, const char* value);
+	bool setBearerSetting(Sim808ConstStr parameter, const char* value);
 
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
@@ -153,16 +144,12 @@ public:
 	 */
 	bool getGpsPowerState(bool *state);
 	/**
-	 * Turn on the GPS.
+	 * Power on or off the gps only if the requested state is different than the actual state.
 	 */
-	bool enableGps();
-	/**
-	 * Turn off the GPS.
-	 */
-	bool disableGps();
+	bool powerOnOffGps(bool power);
 	/**
 	 * Get the latest GPS parsed sequence and a value indicating the current
-	 * fix status.
+	 * fix status. response is only filled if a fixed is acquired.
 	 */
 	SIM808_GPS_STATUS getGpsStatus(char * response);
 	/**
@@ -196,6 +183,6 @@ public:
 	 * HTTP and HTTPS are supported, based on he provided URL. Note however that HTTPS request
 	 * have a high failure rate that make them unusuable reliably.
 	 */
-	uint16_t httpPost(const char* url, const __FlashStringHelper* contentType, const char* body, char* response, size_t responseSize);	
+	uint16_t httpPost(const char* url, Sim808ConstStr contentType, const char* body, char* response, size_t responseSize);	
 };
 
