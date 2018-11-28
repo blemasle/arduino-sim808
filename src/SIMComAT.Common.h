@@ -6,13 +6,13 @@
     #define S_PROGMEM PROGMEM
     typedef const __FlashStringHelper* Sim808ConstStr;
     #define SFP(x)  (reinterpret_cast<Sim808ConstStr>(x))
-    #define SFPT(x)  (reinterpret_cast<const char*>(x))
+    #define SFPT(x) (reinterpret_cast<const char*>(x))
     #define SF(x)   F(x)
 #else
     #define S_PROGMEM
     typedef const char* Sim808ConstStr;
     #define SFP(x)  x
-    #define SFPT(x)  x
+    #define SFPT(x) x
     #define SF(x)   x
 #endif
 
@@ -29,5 +29,4 @@ TOKEN_TEXT(READ, "?");
 TOKEN_TEXT(WRITE, "=");
 TOKEN_TEXT(QUOTE, "\"");
 TOKEN_TEXT(RESPONSE, ":");
-TOKEN_TEXT(COMMA, ":");
 TOKEN_TEXT(NL, "\n");

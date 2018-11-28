@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
-#include "SIM808_Commands.h"
+#include "SIMComAT.Common.h"
 
 #define _SIM808_DEBUG _DEBUG
 
@@ -100,7 +100,6 @@ protected:
 	 * Find and return a pointer to the nth field of a string.
 	 */
 	char* find(const char* str, char divider, uint8_t index); //TODO : rename
-
 	/**
 	 * Parse the nth field of a string as a uint8_t.
 	 */

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SIMComAT.h>
-#include <SIM808_Types.h>
-#include <SIM808_Commands.h>
+#include "SIM808.Types.h"
 
 #define HTTP_TIMEOUT 10000L
 #define GPS_ACCURATE_FIX_MIN_SATELLITES 4
