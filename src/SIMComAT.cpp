@@ -18,9 +18,8 @@ void SIMComAT::flushInput(); {
 size_t SIMComAT::readNext(uint16_t * timeout)
 {
 	uint8_t i = 0;
+	bool gotNewLine = false;
 	memset(replyBuffer, 0, BUFFER_SIZE);
-
-	uint16_t start = millis();
 
 	do {
 		while(i < BUFFER_SIZE - 1 && available()) {
@@ -29,20 +28,23 @@ size_t SIMComAT::readNext(uint16_t * timeout)
 			i++;
 
 			if(c == '\n') {
-				timeout = 0; //forcing the outer loop to break
+				gotNewLine = true; //forcing the outer loop to break
 				break;
 			}
 		}
-	} while(i < BUFFER_SIZE - 1 && millis() - start < timeout);
+
+		delay(1);
+		if(*timeout) (*timeout)--;
+	} while(!gotNewLine && i < BUFFER_SIZE - 1 && *timeout);
 
 	replyBuffer[i] = '\0';
 
-	RECEIVEARROW;
-	SIM808_PRINT(replyBuffer);
-	if(i > 0 && replyBuffer[i - 1] == '\n')
-		SIM808_PRINT(CR);
+	if(i) {
+		RECEIVEARROW;
+		SIM808_PRINT(replyBuffer);
+	}
 
-	return strlen(replyBuffer);
+	return i;
 }
 
 int8_t SIMComAT::waitResponse(uint16_t timeout, 
