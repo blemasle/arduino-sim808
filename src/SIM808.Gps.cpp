@@ -40,9 +40,11 @@ void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** re
 	*result = pTmp;
 }
 
+//TODO : change to int16_t : altitude can be negative, and course > 255
 bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result)
 {
-	if (field < SIM808_GPS_FIELD::ALTITUDE) return false; //using parse as a rough float values truncating
+	// it is possible to get float fields as int. They will be truncated by parse
+	if (field < SIM808_GPS_FIELD::ALTITUDE) return false;
 
 	parse(response, ',', (uint8_t)field, result);
 	return true;
