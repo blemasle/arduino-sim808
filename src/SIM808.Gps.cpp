@@ -55,6 +55,7 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 	if (field != SIM808_GPS_FIELD::COURSE && 
 		field != SIM808_GPS_FIELD::LATITUDE &&
 		field != SIM808_GPS_FIELD::LONGITUDE &&
+		field != SIM808_GPS_FIELD::ALTITUDE &&
 		field != SIM808_GPS_FIELD::SPEED) return false;
 
 	parse(response, ',', (uint8_t)field, result);
