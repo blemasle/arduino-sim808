@@ -71,8 +71,8 @@ protected:
 	}
 
 	/**
-	 * Read the next line into replyBuffer until timeout is expired, 
-	 * or until the replyBuffer is full.
+	 * Read data into replyBuffer and stops when the buffer is full, a new line is encountered,
+	 * or when the timeout is expired.
 	 */
 	size_t readNext(uint16_t *timeout);
 	int8_t waitResponse(
@@ -90,9 +90,9 @@ protected:
 		Sim808ConstStr s4 = NULL);
 		
 	/**
-	 * Copy the content of response into replyBuffer.
+	 * Read the current response line and copy it in response. Start at replyBuffer + shift
 	 */
-	size_t copyResponse(char *response, uint16_t shift = 0);
+	size_t copyCurrentLine(char *dst, uint16_t shift = 0);
 	size_t safeCopy(const char *src, char *dst);
 	
 	/**

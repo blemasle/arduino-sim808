@@ -65,7 +65,7 @@ size_t SIM808::sendCommand(const char *cmd, char *response)
 	sendAT(cmd);
 	
 	if(waitResponse() != 0) return 0;
-	return copyResponse(response);
+	return copyCurrentLine(response);
 }
 
 #pragma endregion

@@ -27,7 +27,7 @@ size_t SIM808::getImei(char *imei)
 	sendAT(SF("+GSN"));
 
 	readNext(SIMCOMAT_DEFAULT_TIMEOUT);
-	copyResponse(imei);
+	copyCurrentLine(imei);
 
 	return waitResponse() ?
 		strlen(imei) :

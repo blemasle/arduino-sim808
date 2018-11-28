@@ -59,7 +59,7 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 	return -1;
 }
 
-size_t SIMComAT::copyResponse(char * response, uint16_t shift = 0)
+size_t SIMComAT::copyCurrentLine(char * dst, uint16_t shift = 0)
 {
 	
 	size_t lenght = 0;
