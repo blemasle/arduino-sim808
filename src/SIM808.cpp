@@ -29,8 +29,6 @@ void SIM808::init()
 	delay(1500);
 
 	setEcho(SIM808_ECHO::OFF);
-	//this might not be needed anymore with the new "read until" strategy
-	setEcho(SIM808_ECHO::OFF); //two times make asserts headache-less
 }
 
 void SIM808::reset()
@@ -50,7 +48,10 @@ void SIM808::waitForReady()
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
 		sendAT(SF(""));
 	// Despite official documentation, we can get an "AT" back without a "RDY" first.
-	} while (waitResponse(SFP(TOKEN_AT), SFP(TOKEN_RDY)) == -1);
+	} while (waitResponse(SFP(TOKEN_AT)) != 0);
+
+	// we got AT, waiting for RDY
+	while (waitResponse(SFP(TOKEN_RDY)) != 0);
 }
 
 bool SIM808::setEcho(SIM808_ECHO mode)
