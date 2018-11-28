@@ -10,6 +10,11 @@ void SIMComAT::begin(Stream& port)
 #endif // _SIM808_DEBUG
 }
 
+void SIMComAT::flushInput(); {
+	uint16_t timeout = 0;
+	while(readNext(&timeout));
+}
+
 size_t SIMComAT::readNext(uint16_t * timeout)
 {
 	uint8_t i = 0;

@@ -24,12 +24,17 @@ size_t SIM808::getSimState(char *state)
 
 size_t SIM808::getImei(char *imei)
 {
-	sendAT(SF("+GSN"));
+	//AT+GSN does not have a response prefix, so we need to flush input
+	//before sending the command
+	flushInput();
 
-	readNext(SIMCOMAT_DEFAULT_TIMEOUT);
+	sendAT(SF("+GSN"));	
+	waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL); //consuming an extra line before the response. Undocumented
+
+	if(waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL) != 0) return 0;
 	copyCurrentLine(imei);
 
-	return waitResponse() ?
+	return waitResponse() == 0?
 		strlen(imei) :
 		0;
 }

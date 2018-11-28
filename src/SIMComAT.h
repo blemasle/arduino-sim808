@@ -71,6 +71,10 @@ protected:
 	}
 
 	/**
+	 * Read and discard all content already waiting to be parsed. 
+	 */
+	void flushInput();
+	/**
 	 * Read data into replyBuffer and stops when the buffer is full, a new line is encountered,
 	 * or when the timeout is expired.
 	 */
