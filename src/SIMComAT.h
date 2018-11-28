@@ -13,11 +13,11 @@ const char ARROW_RIGHT[] PROGMEM = "-->";
 
 #define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 #define SIM808_PRINT_CHAR(x) Serial.print((char)x)
-#define SIM808_PRINT_P(fmt, ...) _debug.verbose(F(fmt "\n"), __VA_ARGS__)
-#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(F(fmt "\n"))
+#define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
+#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
 
-#define RECEIVEARROW _debug.verbose(PSTRPTR(ARROW_LEFT))
-#define SENDARROW _debug.verbose(PSTRPTR(ARROW_RIGHT))
+#define RECEIVEARROW _debug.verbose(SFP(ARROW_LEFT))
+#define SENDARROW _debug.verbose(SFP(ARROW_RIGHT))
 #else
 #define SIM808_PRINT(...)
 #define SIM808_PRINT_CHAR(x)
@@ -59,17 +59,15 @@ protected:
 	template<typename... Args> void sendAT(Args... cmd)
 	{
 		SENDARROW;
-		
-		writeStream(TOKEN_AT, cmd..., TOKEN_NL);
+		writeStream(SFP(TOKEN_AT), cmd..., SFP(TOKEN_NL));
 	}
 
 	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
 	{
 		SENDARROW;
-
-		writeStream(TOKEN_AT);
+		writeStream(SFP(TOKEN_AT));
 		_output.verbose(format, args...);
-		writeStream(TOKEN_NL);
+		writeStream(SFP(TOKEN_NL));
 	}
 
 	/**
