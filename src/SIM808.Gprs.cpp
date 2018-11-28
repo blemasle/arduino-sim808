@@ -61,7 +61,7 @@ bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 bool SIM808::disableGprs()
 {
 	return (sendAT(SFP(TOKEN_CIPSHUT)), waitResponse(65000L, SFP(TOKEN_SHUT_OK)) == 0) &&					//AT+CIPSHUT
-		(sendFormatAT(SFP(AT_COMMAND_SET_BEARER_SETTING), 0, 1), waitResponse(65000L) == 0) &&				//AT+SAPBR=0,1
+		(sendFormatAT(SFP(AT_COMMAND_SET_BEARER_SETTING), 0, 1), waitResponse(65000L) != -1) &&				//AT+SAPBR=0,1
 		(sendFormatAT(SFP(AT_COMMAND_GPRS_ATTACH), 0), waitResponse(10000L) == 0);							//AT+CGATT=0
 }
 
