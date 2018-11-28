@@ -75,18 +75,16 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 
 size_t SIMComAT::copyCurrentLine(char * dst, uint16_t shift = 0)
 {
-	
-	size_t lenght = 0;
-	char *p = response;
-	
+	char *p = dst;
 	p += safeCopy(replyBuffer + shift, p);
 
 	while(strstr_P(replyBuffer, TOKEN_NL) == 0) {
-		readNext();
+		waitResponse((uint16_t)0, NULL);
 		p += safeCopy(replyBuffer, p);
 	}
 
-	return response - p;
+	if(*(p - 1) == '\n') *(p - 1) = '\0';
+	return strlen(dst);
 }
 
 size_t SIMComAT::safeCopy(const char *src, char *dst)
