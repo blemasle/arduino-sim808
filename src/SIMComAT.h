@@ -8,16 +8,13 @@
 
 #if _SIM808_DEBUG
 
-const char ARROW_LEFT[] PROGMEM = "<--";
-const char ARROW_RIGHT[] PROGMEM = "-->";
-
 #define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 #define SIM808_PRINT_CHAR(x) Serial.print((char)x)
 #define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
 #define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
 
-#define RECEIVEARROW _debug.verbose(SFP(ARROW_LEFT))
-#define SENDARROW _debug.verbose(SFP(ARROW_RIGHT))
+#define RECEIVEARROW _debug.verbose(SF("<--"))
+#define SENDARROW _debug.verbose(SF("\n-->"))
 #else
 #define SIM808_PRINT(...)
 #define SIM808_PRINT_CHAR(x)
