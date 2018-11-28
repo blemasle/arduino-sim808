@@ -88,7 +88,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 		copyResponse(response, shift);
 	}
 
-	if(waitResponse() == 0) return SIM808_GPS_STATUS::FAIL;
+	if(waitResponse() != 0) return SIM808_GPS_STATUS::FAIL;
 
 	return result;
 }
