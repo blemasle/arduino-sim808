@@ -15,11 +15,12 @@ size_t SIM808::getSimState(char *state)
 {
 	sendAT(SFP(TOKEN_CPIN), SFP(TOKEN_READ));
 	if(waitResponse(5000L, SFP(TOKEN_CPIN)) != 0) return 0;
-	
-	safeCopy(replyBuffer + strlen_P(TOKEN_CPIN) + 1, state);
-	waitResponse();
 
-	return strlen(state);
+	copyCurrentLine(state, strlen_P(TOKEN_CPIN) + 2);
+
+	return waitResponse() == 0 ?
+		strlen(state) :
+		0;
 }
 
 size_t SIM808::getImei(char *imei)
