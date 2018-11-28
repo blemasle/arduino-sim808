@@ -58,8 +58,15 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 
 	do {
 		length = readNext(&timeout);
+
+		if(!length) continue; 					//read nothing
+		if(wantedTokens[0] == NULL) return 0;	//looking for a line with any content
+
 		for(uint8_t i = 0; i < 4; i++) {
-			if(wantedTokens[i] && strstr_P(replyBuffer, SFPT(wantedTokens[i])) == replyBuffer) return i;
+			if(wantedTokens[i]) {
+				char *p = strstr_P(replyBuffer, SFPT(wantedTokens[i]));
+				if(replyBuffer == p) return i;				
+			}
 		}
 	} while(timeout);
 
