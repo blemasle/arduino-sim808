@@ -53,15 +53,15 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 	Sim808ConstStr s3 = NULL,
 	Sim808ConstStr s4 = NULL)
 {
-	uint16_t start = millis();
 	Sim808ConstStr wantedTokens[4] = { s1, s2, s3, s4 };
+	size_t length;
 
 	do {
-		readNext(timeout - (millis() - start));
+		length = readNext(&timeout);
 		for(uint8_t i = 0; i < 4; i++) {
 			if(wantedTokens[i] && strstr_P(replyBuffer, SFPT(wantedTokens[i])) == replyBuffer) return i;
 		}
-	} while(!millis() - start < timeout);
+	} while(timeout);
 
 	return -1;
 }
