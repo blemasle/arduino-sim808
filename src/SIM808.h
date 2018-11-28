@@ -36,15 +36,7 @@ private:
 	{
 		sendAT(SFP("AT+HTTPPARA="), SFP(TOKEN_QUOTE), parameter, SFP(TOKEN_QUOTE), SFP(TOKEN_COMMA), SFP(TOKEN_QUOTE), value, SFP(TOKEN_QUOTE));
 		return waitResponse() == 0;
-	}
-	// /**
-	//  * Set a HTTP parameter value using a string.
-	//  */
-	// bool setHttpParameter(Sim808ConstStr parameter, const char* value);
-	// /**
-	//  * Set a HTTP parameter value using an integer.
-	//  */
-	// bool setHttpParameter(Sim808ConstStr parameter, const int8_t value);
+	}	
 	/**
 	 * Set the HTTP body of the next request to be fired.
 	 */
