@@ -10,7 +10,7 @@ void SIMComAT::begin(Stream& port)
 #endif // _SIM808_DEBUG
 }
 
-size_t SIMComAT::readNext(uint32_t timeout = 0)
+size_t SIMComAT::readNext(uint16_t * timeout)
 {
 	uint8_t i = 0;
 	memset(replyBuffer, 0, BUFFER_SIZE);
@@ -40,7 +40,7 @@ size_t SIMComAT::readNext(uint32_t timeout = 0)
 	return strlen(replyBuffer);
 }
 
-int8_t SIMComAT::waitResponse(uint32_t timeout, 
+int8_t SIMComAT::waitResponse(uint16_t timeout, 
 	Sim808ConstStr s1 = SFP(TOKEN_OK),
 	Sim808ConstStr s2 = SFP(TOKEN_ERROR),
 	Sim808ConstStr s3 = NULL,

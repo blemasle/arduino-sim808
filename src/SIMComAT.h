@@ -74,7 +74,7 @@ protected:
 	 * Read the next line into replyBuffer until timeout is expired, 
 	 * or until the replyBuffer is full.
 	 */
-	size_t readNext(uint32_t timeout = 0);
+	size_t readNext(uint16_t *timeout);
 	int8_t waitResponse(
 		Sim808ConstStr s1 = SFP(TOKEN_OK),
 		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
@@ -83,7 +83,7 @@ protected:
 			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
 		};
 
-	int8_t waitResponse(uint32_t timeout, 
+	int8_t waitResponse(uint16_t timeout, 
 		Sim808ConstStr s1 = SFP(TOKEN_OK),
 		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
 		Sim808ConstStr s3 = NULL,
