@@ -93,8 +93,6 @@ size_t SIMComAT::safeCopy(const char *src, char *dst)
 
 char* SIMComAT::find(const char* str, char divider, uint8_t index)
 {
-	SIM808_PRINT_P("find : [%s, %c, %i]", str, divider, index);
-
 	char* p = strchr(str, ':');
 	if (p == NULL) p = strchr(str, str[0]); //ditching eventual response header
 
@@ -105,8 +103,6 @@ char* SIMComAT::find(const char* str, char divider, uint8_t index)
 		if (p == NULL) return NULL;
 		p++;
 	}
-
-	SIM808_PRINT_P("find : [%s, %c, %i], [%s]", str, divider, index, p);
 
 	return p;
 }
