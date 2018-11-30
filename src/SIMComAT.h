@@ -7,28 +7,27 @@
 #define _SIM808_DEBUG _DEBUG
 
 #if _SIM808_DEBUG
+	#define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
+	#define SIM808_PRINT_CHAR(x) Serial.print((char)x)
+	#define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
+	#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
 
-#define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
-#define SIM808_PRINT_CHAR(x) Serial.print((char)x)
-#define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
-#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
-
-#define RECEIVEARROW _debug.verbose(SF("<--"))
-#define SENDARROW _debug.verbose(SF("\n-->"))
+	#define RECEIVEARROW _debug.verbose(SF("<--"))
+	#define SENDARROW _debug.verbose(SF("\n-->"))
 #else
-#define SIM808_PRINT(...)
-#define SIM808_PRINT_CHAR(x)
-#define SIM808_PRINT_P(x, ...)
-#define SIM808_PRINT_SIMPLE_P(x)
-#define RECEIVEARROW 
-#define SENDARROW
+	#define SIM808_PRINT(...)
+	#define SIM808_PRINT_CHAR(x)
+	#define SIM808_PRINT_P(x, ...)
+	#define SIM808_PRINT_SIMPLE_P(x)
+	
+	#define RECEIVEARROW 
+	#define SENDARROW
 #endif // _DEBUG
 
 //TODO : the buffer size could be greatly reduced (around 64 bytes) if SIM808.Gps.cpp is reworked
 #define BUFFER_SIZE 128
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
-typedef 
 class SIMComAT : public Stream
 {
 private:
