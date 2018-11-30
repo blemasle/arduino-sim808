@@ -53,6 +53,8 @@ const char MINIMUM[] S_PROGMEM = "MINIMUM";
 const char FULL[] S_PROGMEM = "FULL";
 const char DISABLED[] S_PROGMEM = "DISABLED";
 
+const char SEND[] S_PROGMEM = "SEND";
+
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 char buffer[BUFFER_SIZE];
@@ -101,15 +103,17 @@ void usage() {
 
     PRINT_LN("");
 
+    PRINT_LN("send sms [number]\t\tSend an SMS");
+
     PRINT_LN("");
     PRINT_LN("");
 }
 
 /**
- * Read the next word into the buffer.
+ * Read the next line or word into the buffer.
  * Returns true if this was the last word of the line.
  */
-bool readNext() {
+bool readNext(bool line = false) {
     char c;
     char *p = buffer;
     memset(p, 0, BUFFER_SIZE);
@@ -118,7 +122,7 @@ bool readNext() {
         while(!Serial.available()) delay(100);
 
         c = Serial.read();
-        if(isspace(c) || c == '\n') break;
+        if((!line && isspace(c)) || c == '\n') break;
 
         *p = c;
         p++;
@@ -452,6 +456,24 @@ void gps() {
     }
 }
 
+void send() {
+     readNext();
+
+    if(BUFFER_IS("SMS")) {
+        char number[20];
+
+        readNext();
+        strncpy(number, buffer, 20);
+
+        readNext(true); //read the whole line into buffer
+        sim808.sendSms(number, buffer);
+    } 
+    else {
+        unrecognized();
+        return;
+    }
+}
+
 void setup() {
     while(!Serial);
 
@@ -478,6 +500,7 @@ void loop() {
     else if(BUFFER_IS("charge")) charge();
     else if(BUFFER_IS("sim")) sim();
     else if(BUFFER_IS("imei")) imei();
+    else if(BUFFER_IS("send")) send();
     else if(BUFFER_IS_P(NETWORK)) network();
     else if(BUFFER_IS_P(GPS)) gps();
     else {
