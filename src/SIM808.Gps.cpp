@@ -3,17 +3,6 @@
 TOKEN_TEXT(GPS_POWER, "+CGNSPWR");
 TOKEN_TEXT(GPS_INFO, "+CGNSINF");
 
-void shiftLeft(uint8_t shift, char* str) //TODO : shiftLeft can be removed if following todos in this file are done
-{
-	uint8_t len = strlen(str);
-
-	for (uint8_t i = 0; i < len - shift; i++) {
-		str[i] = str[i + shift];
-	}
-
-	str[len - shift] = '\0';
-}
-
 bool SIM808::powerOnOffGps(bool power)
 {
 	bool currentState;
