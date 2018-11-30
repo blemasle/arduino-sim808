@@ -22,12 +22,14 @@
     #define BUFFER_IS(s) strcasecmp_P(buffer, PSTR(s)) == 0
     #define BUFFER_IS_P(s) strcasecmp_P(buffer, s) == 0
 
-    #define PRINT(s) Serial.println(F(s))
+    #define PRINT(s) Serial.print(F(s))
+    #define PRINT_LN(s) Serial.println(F(s))
 #else
     #define BUFFER_IS(s) strcasecmp(buffer, s) == 0
     #define BUFFER_IS_P(s) strcasecmp(buffer, s) == 0
 
-    #define PRINT(s) Serial.println(s)
+    #define PRINT(s) Serial.print(s)
+    #define PRINT_LN(s) Serial.println(s)
 #endif
 
 
@@ -51,55 +53,56 @@ const char MINIMUM[] S_PROGMEM = "MINIMUM";
 const char FULL[] S_PROGMEM = "FULL";
 const char DISABLED[] S_PROGMEM = "DISABLED";
 
-
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 char buffer[BUFFER_SIZE];
 
 void usage() {
-    PRINT("============= SIM808 Tester =============");
-    PRINT("?\tHelp");
+    PRINT_LN("============= SIM808 Tester =============");
+    PRINT_LN("?\tHelp");
     
-    PRINT("");
+    PRINT_LN("");
     
-    PRINT("reset\t\t\t\tReset the device");
-    PRINT("init\t\t\t\tInit the device");
-    PRINT("power [on|off] [main|gps|network]\tPower On/Off the specified module");
-    PRINT("power status [main|gps|network]\t\tGet the specified module power state");
+    PRINT_LN("reset\t\t\t\tReset the device");
+    PRINT_LN("init\t\t\t\tInit the device");
+    PRINT_LN("power [on|off] [main|gps|network]\tPower On/Off the specified module");
+    PRINT_LN("power status [main|gps|network]\t\tGet the specified module power state");
 
-    PRINT("");
+    PRINT_LN("");
 
-    PRINT("charge\tGet the current charge state");
+    PRINT_LN("charge\tGet the current charge state");
 
-    PRINT("");
+    PRINT_LN("");
 
-    PRINT("sim status\t\tGet the current SIM state");
-    PRINT("sim unlock [pin]\tUnlock the SIM using the provided pin");
-    PRINT("imei\t\t\tGet the device IMEI");
+    PRINT_LN("sim status\t\tGet the current SIM state");
+    PRINT_LN("sim unlock [pin]\tUnlock the SIM using the provided pin");
+    PRINT_LN("imei\t\t\tGet the device IMEI");
 
-    PRINT("");
+    PRINT_LN("");
 
-    PRINT("network functionality\t\t\t\tGet the current network functionality");
-    PRINT("network functionality [minimum|full|disabled]\tSet the current network functionality");
-    PRINT("network status\t\t\t\t\tGet the current network status");
-    PRINT("network quality\t\t\t\t\tGet the current network quality report");
+    PRINT_LN("network functionality\t\t\t\tGet the current network functionality");
+    PRINT_LN("network functionality [minimum|full|disabled]\tSet the current network functionality");
+    PRINT_LN("network status\t\t\t\t\tGet the current network status");
+    PRINT_LN("network quality\t\t\t\t\tGet the current network quality report");
 
-    PRINT("");
+    PRINT_LN("");
     
-    PRINT("gps raw\t\t\tGet the GPS raw data");
-    PRINT("gps parse [field]\tParse GPS fields, field :");
-    PRINT("\tall\t- All fields");
-    PRINT("\ttime\t- UTC time");
-    PRINT("\tlat\t- Latitude");
-    PRINT("\tlon\t- Longitude");
-    PRINT("\talt\t- Altitude");
-    PRINT("\tspeed\t- Speed over ground");
-    PRINT("\tcourse\t- Course over ground");
-    PRINT("\tsatview\t- Satellites in view");
-    PRINT("\tsatused\t- Satellites used");
+    PRINT_LN("gps raw\t\t\tGet the GPS raw data");
+    PRINT_LN("gps parse [field]\tParse GPS fields, field :");
+    PRINT_LN("\tall\t- All fields");
+    PRINT_LN("\ttime\t- UTC time");
+    PRINT_LN("\tlat\t- Latitude");
+    PRINT_LN("\tlon\t- Longitude");
+    PRINT_LN("\talt\t- Altitude");
+    PRINT_LN("\tspeed\t- Speed over ground");
+    PRINT_LN("\tcourse\t- Course over ground");
+    PRINT_LN("\tsatview\t- Satellites in view");
+    PRINT_LN("\tsatused\t- Satellites used");
 
-    PRINT("");
-    PRINT("");
+    PRINT_LN("");
+
+    PRINT_LN("");
+    PRINT_LN("");
 }
 
 /**
@@ -167,6 +170,7 @@ void power() {
             char apn[15], user[15], pass[15];
             char *userP = NULL, *passP = NULL;
             
+            PRINT("apn [pass? user?] ?");
             bool last = readNext();
             strncpy(apn, buffer, 15);
 
