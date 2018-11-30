@@ -1,6 +1,7 @@
 #include "SIM808.h"
 
 AT_COMMAND(SET_HTTP_PARAMETER_STRING, "+HTTPPARA=\"%S\",\"%s\"");
+AT_COMMAND(SET_HTTP_PARAMETER_STRING_PROGMEM, "+HTTPPARA=\"%S\",\"%S\"");
 AT_COMMAND(SET_HTTP_PARAMETER_INT, "+HTTPPARA=\"%S\",\"%d\"");
 AT_COMMAND(HTTP_DATA, "+HTTPDATA=%d,%d");
 AT_COMMAND(HTTP_READ, "+HTTPREAD=%d,%d");
@@ -20,11 +21,16 @@ AT_COMMAND_PARAMETER(HTTP, URL);
 AT_COMMAND_PARAMETER(HTTP, UA);
 
 
+bool SIM808::setHttpParameter(ATConstStr parameter, ATConstStr value)
+{
+	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_STRING_PROGMEM), parameter, value);
+	return waitResponse() == 0;
+}
+
 bool SIM808::setHttpParameter(ATConstStr parameter, const char * value)
 {
 	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_STRING), parameter, value);
 	return waitResponse() == 0;
-
 }
 
 bool SIM808::setHttpParameter(ATConstStr parameter, uint8_t value)

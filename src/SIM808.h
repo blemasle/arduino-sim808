@@ -31,8 +31,9 @@ private:
 	 * Read the last HTTP response body into response.
 	 */
 	bool readHttpResponse(char *response, size_t responseSize);	
-	bool SIM808::setHttpParameter(ATConstStr parameter, const char * value);
-	bool SIM808::setHttpParameter(ATConstStr parameter, uint8_t value);
+	bool setHttpParameter(ATConstStr parameter, ATConstStr value);
+	bool setHttpParameter(ATConstStr parameter, const char * value);
+	bool setHttpParameter(ATConstStr parameter, uint8_t value);
 	/**
 	 * Set the HTTP body of the next request to be fired.
 	 */
