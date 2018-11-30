@@ -30,12 +30,9 @@ private:
 	/**
 	 * Read the last HTTP response body into response.
 	 */
-	bool readHttpResponse(char *response, size_t responseSize);
-	template<typename T> bool setHttpParameter(ATConstStr parameter, T value) //TODO : this is fucked, use format should reduce the hex size
-	{
-		sendAT(TO_F("AT+HTTPPARA="), TO_F(TOKEN_QUOTE), parameter, TO_F(TOKEN_QUOTE), TO_F(TOKEN_COMMA), TO_F(TOKEN_QUOTE), value, TO_F(TOKEN_QUOTE));
-		return waitResponse() == 0;
-	}	
+	bool readHttpResponse(char *response, size_t responseSize);	
+	bool SIM808::setHttpParameter(ATConstStr parameter, const char * value);
+	bool SIM808::setHttpParameter(ATConstStr parameter, uint8_t value);
 	/**
 	 * Set the HTTP body of the next request to be fired.
 	 */
