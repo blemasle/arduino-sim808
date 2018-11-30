@@ -3,6 +3,7 @@
 AT_COMMAND(SET_HTTP_PARAMETER_STRING, "+HTTPPARA=\"%S\",\"%s\"");
 AT_COMMAND(SET_HTTP_PARAMETER_INT, "+HTTPPARA=\"%S\",\"%d\"");
 AT_COMMAND(HTTP_DATA, "+HTTPDATA=%d,%d");
+AT_COMMAND(HTTP_READ, "+HTTPREAD=%d,%d");
 
 TOKEN_TEXT(HTTP_DATA, "+HTTPDATA");
 TOKEN_TEXT(HTTP_ACTION, "+HTTPACTION");
@@ -110,7 +111,7 @@ bool SIM808::readHttpResponse(char *response, size_t responseSize)
 	int16_t length;
 	int16_t i = 0;
 
-	sendAT(TO_F(TOKEN_HTTP_READ), TO_F(TOKEN_WRITE), 0, responseSize);
+	sendFormatAT(TO_F(AT_COMMAND_HTTP_READ), 0, responseSize);
 
 	if(waitResponse(TO_F(TOKEN_HTTP_READ)) != 0 ||
 		!parseReply(',', 0, &length))
