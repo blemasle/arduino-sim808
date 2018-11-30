@@ -63,8 +63,7 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 }
 
 __attribute__((__optimize__("O2")))
-//TODO : add accurate_fix_threshold = GPS_ACCURATE_FIX_MIN_SATELLITES parameter
-SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
+SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
@@ -81,7 +80,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 		uint8_t satellitesUsed;
 		getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed);
 
-		result = satellitesUsed > GPS_ACCURATE_FIX_MIN_SATELLITES ?
+		result = satellitesUsed > minSatellitesForAccurateFix ?
 			SIM808_GPS_STATUS::ACCURATE_FIX :
 			SIM808_GPS_STATUS::FIX;
 

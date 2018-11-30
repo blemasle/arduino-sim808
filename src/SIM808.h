@@ -145,9 +145,12 @@ public:
 	bool powerOnOffGps(bool power);
 	/**
 	 * Get the latest GPS parsed sequence and a value indicating the current
-	 * fix status. response is only filled if a fixed is acquired.
+	 * fix status. 
+	 * Response is only filled if a fix is acquired.
+	 * If a fix is acquired, FIX or ACCURATE_FIX will be returned depending on 
+	 * wether or not the satellites used is greater than minSatellitesForAccurateFix.
 	 */
-	SIM808_GPS_STATUS getGpsStatus(char * response);
+	SIM808_GPS_STATUS getGpsStatus(char * response, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
 	/**
 	 * Extract the specified field from the GPS parsed sequence as a uint8_t.
 	 */
