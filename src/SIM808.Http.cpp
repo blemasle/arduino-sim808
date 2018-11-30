@@ -2,6 +2,7 @@
 
 AT_COMMAND(SET_HTTP_PARAMETER_STRING, "+HTTPPARA=\"%S\",\"%s\"");
 AT_COMMAND(SET_HTTP_PARAMETER_INT, "+HTTPPARA=\"%S\",\"%d\"");
+AT_COMMAND(HTTP_DATA, "+HTTPDATA=%d,%d");
 
 TOKEN_TEXT(HTTP_DATA, "+HTTPDATA");
 TOKEN_TEXT(HTTP_ACTION, "+HTTPACTION");
@@ -44,7 +45,7 @@ uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 	return statusCode;
 }
 
-uint16_t SIM808::httpPost(const char *url, const __FlashStringHelper *contentType, const char *body, char *response, size_t responseSize)
+uint16_t SIM808::httpPost(const char *url, ATConstStr contentType, const char *body, char *response, size_t responseSize)
 {
 	uint16_t statusCode = 0;
 	size_t dataSize = 0;
@@ -84,13 +85,15 @@ bool SIM808::httpEnd()
 
 bool SIM808::setHttpBody(const char* body)
 {
-	sendAT(TO_F(TOKEN_HTTP_DATA), TO_F(TOKEN_WRITE), strlen(body), 10000L);
+	sendFormatAT(TO_F(AT_COMMAND_HTTP_DATA), strlen(body), 10000L);
 	
-	if(!waitResponse(TO_F(TOKEN_DOWNLOAD)) == 0 ||
-		waitResponse() != 0) return false;
+	if(waitResponse(TO_F(TOKEN_DOWNLOAD)) != 0) return false;		
 
 	SENDARROW;
 	print(body);
+
+	if(waitResponse() != 0) return false;
+	return true;
 }
 
 bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
