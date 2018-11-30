@@ -1,5 +1,7 @@
 #include "SIM808.h"
 
+AT_COMMAND(SEND_SMS, "+CMGS=\"%s\"");
+
 TOKEN_TEXT(CPIN, "+CPIN");
 TOKEN_TEXT(CSQ, "+CSQ");
 TOKEN_TEXT(CMGS, "+CMGS");
@@ -75,7 +77,7 @@ bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
 bool SIM808::sendSms(const char *addr, const char *msg)
 {
 	if (!setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT::TEXT)) return false;
-	sendAT(TO_F(TOKEN_CMGS), TO_F(TOKEN_WRITE), TO_F(TOKEN_QUOTE), addr, TO_F(TOKEN_QUOTE));
+	sendFormatAT(TO_F(AT_COMMAND_SEND_SMS), addr);
 
 	if (!waitResponse(S_F(">")) == 0) return false;
 
