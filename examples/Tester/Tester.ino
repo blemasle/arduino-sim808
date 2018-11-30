@@ -19,13 +19,15 @@
 #define NL "\n"
 
 #if defined(__AVR__)
-    #define BUFFER_IS(s) strcasecmp_P(buffer, PSTR(s)) == 0
+    #define STRING_IS(s1, s2) strcasecmp_P(buffer, PSTR(s2)) == 0
+    #define BUFFER_IS(s) STRING_IS(buffer, s)
     #define BUFFER_IS_P(s) strcasecmp_P(buffer, s) == 0
 
     #define PRINT(s) Serial.print(F(s))
     #define PRINT_LN(s) Serial.println(F(s))
 #else
     #define BUFFER_IS(s) strcasecmp(buffer, s) == 0
+    #define BUFFER_IS(s) STRING_IS(buffer, s)
     #define BUFFER_IS_P(s) strcasecmp(buffer, s) == 0
 
     #define PRINT(s) Serial.print(s)
@@ -54,6 +56,7 @@ const char FULL[] S_PROGMEM = "FULL";
 const char DISABLED[] S_PROGMEM = "DISABLED";
 
 const char SEND[] S_PROGMEM = "SEND";
+const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
 
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
@@ -104,6 +107,7 @@ void usage() {
     PRINT_LN("");
 
     PRINT_LN("send sms [number]\t\tSend an SMS");
+    PRINT_LN("send http [get|post] [url?=http://httpbin.org/anything]\t\tSend an HTTP request");
 
     PRINT_LN("");
     PRINT_LN("");
@@ -174,7 +178,7 @@ void power() {
             char apn[15], user[15], pass[15];
             char *userP = NULL, *passP = NULL;
             
-            PRINT("apn [pass? user?] ?");
+            PRINT("[apn] [pass?=\"\"] [user?=\"\"] ?");
             bool last = readNext();
             strncpy(apn, buffer, 15);
 
@@ -456,6 +460,41 @@ void gps() {
     }
 }
 
+void sendHttp() {
+    bool defaultUrl = readNext();
+    char action[5];
+    char url[50];
+
+    strlcpy(action, buffer, 5);
+
+    if(defaultUrl) strlcpy_P(url, DEFAULT_URL, 50);
+    else {
+        readNext();
+        strlcpy(url, buffer, 50);
+    }
+
+    if(STRING_IS(action, "GET")) {
+        uint16_t code = sim808.httpGet(url, buffer, BUFFER_SIZE);
+
+        Log.notice(S_F("HTTP" NL));
+        Log.notice(S_F("Server responded : %d" NL), code);
+        Log.notice(buffer);
+    }
+    else if(STRING_IS(action, "POST")) {
+        PRINT("[body] ?");
+        readNext();
+        uint16_t code = sim808.httpPost(url, S_F("text/plain"), buffer, buffer, BUFFER_SIZE);
+
+        Log.notice(S_F("HTTP" NL));
+        Log.notice(S_F("Server responded : %d" NL), code);
+        Log.notice(buffer);
+    }
+    else {
+        unrecognized();
+        return;
+    }
+}
+
 void send() {
      readNext();
 
@@ -467,7 +506,8 @@ void send() {
 
         readNext(true); //read the whole line into buffer
         sim808.sendSms(number, buffer);
-    } 
+    }
+    else if(BUFFER_IS("HTTP")) return sendHttp();
     else {
         unrecognized();
         return;
