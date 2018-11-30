@@ -29,10 +29,11 @@ void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** re
 	*result = pTmp;
 }
 
-//TODO : change to int16_t : altitude can be negative, and course > 255
-bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result)
+bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, int16_t* result)
 {
 	// it is possible to get float fields as int. They will be truncated by parse
+	// sticking with values >= altitude cause it does not have any sense
+	// for latitude or longitude
 	if (field < SIM808_GPS_FIELD::ALTITUDE) return false;
 
 	parse(response, ',', (uint8_t)field, result);
@@ -66,7 +67,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, uint8_t minSatellitesFor
 	if(replyBuffer[shift] == '0') result = SIM808_GPS_STATUS::OFF;
 	if(replyBuffer[shift + 2] == '1') // fix acquired
 	{
-		uint8_t satellitesUsed;
+		int16_t satellitesUsed;
 		getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed);
 
 		result = satellitesUsed > minSatellitesForAccurateFix ?

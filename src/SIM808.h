@@ -152,9 +152,9 @@ public:
 	 */
 	SIM808_GPS_STATUS getGpsStatus(char * response, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
 	/**
-	 * Extract the specified field from the GPS parsed sequence as a uint8_t.
+	 * Extract the specified field from the GPS parsed sequence as a int16_t.
 	 */
-	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint8_t* result);
+	bool getGpsField(const char* response, SIM808_GPS_FIELD field, int16_t* result);
 	/**
 	 * Extract the specified field from the GPS parsed sequence as a float.
 	 */

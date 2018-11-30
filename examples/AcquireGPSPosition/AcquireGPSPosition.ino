@@ -46,7 +46,7 @@ void loop() {
     Log.notice(position);
     Log.notice(F("Fix type: %s"), status == SIM808_GPS_STATUS::FIX ? "Normal" : "Accurate");
 
-    uint8_t sattelites;
+    int16_t sattelites;
     float lat, lon;
 
     sim808.getGpsField(position, SIM808_GPS_FIELD::GNSS_USED, &sattelites);
