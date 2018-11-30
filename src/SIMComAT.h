@@ -25,7 +25,7 @@
 #endif // _DEBUG
 
 //TODO : the buffer size could be greatly reduced (around 64 bytes) if SIM808.Gps.cpp is reworked
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 64
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
 class SIMComAT : public Stream
