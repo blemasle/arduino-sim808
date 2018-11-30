@@ -363,7 +363,7 @@ void gps() {
     if(BUFFER_IS("PARSE")) {
         char * timeStr;
         float tmpFloat;
-        int16_t tmpInt;
+        uint16_t tmpInt;
         bool oneField;
 
         SIM808_GPS_STATUS status = sim808.getGpsStatus(position);
