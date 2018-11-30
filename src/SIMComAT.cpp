@@ -48,12 +48,12 @@ size_t SIMComAT::readNext(uint16_t * timeout)
 }
 
 int8_t SIMComAT::waitResponse(uint16_t timeout, 
-	Sim808ConstStr s1 = SFP(TOKEN_OK),
-	Sim808ConstStr s2 = SFP(TOKEN_ERROR),
-	Sim808ConstStr s3 = NULL,
-	Sim808ConstStr s4 = NULL)
+	ATConstStr s1 = TO_F(TOKEN_OK),
+	ATConstStr s2 = TO_F(TOKEN_ERROR),
+	ATConstStr s3 = NULL,
+	ATConstStr s4 = NULL)
 {
-	Sim808ConstStr wantedTokens[4] = { s1, s2, s3, s4 };
+	ATConstStr wantedTokens[4] = { s1, s2, s3, s4 };
 	size_t length;
 
 	do {
@@ -64,7 +64,7 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 
 		for(uint8_t i = 0; i < 4; i++) {
 			if(wantedTokens[i]) {
-				char *p = strstr_P(replyBuffer, SFPT(wantedTokens[i]));
+				char *p = strstr_P(replyBuffer, TO_P(wantedTokens[i]));
 				if(replyBuffer == p) return i;				
 			}
 		}

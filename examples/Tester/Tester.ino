@@ -126,17 +126,17 @@ bool readNext() {
 }
 
 void unrecognized() {
-    Log.error(SFP(UNRECOGNIZED), buffer);
+    Log.error(TO_F(UNRECOGNIZED), buffer);
     while(Serial.available()) Serial.read();
 }
 
 void reset() {
-    Log.notice(SF("Resetting SIM808..." NL));
+    Log.notice(S_F("Resetting SIM808..." NL));
     sim808.reset();
 }
 
 void init_() {
-    Log.notice(SF("Init SIM808..." NL));
+    Log.notice(S_F("Init SIM808..." NL));
     sim808.init();
 }
 
@@ -156,7 +156,7 @@ void power() {
             return;
         }
 
-        Log.notice(SF("%s : %S"), buffer, status ? SFP(ON) : SFP(OFF));
+        Log.notice(S_F("%s : %S"), buffer, status ? TO_F(ON) : TO_F(OFF));
     }
     else if(BUFFER_IS_P(ON)) {
         readNext();
@@ -183,7 +183,7 @@ void power() {
             }
 
             bool success = sim808.enableGprs(apn, userP, passP);
-            Log.notice(SF("enable GPRS : %S" NL), success ? SFP(SUCCESS) : SFP(FAILED));
+            Log.notice(S_F("enable GPRS : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
         }
         else {
             unrecognized();
@@ -213,26 +213,26 @@ void charge() {
 
     switch(status.state) {
         case SIM808_CHARGING_STATE::ERROR:
-            state = SFP(ERROR);
+            state = TO_F(ERROR);
             break;
         case SIM808_CHARGING_STATE::NOT_CHARGING:
-            state = SF("NOT_CHARGING");
+            state = S_F("NOT_CHARGING");
             break;
         case SIM808_CHARGING_STATE::CHARGING:
-            state = SF("CHARGING");
+            state = S_F("CHARGING");
             break;
         case SIM808_CHARGING_STATE::CHARGING_DONE:
-            state = SF("CHARGING_DONE");
+            state = S_F("CHARGING_DONE");
             break;
         default:
-            state = SFP(UNKNOWN);
+            state = TO_F(UNKNOWN);
             break;
     }
 
-    Log.notice(SF("Charging status" NL));
-    Log.notice(SF("state\t: %S" NL), state);
-    Log.notice(SF("level\t: %d%%" NL), status.level);
-    Log.notice(SF("voltage\t: %dmV" NL), status.voltage);
+    Log.notice(S_F("Charging status" NL));
+    Log.notice(S_F("state\t: %S" NL), state);
+    Log.notice(S_F("level\t: %d%%" NL), status.level);
+    Log.notice(S_F("voltage\t: %dmV" NL), status.voltage);
 }
 
 void sim() {
@@ -240,17 +240,17 @@ void sim() {
 
     if(BUFFER_IS_P(STATUS)) {
         sim808.getSimState(buffer);
-        Log.notice(SF("SIM status : %s" NL), buffer);
+        Log.notice(S_F("SIM status : %s" NL), buffer);
     }
     else if(BUFFER_IS("UNLOCK")) {
         size_t length = readNext();
         if(length != 4) {
-            Log.error(SF("4 digit pin code required" NL));
+            Log.error(S_F("4 digit pin code required" NL));
             return;
         }
 
         bool success = sim808.simUnlock(buffer);
-        Log.notice(SF("SIM unlock : %S" NL), success ? SFP(SUCCESS) : SFP(FAILED));
+        Log.notice(S_F("SIM unlock : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
     }
     else {
         unrecognized();
@@ -260,7 +260,7 @@ void sim() {
 
 void imei() {
     sim808.getImei(buffer);
-    Log.notice(SF("IMEI : %s" NL), buffer);
+    Log.notice(S_F("IMEI : %s" NL), buffer);
 }
 
 void network() {
@@ -272,64 +272,64 @@ void network() {
 
         switch(status.stat) {
             case SIM808_NETWORK_REGISTRATION_STATE::ERROR:
-                state = SFP(ERROR);
+                state = TO_F(ERROR);
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::NOT_SEARCHING:
-                state = SF("NOT_SEARCHING");
+                state = S_F("NOT_SEARCHING");
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::REGISTERED:
-                state = SF("REGISTERED");
+                state = S_F("REGISTERED");
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::SEARCHING:
-                state = SF("SEARCHING");
+                state = S_F("SEARCHING");
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::DENIED:
-                state = SF("DENIED");
+                state = S_F("DENIED");
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::UNKNOWN:
-                state = SF("UNKNOWN");
+                state = S_F("UNKNOWN");
                 break;
             case SIM808_NETWORK_REGISTRATION_STATE::ROAMING:
-                state = SF("ROAMING");
+                state = S_F("ROAMING");
                 break;
             default:
-                state = SFP(UNKNOWN);
+                state = TO_F(UNKNOWN);
                 break;
         }
 
-        Log.notice(SF("status : %S" NL), state);
+        Log.notice(S_F("status : %S" NL), state);
 
     }
     else if(BUFFER_IS("QUALITY")) {
         SIM808SignalQualityReport report = sim808.getSignalQuality();
 
-        Log.notice(SF("Signal Quality" NL));
-        Log.notice(SF("signal strength \t: %d" NL), report.rssi);
-        Log.notice(SF("bit error rate \t: %d" NL), report.ber);
-        Log.notice(SF("attenuation \t\t: %ddB" NL), report.attenuation);
+        Log.notice(S_F("Signal Quality" NL));
+        Log.notice(S_F("signal strength \t: %d" NL), report.rssi);
+        Log.notice(S_F("bit error rate \t: %d" NL), report.ber);
+        Log.notice(S_F("attenuation \t\t: %ddB" NL), report.attenuation);
     }
     else if(BUFFER_IS("FUNCTIONALITY")) {
         if(last) { //get
             SIM808_PHONE_FUNCTIONALITY fun = sim808.getPhoneFunctionality();
             switch(fun) {
                 case SIM808_PHONE_FUNCTIONALITY::FAIL:
-                    state = SFP(FAILED);
+                    state = TO_F(FAILED);
                     break;
                 case SIM808_PHONE_FUNCTIONALITY::MINIMUM:
-                    state = SFP(MINIMUM);
+                    state = TO_F(MINIMUM);
                     break;
                 case SIM808_PHONE_FUNCTIONALITY::FULL:
-                    state = SFP(FULL);
+                    state = TO_F(FULL);
                     break;
                 case SIM808_PHONE_FUNCTIONALITY::DISABLED:
-                    state = SFP(DISABLED);
+                    state = TO_F(DISABLED);
                     break;
                 default:
-                    state = SFP(UNKNOWN);
+                    state = TO_F(UNKNOWN);
                     break;
             }
 
-            Log.notice(SF("phone functionality : %S" NL), state);
+            Log.notice(S_F("phone functionality : %S" NL), state);
         }
         else {
             SIM808_PHONE_FUNCTIONALITY fun;
@@ -344,7 +344,7 @@ void network() {
             }
 
             bool success = sim808.setPhoneFunctionality(fun);
-            Log.notice(SF("phone functionality : %S" NL), success ? SFP(SUCCESS) : SFP(FAILED));            
+            Log.notice(S_F("phone functionality : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));            
         }
     }
 }
@@ -352,12 +352,12 @@ void network() {
 void gps() {
     char position[128];
 
-    Log.notice(SF("GPS" NL));
+    Log.notice(S_F("GPS" NL));
     readNext();
 
     if(BUFFER_IS("RAW") || BUFFER_IS("PARSE")) {
         sim808.getGpsPosition(position);
-        Log.notice(SF("position\t\t: %s" NL), position);
+        Log.notice(S_F("position\t\t: %s" NL), position);
     }
     
     if(BUFFER_IS("PARSE")) {
@@ -371,74 +371,74 @@ void gps() {
 
         switch(status) {
             case SIM808_GPS_STATUS::FAIL:
-                state = SFP(FAILED);
+                state = TO_F(FAILED);
                 break;
             case SIM808_GPS_STATUS::OFF:
-                state = SFP(OFF);
+                state = TO_F(OFF);
                 break;
             case SIM808_GPS_STATUS::NO_FIX:
-                state = SF("NO_FIX");
+                state = S_F("NO_FIX");
                 break;
             case SIM808_GPS_STATUS::FIX:
-                state = SF("FIX");
+                state = S_F("FIX");
                 break;
             case SIM808_GPS_STATUS::ACCURATE_FIX:
-                state = SF("ACCURATE_FIX");
+                state = S_F("ACCURATE_FIX");
                 break;
             default:
-                state = SFP(UNKNOWN);
+                state = TO_F(UNKNOWN);
                 break;
         }
 
-        Log.notice(SF("status\t\t: %S" NL), state);
+        Log.notice(S_F("status\t\t: %S" NL), state);
 
         readNext();
         if(BUFFER_IS_P(ALL) || BUFFER_IS("TIME")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::UTC, &timeStr);
-            Log.notice(SF("time\t\t\t: %s" NL), timeStr);
+            Log.notice(S_F("time\t\t\t: %s" NL), timeStr);
         }
         
         if(BUFFER_IS_P(ALL) || BUFFER_IS("LAT")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &tmpFloat);
-            Log.notice(SF("latitude\t\t: %F" NL), tmpFloat);
+            Log.notice(S_F("latitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("LON")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &tmpFloat);
-            Log.notice(SF("longitude\t\t: %F" NL), tmpFloat);
+            Log.notice(S_F("longitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("ALT")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::ALTITUDE, &tmpFloat);
-            Log.notice(SF("altitude\t\t: %F" NL), tmpFloat);
+            Log.notice(S_F("altitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SPEED")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::SPEED, &tmpFloat);
-            Log.notice(SF("speed\t\t: %F" NL), tmpFloat);
+            Log.notice(S_F("speed\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("COURSE")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::COURSE, &tmpFloat);
-            Log.notice(SF("course\t\t: %F" NL), tmpFloat);
+            Log.notice(S_F("course\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SATVIEW")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::GPS_IN_VIEW, &tmpInt);
-            Log.notice(SF("satellites in view\t: %d" NL), tmpInt);
+            Log.notice(S_F("satellites in view\t: %d" NL), tmpInt);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SATUSED")) {
             oneField = true;
             sim808.getGpsField(position, SIM808_GPS_FIELD::GNSS_USED, &tmpInt);
-            Log.notice(SF("satellites used\t: %d" NL), tmpInt);
+            Log.notice(S_F("satellites used\t: %d" NL), tmpInt);
         }
 
         if(!oneField) {

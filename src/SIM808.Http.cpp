@@ -34,7 +34,7 @@ uint16_t SIM808::httpPost(const char *url, const __FlashStringHelper *contentTyp
 	size_t dataSize = 0;
 
 	bool result = setupHttpRequest(url) &&
-		setHttpParameter(SFP(AT_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
 		setHttpBody(body) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::POST, &statusCode, &dataSize) &&
 		readHttpResponse(response, min(dataSize, responseSize)) &&
@@ -49,28 +49,28 @@ bool SIM808::setupHttpRequest(const char* url)
 	httpEnd();
 
 	return httpInit() &&
-		setHttpParameter(SFP(AT_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
-		setHttpParameter(SFP(AT_COMMAND_PARAMETER_HTTP_CID), 1) &&
-		setHttpParameter(SFP(AT_COMMAND_PARAMETER_HTTP_URL), url) &&
-		(url[4] != 's' || (sendAT(SFP(TOKEN_HTTP_SSL), SFP(TOKEN_WRITE), 1), waitResponse() == 0)) &&
-		(_userAgent == NULL || setHttpParameter(SFP(AT_COMMAND_PARAMETER_HTTP_UA), _userAgent));
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CID), 1) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_URL), url) &&
+		(url[4] != 's' || (sendAT(TO_F(TOKEN_HTTP_SSL), TO_F(TOKEN_WRITE), 1), waitResponse() == 0)) &&
+		(_userAgent == NULL || setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_UA), _userAgent));
 }
 
 bool SIM808::httpInit()
 {
-	return (sendAT(SFP(TOKEN_HTTP_INIT)), waitResponse() == 0);
+	return (sendAT(TO_F(TOKEN_HTTP_INIT)), waitResponse() == 0);
 }
 
 bool SIM808::httpEnd()
 {
-	return (sendAT(SFP(TOKEN_HTTP_TERM)), waitResponse() == 0);
+	return (sendAT(TO_F(TOKEN_HTTP_TERM)), waitResponse() == 0);
 }
 
 bool SIM808::setHttpBody(const char* body)
 {
-	sendAT(SFP(TOKEN_HTTP_DATA), SFP(TOKEN_WRITE), strlen(body), 10000L);
+	sendAT(TO_F(TOKEN_HTTP_DATA), TO_F(TOKEN_WRITE), strlen(body), 10000L);
 	
-	if(!waitResponse(SFP(TOKEN_DOWNLOAD)) == 0 ||
+	if(!waitResponse(TO_F(TOKEN_DOWNLOAD)) == 0 ||
 		waitResponse() != 0) return false;
 
 	SENDARROW;
@@ -79,9 +79,9 @@ bool SIM808::setHttpBody(const char* body)
 
 bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
 {
-	sendAT(SFP(TOKEN_HTTP_ACTION), SFP(TOKEN_WRITE), (uint8_t)action);
+	sendAT(TO_F(TOKEN_HTTP_ACTION), TO_F(TOKEN_WRITE), (uint8_t)action);
 
-	return waitResponse(HTTP_TIMEOUT, SFP(TOKEN_HTTP_ACTION)) == 0 &&
+	return waitResponse(HTTP_TIMEOUT, TO_F(TOKEN_HTTP_ACTION)) == 0 &&
 		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
 		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
 }
@@ -91,9 +91,9 @@ bool SIM808::readHttpResponse(char *response, size_t responseSize)
 	int16_t length;
 	int16_t i = 0;
 
-	sendAT(SFP(TOKEN_HTTP_READ), SFP(TOKEN_WRITE), 0, responseSize);
+	sendAT(TO_F(TOKEN_HTTP_READ), TO_F(TOKEN_WRITE), 0, responseSize);
 
-	if(waitResponse(SFP(TOKEN_HTTP_READ)) != 0 ||
+	if(waitResponse(TO_F(TOKEN_HTTP_READ)) != 0 ||
 		!parseReply(',', 0, &length))
 		return false;
 

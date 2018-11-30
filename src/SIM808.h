@@ -31,9 +31,9 @@ private:
 	 * Read the last HTTP response body into response.
 	 */
 	bool readHttpResponse(char *response, size_t responseSize);
-	template<typename T> bool setHttpParameter(Sim808ConstStr parameter, T value)
+	template<typename T> bool setHttpParameter(ATConstStr parameter, T value) //TODO : this is fucked, use format should reduce the hex size
 	{
-		sendAT(SFP("AT+HTTPPARA="), SFP(TOKEN_QUOTE), parameter, SFP(TOKEN_QUOTE), SFP(TOKEN_COMMA), SFP(TOKEN_QUOTE), value, SFP(TOKEN_QUOTE));
+		sendAT(TO_F("AT+HTTPPARA="), TO_F(TOKEN_QUOTE), parameter, TO_F(TOKEN_QUOTE), TO_F(TOKEN_COMMA), TO_F(TOKEN_QUOTE), value, TO_F(TOKEN_QUOTE));
 		return waitResponse() == 0;
 	}	
 	/**
@@ -52,7 +52,7 @@ private:
 	/**
 	 * Set one of the bearer settings for application based on IP.
 	 */
-	bool setBearerSetting(Sim808ConstStr parameter, const char* value);
+	bool setBearerSetting(ATConstStr parameter, const char* value);
 
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
@@ -182,6 +182,6 @@ public:
 	 * HTTP and HTTPS are supported, based on he provided URL. Note however that HTTPS request
 	 * have a high failure rate that make them unusuable reliably.
 	 */
-	uint16_t httpPost(const char* url, Sim808ConstStr contentType, const char* body, char* response, size_t responseSize);	
+	uint16_t httpPost(const char* url, ATConstStr contentType, const char* body, char* response, size_t responseSize);	
 };
 

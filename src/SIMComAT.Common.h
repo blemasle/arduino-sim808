@@ -3,17 +3,19 @@
 #include <Arduino.h>
 
 #if defined(__AVR__)
+    typedef const __FlashStringHelper* ATConstStr;
+
     #define S_PROGMEM PROGMEM
-    typedef const __FlashStringHelper* Sim808ConstStr;
-    #define SFP(x)  (reinterpret_cast<Sim808ConstStr>(x))
-    #define SFPT(x) (reinterpret_cast<const char*>(x))
-    #define SF(x)   F(x)
+    #define S_F(x)   F(x)
+    #define TO_F(x) (reinterpret_cast<ATConstStr>(x))
+    #define TO_P(x) (reinterpret_cast<const char*>(x))
 #else
+    typedef const char* ATConstStr;
+
     #define S_PROGMEM
-    typedef const char* Sim808ConstStr;
-    #define SFP(x)  x
-    #define SFPT(x) x
-    #define SF(x)   x
+    #define S_F(x)   x
+    #define TO_F(x) x
+    #define TO_P(x) x
 #endif
 
 #define TOKEN_TEXT(name, text) const char TOKEN_##name[] S_PROGMEM = text

@@ -9,11 +9,11 @@
 #if _SIM808_DEBUG
 	#define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
 	#define SIM808_PRINT_CHAR(x) Serial.print((char)x)
-	#define SIM808_PRINT_P(fmt, ...) _debug.verbose(SF(fmt "\n"), __VA_ARGS__)
-	#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(SF(fmt "\n"))
+	#define SIM808_PRINT_P(fmt, ...) _debug.verbose(S_F(fmt "\n"), __VA_ARGS__)
+	#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(S_F(fmt "\n"))
 
-	#define RECEIVEARROW _debug.verbose(SF("<--"))
-	#define SENDARROW _debug.verbose(SF("\n-->"))
+	#define RECEIVEARROW _debug.verbose(S_F("<--"))
+	#define SENDARROW _debug.verbose(S_F("\n-->"))
 #else
 	#define SIM808_PRINT(...)
 	#define SIM808_PRINT_CHAR(x)
@@ -55,15 +55,15 @@ protected:
 	template<typename... Args> void sendAT(Args... cmd)
 	{
 		SENDARROW;
-		writeStream(SFP(TOKEN_AT), cmd..., SFP(TOKEN_NL));
+		writeStream(TO_F(TOKEN_AT), cmd..., TO_F(TOKEN_NL));
 	}
 
 	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
 	{
 		SENDARROW;
-		writeStream(SFP(TOKEN_AT));
+		writeStream(TO_F(TOKEN_AT));
 		_output.verbose(format, args...);
-		writeStream(SFP(TOKEN_NL));
+		writeStream(TO_F(TOKEN_NL));
 	}
 
 	/**
@@ -76,18 +76,18 @@ protected:
 	 */
 	size_t readNext(uint16_t *timeout);
 	int8_t waitResponse(
-		Sim808ConstStr s1 = SFP(TOKEN_OK),
-		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
-		Sim808ConstStr s3 = NULL,
-		Sim808ConstStr s4 = NULL) {
+		ATConstStr s1 = TO_F(TOKEN_OK),
+		ATConstStr s2 = TO_F(TOKEN_ERROR),
+		ATConstStr s3 = NULL,
+		ATConstStr s4 = NULL) {
 			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
 		};
 
 	int8_t waitResponse(uint16_t timeout, 
-		Sim808ConstStr s1 = SFP(TOKEN_OK),
-		Sim808ConstStr s2 = SFP(TOKEN_ERROR),
-		Sim808ConstStr s3 = NULL,
-		Sim808ConstStr s4 = NULL);
+		ATConstStr s1 = TO_F(TOKEN_OK),
+		ATConstStr s2 = TO_F(TOKEN_ERROR),
+		ATConstStr s3 = NULL,
+		ATConstStr s4 = NULL);
 		
 	/**
 	 * Read the current response line and copy it in response. Start at replyBuffer + shift

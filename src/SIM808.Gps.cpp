@@ -19,15 +19,15 @@ bool SIM808::powerOnOffGps(bool power)
 	bool currentState;
 	if(!getGpsPowerState(&currentState) || (currentState == power)) return false;
 
-	sendAT(SFP(TOKEN_GPS_POWER), SFP(TOKEN_WRITE), (uint8_t)power);
+	sendAT(TO_F(TOKEN_GPS_POWER), TO_F(TOKEN_WRITE), (uint8_t)power);
 	return  waitResponse() == 0;
 }
 
 bool SIM808::getGpsPosition(char *response)
 {
-	sendAT(SFP(TOKEN_GPS_INFO));
+	sendAT(TO_F(TOKEN_GPS_INFO));
 
-	if(waitResponse(SFP(TOKEN_GPS_INFO)) != 0)
+	if(waitResponse(TO_F(TOKEN_GPS_INFO)) != 0)
 		return false;
 
 	// GPSINF response might be too long for the reply buffer
@@ -68,9 +68,9 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
-	sendAT(SFP(TOKEN_GPS_INFO));
+	sendAT(TO_F(TOKEN_GPS_INFO));
 
-	if(waitResponse(SFP(TOKEN_GPS_INFO)) != 0)
+	if(waitResponse(TO_F(TOKEN_GPS_INFO)) != 0)
 		return SIM808_GPS_STATUS::FAIL;
 
 	uint16_t shift = strlen_P(TOKEN_GPS_INFO) + 2;
@@ -97,9 +97,9 @@ bool SIM808::getGpsPowerState(bool *state)
 {
 	uint8_t result;
 
-	sendAT(SFP(TOKEN_GPS_POWER), SFP(TOKEN_READ));
+	sendAT(TO_F(TOKEN_GPS_POWER), TO_F(TOKEN_READ));
 
-	if(waitResponse(10000L, SFP(TOKEN_GPS_POWER)) != 0 ||
+	if(waitResponse(10000L, TO_F(TOKEN_GPS_POWER)) != 0 ||
 		!parseReply(',', 0, &result) ||
 		waitResponse())
 		return false;

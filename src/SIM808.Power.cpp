@@ -19,7 +19,7 @@ bool SIM808::powerOnOff(bool power)
 		delay(2000);
 		digitalWrite(_pwrKeyPin, HIGH);
 		delay(150);
-	} else sendAT(SF("+CPOWD=1"));
+	} else sendAT(S_F("+CPOWD=1"));
 	
 	return true;
 }
@@ -30,9 +30,9 @@ SIM808ChargingStatus SIM808::getChargingState()
 	uint8_t level;
 	uint16_t voltage;
 
-	sendAT(SFP(TOKEN_CBC));
+	sendAT(TO_F(TOKEN_CBC));
 
-	if (waitResponse(SFP(TOKEN_CBC)) == 0 &&
+	if (waitResponse(TO_F(TOKEN_CBC)) == 0 &&
 		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state) &&
 		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level) &&
 		parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage) &&
@@ -46,9 +46,9 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 {
 	uint8_t state;
 
-	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_READ));
+	sendAT(TO_F(TOKEN_CFUN), TO_F(TOKEN_READ));
 
-	if (waitResponse(10000L, SFP(TOKEN_CFUN)) == 0 &&
+	if (waitResponse(10000L, TO_F(TOKEN_CFUN)) == 0 &&
 		parseReply(',', 0, &state) &&
 		waitResponse() == 0)
 		return (SIM808_PHONE_FUNCTIONALITY)state;
@@ -58,14 +58,14 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 
 bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
 {
-	sendAT(SFP(TOKEN_CFUN), SFP(TOKEN_WRITE), (uint8_t)fun);
+	sendAT(TO_F(TOKEN_CFUN), TO_F(TOKEN_WRITE), (uint8_t)fun);
 
 	return waitResponse(10000L) == 0;
 }
 
 bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
 {
-	sendAT(SF("+CSCLK"), SFP(TOKEN_WRITE), (uint8_t)mode);
+	sendAT(S_F("+CSCLK"), TO_F(TOKEN_WRITE), (uint8_t)mode);
 
 	return waitResponse() == 0;
 }

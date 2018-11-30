@@ -46,17 +46,17 @@ void SIM808::waitForReady()
 	do
 	{
 		SIM808_PRINT_SIMPLE_P("Waiting for echo...");
-		sendAT(SF(""));
+		sendAT(S_F(""));
 	// Despite official documentation, we can get an "AT" back without a "RDY" first.
-	} while (waitResponse(SFP(TOKEN_AT)) != 0);
+	} while (waitResponse(TO_F(TOKEN_AT)) != 0);
 
 	// we got AT, waiting for RDY
-	while (waitResponse(SFP(TOKEN_RDY)) != 0);
+	while (waitResponse(TO_F(TOKEN_RDY)) != 0);
 }
 
 bool SIM808::setEcho(SIM808_ECHO mode)
 {
-	sendAT(SF("E"), (uint8_t)mode);
+	sendAT(S_F("E"), (uint8_t)mode);
 
 	return waitResponse() == 0;
 }
