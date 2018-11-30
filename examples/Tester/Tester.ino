@@ -482,7 +482,7 @@ void sendHttp() {
     }
     else if(STRING_IS(action, "POST")) {
         PRINT("[body] ?");
-        readNext();
+        readNext(true);
         uint16_t code = sim808.httpPost(url, S_F("text/plain"), buffer, buffer, BUFFER_SIZE);
 
         Log.notice(S_F("HTTP" NL));
@@ -504,6 +504,7 @@ void send() {
         readNext();
         strncpy(number, buffer, 20);
 
+        PRINT("[message] ?");
         readNext(true); //read the whole line into buffer
         sim808.sendSms(number, buffer);
     }
