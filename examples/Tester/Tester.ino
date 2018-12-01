@@ -251,7 +251,7 @@ void sim() {
     readNext();
 
     if(BUFFER_IS_P(STATUS)) {
-        sim808.getSimState(buffer);
+        sim808.getSimState(buffer, BUFFER_SIZE);
         Log.notice(S_F("SIM status : %s" NL), buffer);
     }
     else if(BUFFER_IS("UNLOCK")) {
@@ -271,7 +271,7 @@ void sim() {
 }
 
 void imei() {
-    sim808.getImei(buffer);
+    sim808.getImei(buffer, BUFFER_SIZE);
     Log.notice(S_F("IMEI : %s" NL), buffer);
 }
 
@@ -368,7 +368,7 @@ void gps() {
     readNext();
 
     if(BUFFER_IS("RAW") || BUFFER_IS("PARSE")) {
-        sim808.getGpsPosition(position);
+        sim808.getGpsPosition(position, 128);
         Log.notice(S_F("position\t\t: %s" NL), position);
     }
     
@@ -378,7 +378,7 @@ void gps() {
         uint16_t tmpInt;
         bool oneField;
 
-        SIM808_GPS_STATUS status = sim808.getGpsStatus(position);
+        SIM808_GPS_STATUS status = sim808.getGpsStatus(position, 128);
         __FlashStringHelper * state;
 
         switch(status) {

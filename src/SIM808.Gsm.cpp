@@ -13,19 +13,19 @@ bool SIM808::simUnlock(const char* pin)
 	return waitResponse(5000L) == 0;
 }
 
-size_t SIM808::getSimState(char *state)
+size_t SIM808::getSimState(char *state, size_t stateSize)
 {
 	sendAT(TO_F(TOKEN_CPIN), TO_F(TOKEN_READ));
 	if(waitResponse(5000L, TO_F(TOKEN_CPIN)) != 0) return 0;
 
-	copyCurrentLine(state, strlen_P(TOKEN_CPIN) + 2);
+	copyCurrentLine(state, stateSize, strlen_P(TOKEN_CPIN) + 2);
 
 	return waitResponse() == 0 ?
 		strlen(state) :
 		0;
 }
 
-size_t SIM808::getImei(char *imei)
+size_t SIM808::getImei(char *imei, size_t imeiSize)
 {
 	//AT+GSN does not have a response prefix, so we need to flush input
 	//before sending the command
@@ -35,7 +35,7 @@ size_t SIM808::getImei(char *imei)
 	waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL); //consuming an extra line before the response. Undocumented
 
 	if(waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL) != 0) return 0;
-	copyCurrentLine(imei);
+	copyCurrentLine(imei, imeiSize);
 
 	return waitResponse() == 0?
 		strlen(imei) :

@@ -71,10 +71,11 @@ protected:
 	 */
 	void flushInput();
 	/**
-	 * Read data into replyBuffer and stops when the buffer is full, a new line is encountered,
-	 * or when the timeout is expired.
+	 * Read at max size available chars into buffer until either the timeout is exhausted or
+	 * the stop character is encountered. timeout and char are optional
+	 * 
 	 */
-	size_t readNext(uint16_t *timeout);
+	size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
 	int8_t waitResponse(
 		ATConstStr s1 = TO_F(TOKEN_OK),
 		ATConstStr s2 = TO_F(TOKEN_ERROR),
@@ -92,8 +93,8 @@ protected:
 	/**
 	 * Read the current response line and copy it in response. Start at replyBuffer + shift
 	 */
-	size_t copyCurrentLine(char *dst, uint16_t shift = 0);
-	size_t safeCopy(const char *src, char *dst);
+	size_t copyCurrentLine(char *dst, size_t dstSize, uint16_t shift = 0);
+	size_t safeCopy(const char *src, char *dst, size_t dstSize);
 	
 	/**
 	 * Find and return a pointer to the nth field of a string.

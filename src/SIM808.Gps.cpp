@@ -12,7 +12,7 @@ bool SIM808::powerOnOffGps(bool power)
 	return  waitResponse() == 0;
 }
 
-bool SIM808::getGpsPosition(char *response)
+bool SIM808::getGpsPosition(char *response, size_t responseSize)
 {
 	sendAT(TO_F(TOKEN_GPS_INFO));
 
@@ -20,7 +20,7 @@ bool SIM808::getGpsPosition(char *response)
 		return false;
 
 	// GPSINF response might be too long for the reply buffer
-	copyCurrentLine(response, strlen_P(TOKEN_GPS_INFO) + 2);
+	copyCurrentLine(response, responseSize, strlen_P(TOKEN_GPS_INFO) + 2);
 }
 
 void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** result) 
@@ -50,7 +50,7 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 }
 
 __attribute__((__optimize__("O2")))
-SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES)
+SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
 
@@ -71,7 +71,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, uint8_t minSatellitesFor
 			SIM808_GPS_STATUS::ACCURATE_FIX :
 			SIM808_GPS_STATUS::FIX;
 
-		copyCurrentLine(response, shift);
+		copyCurrentLine(response, responseSize, shift);
 	}
 
 	if(waitResponse() != 0) return SIM808_GPS_STATUS::FAIL;
