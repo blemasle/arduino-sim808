@@ -130,7 +130,7 @@ public:
 	/**
 	 * Get the device current network registration status.
 	 */
-	SIM808RegistrationStatus getNetworkRegistrationStatus();
+	SIM808_NETWORK_REGISTRATION_STATE getNetworkRegistrationStatus();
 
 	/**
 	 * Get a boolean indicating wether or not GPS is currently powered on.

@@ -62,22 +62,15 @@ bool SIM808::disableGprs()
 		(sendFormatAT(TO_F(AT_COMMAND_GPRS_ATTACH), 0), waitResponse(10000L) == 0);							//AT+CGATT=0
 }
 
-SIM808RegistrationStatus SIM808::getNetworkRegistrationStatus()
+SIM808_NETWORK_REGISTRATION_STATE SIM808::getNetworkRegistrationStatus()
 {
-	uint8_t n;
 	uint8_t stat;
-	SIM808RegistrationStatus result = { -1, SIM808_NETWORK_REGISTRATION_STATE::ERROR };
-
 	sendAT(TO_F(TOKEN_CGREG), TO_F(TOKEN_READ));
 	
 	if(waitResponse(TO_F(TOKEN_CGREG)) != 0 ||
-		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::N, &n) ||
 		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat) ||
 		waitResponse() != 0)
-		return result;
+		return SIM808_NETWORK_REGISTRATION_STATE::ERROR;
 
-	result.n = n;
-	result.stat = (SIM808_NETWORK_REGISTRATION_STATE)stat;
-
-	return result;
+	return (SIM808_NETWORK_REGISTRATION_STATE)stat;
 }

@@ -123,12 +123,6 @@ struct SIM808SignalQualityReport
 	int8_t attenuation;	///< Estimad signal attenuation from rssi, expressed in dBm.
 };
 
-struct SIM808RegistrationStatus
-{
-	uint8_t n;								///< Controls network registration unsolicited result code.
-	SIM808_NETWORK_REGISTRATION_STATE stat;	///< Registration status.
-};
-
 struct SIM808ChargingStatus
 {
 	SIM808_CHARGING_STATE state;	///< Current charging state.

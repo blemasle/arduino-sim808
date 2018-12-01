@@ -281,9 +281,9 @@ void network() {
     __FlashStringHelper * state;
 
     if(BUFFER_IS_P(STATUS)) {
-        SIM808RegistrationStatus status = sim808.getNetworkRegistrationStatus();
+        SIM808_NETWORK_REGISTRATION_STATE status = sim808.getNetworkRegistrationStatus();
 
-        switch(status.stat) {
+        switch(status) {
             case SIM808_NETWORK_REGISTRATION_STATE::ERROR:
                 state = TO_F(ERROR);
                 break;
