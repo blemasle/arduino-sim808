@@ -24,7 +24,6 @@
 	#define SENDARROW
 #endif // _DEBUG
 
-//TODO : the buffer size could be greatly reduced (around 64 bytes) if SIM808.Gps.cpp is reworked
 #define BUFFER_SIZE 64
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
@@ -99,7 +98,7 @@ protected:
 	/**
 	 * Find and return a pointer to the nth field of a string.
 	 */
-	char* find(const char* str, char divider, uint8_t index); //TODO : rename
+	char* find(const char* str, char divider, uint8_t index);
 	/**
 	 * Parse the nth field of a string as a uint8_t.
 	 */
