@@ -11,40 +11,39 @@ void SIMComAT::begin(Stream& port)
 }
 
 void SIMComAT::flushInput() {
-	uint16_t timeout = 0;
-	while(readNext(&timeout));
+	while(readNext(replyBuffer, BUFFER_SIZE));
+	memset(replyBuffer, 0, BUFFER_SIZE);
 }
 
-size_t SIMComAT::readNext(uint16_t * timeout)
+
+size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = '\0')
 {
-	uint8_t i = 0;
-	bool gotNewLine = false;
-	memset(replyBuffer, 0, BUFFER_SIZE);
+	size_t i = 0;
+	bool exit = false;
 
 	do {
-		while(i < BUFFER_SIZE - 1 && available()) {
+		while(!exit && i < size - 1 && available()) {
 			char c = read();
-			replyBuffer[i] = c;
+			buffer[i] = c;
 			i++;
 
-			if(c == '\n') {
-				gotNewLine = true; //forcing the outer loop to break
-				break;
-			}
+			exit |= stop && c == stop;
 		}
 
-		delay(1);
-		if(*timeout) (*timeout)--;
-	} while(!gotNewLine && i < BUFFER_SIZE - 1 && *timeout);
+		if(timeout) {
+			delay(1);
+			if(!--(*timeout)) break;
+		}
+	} while(!exit && i < size - 1);
 
-	replyBuffer[i] = '\0';
+	buffer[i] = '\0';
 
 	if(i) {
 		RECEIVEARROW;
-		SIM808_PRINT(replyBuffer);
+		SIM808_PRINT(buffer);
 	}
 
-	return i;
+	return i > 0 ? i - 1 : i;
 }
 
 int8_t SIMComAT::waitResponse(uint16_t timeout, 
@@ -57,7 +56,8 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 	size_t length;
 
 	do {
-		length = readNext(&timeout);
+		memset(replyBuffer, 0, BUFFER_SIZE);
+		length = readNext(replyBuffer, BUFFER_SIZE, &timeout, '\n');
 
 		if(!length) continue; 					//read nothing
 		if(wantedTokens[0] == NULL) return 0;	//looking for a line with any content
@@ -73,25 +73,21 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 	return -1;
 }
 
-size_t SIMComAT::copyCurrentLine(char * dst, uint16_t shift = 0)
+size_t SIMComAT::copyCurrentLine(char *dst, size_t dstSize, uint16_t shift = 0)
 {
 	char *p = dst;
-	p += safeCopy(replyBuffer + shift, p);
+	p += safeCopy(replyBuffer + shift, p, dstSize);
+	p += readNext(p, dstSize - (p - dst), NULL, '\n');
 
-	while(strstr_P(replyBuffer, TOKEN_NL) == 0) {
-		waitResponse((uint16_t)0, NULL);
-		p += safeCopy(replyBuffer, p);
-	}
-
-	if(*(p - 1) == '\n') *(p - 1) = '\0';
+	if((*p) == '\n') (*p) = '\0';
 	return strlen(dst);
 }
 
-size_t SIMComAT::safeCopy(const char *src, char *dst)
+size_t SIMComAT::safeCopy(const char *src, char *dst, size_t dstSize)
 {
 	size_t len = strlen(src);
 	if (dst != NULL) {
-		size_t maxLen = min(len + 1, BUFFER_SIZE - 1);
+		size_t maxLen = min(len + 1, dstSize);
 		strlcpy(dst, src, maxLen);
 	}
 
