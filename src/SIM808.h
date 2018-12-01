@@ -50,7 +50,7 @@ private:
 	/**
 	 * Set one of the bearer settings for application based on IP.
 	 */
-	bool setBearerSetting(ATConstStr parameter, const char* value);
+	// bool setBearerSetting(ATConstStr parameter, const char* value);
 
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
@@ -120,13 +120,9 @@ public:
 	 */
 	bool getGprsPowerState(bool *state);
 	/**
-	 * Reinitiliaze and enable GPRS without providing a user or password.
-	 */
-	bool enableGprs(const char* apn);
-	/**
 	 * Reinitiliaze and enable GPRS.
 	 */
-	bool enableGprs(const char* apn, const char* user, const char *password);
+	bool enableGprs(const char* apn, const char* user = NULL, const char *password = NULL);
 	/**
 	 * Shutdown GPRS properly.
 	 */
