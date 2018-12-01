@@ -11,7 +11,8 @@ void SIMComAT::begin(Stream& port)
 }
 
 void SIMComAT::flushInput() {
-	while(readNext(replyBuffer, BUFFER_SIZE));
+	uint16_t timeout = 0;
+	while(readNext(replyBuffer, BUFFER_SIZE, &timeout));
 	memset(replyBuffer, 0, BUFFER_SIZE);
 }
 
