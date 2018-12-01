@@ -63,10 +63,11 @@ bool SIM808::setEcho(SIM808_ECHO mode)
 
 size_t SIM808::sendCommand(const char *cmd, char *response, size_t responseSize)
 {
+	flushInput();
 	sendAT(cmd);
 	
-	if(waitResponse() != 0) return 0;
-	return copyCurrentLine(response, responseSize);
+	uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT;
+	readNext(response, responseSize, &timeout);
 }
 
 #pragma endregion
