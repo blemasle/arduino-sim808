@@ -30,9 +30,13 @@ size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL,
 			exit |= stop && c == stop;
 		}
 
-		if(timeout) {
-			delay(1);
-			if(!--(*timeout)) break;
+		if(timeout) {			
+			if(*timeout) {
+				delay(1);
+				(*timeout)--;
+			}
+
+			if(!(*timeout)) break;
 		}
 	} while(!exit && i < size - 1);
 
