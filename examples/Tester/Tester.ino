@@ -35,7 +35,7 @@
 #endif
 
 
-const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s";
+const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s" NL;
 const char UNKNOWN[] S_PROGMEM = "Unknown value";
 
 const char SUCCESS[] S_PROGMEM = "SUCCESS";
@@ -106,7 +106,8 @@ void usage() {
 
     PRINT_LN("");
 
-    PRINT_LN("send sms [number]\t\tSend an SMS");
+    PRINT_LN("send at [command]\t\t\t\t\t\tSend an AT command");
+    PRINT_LN("send sms [number]\t\t\t\t\t\tSend an SMS");
     PRINT_LN("send http [get|post] [url?=http://httpbin.org/anything]\t\tSend an HTTP request");
 
     PRINT_LN("");
@@ -252,7 +253,7 @@ void sim() {
 
     if(BUFFER_IS_P(STATUS)) {
         sim808.getSimState(buffer, BUFFER_SIZE);
-        Log.notice(S_F("SIM status : %s" NL), buffer);
+        Log.notice(S_F("SIM status : \"%s\"" NL), buffer);
     }
     else if(BUFFER_IS("UNLOCK")) {
         size_t length = readNext();
@@ -272,7 +273,7 @@ void sim() {
 
 void imei() {
     sim808.getImei(buffer, BUFFER_SIZE);
-    Log.notice(S_F("IMEI : %s" NL), buffer);
+    Log.notice(S_F("IMEI : \"%s\"" NL), buffer);
 }
 
 void network() {
@@ -369,7 +370,7 @@ void gps() {
 
     if(BUFFER_IS("RAW") || BUFFER_IS("PARSE")) {
         sim808.getGpsPosition(position, 128);
-        Log.notice(S_F("position\t\t: %s" NL), position);
+        Log.notice(S_F("position\t\t: \"%s\"" NL), position);
     }
     
     if(BUFFER_IS("PARSE")) {
@@ -478,7 +479,7 @@ void sendHttp() {
 
         Log.notice(S_F("HTTP" NL));
         Log.notice(S_F("Server responded : %d" NL), code);
-        Log.notice(buffer);
+        Log.notice(S_F("\"%s\""), buffer);
     }
     else if(STRING_IS(action, "POST")) {
         PRINT("[body] ?");
@@ -487,7 +488,7 @@ void sendHttp() {
 
         Log.notice(S_F("HTTP" NL));
         Log.notice(S_F("Server responded : %d" NL), code);
-        Log.notice(buffer);
+        Log.notice(S_F("\"%s\""), buffer);
     }
     else {
         unrecognized();
@@ -509,6 +510,12 @@ void send() {
         sim808.sendSms(number, buffer);
     }
     else if(BUFFER_IS("HTTP")) return sendHttp();
+    else if(BUFFER_IS("AT")) {
+        readNext(true);
+        sim808.sendCommand(buffer, buffer, BUFFER_SIZE);
+
+        Log.notice(S_F("response : %s" NL), buffer);
+    }
     else {
         unrecognized();
         return;
