@@ -319,7 +319,7 @@ void network() {
         Log.notice(S_F("Signal Quality" NL));
         Log.notice(S_F("signal strength \t: %d" NL), report.rssi);
         Log.notice(S_F("bit error rate \t: %d" NL), report.ber);
-        Log.notice(S_F("attenuation \t\t: %ddB" NL), report.attenuation);
+        Log.notice(S_F("attenuation \t\t: %ddBm" NL), report.attenuation);
     }
     else if(BUFFER_IS("FUNCTIONALITY")) {
         if(last) { //get
@@ -555,4 +555,6 @@ void loop() {
         unrecognized();
         return;
     }
+
+    Log.notice(F("Done" NL));
 }
