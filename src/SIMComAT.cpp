@@ -81,10 +81,17 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 size_t SIMComAT::copyCurrentLine(char *dst, size_t dstSize, uint16_t shift = 0)
 {
 	char *p = dst;
-	p += safeCopy(replyBuffer + shift, p, dstSize);
-	p += readNext(p, dstSize - (p - dst), NULL, '\n');
+	char *p1;
+	
+	p += safeCopy(replyBuffer + shift, p, dstSize); // copy the current buffer content	
+	// copy the rest of the line if any
+	if(!strchr(dst, '\n')) p += readNext(p, dstSize - (p - dst), NULL, '\n');
 
-	if((*p) == '\n') (*p) = '\0';
+	// terminating the string no matter what
+	p1 = strchr(dst, '\n');
+	p = p1 ? p1 : p;
+	*p = '\0';
+
 	return strlen(dst);
 }
 
