@@ -46,7 +46,7 @@ uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 
 	bool result = setupHttpRequest(url) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::GET, &statusCode, &dataSize) &&
-		readHttpResponse(response, min(responseSize, dataSize)) &&
+		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
 	return statusCode;
@@ -61,7 +61,7 @@ uint16_t SIM808::httpPost(const char *url, ATConstStr contentType, const char *b
 		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
 		setHttpBody(body) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::POST, &statusCode, &dataSize) &&
-		readHttpResponse(response, min(dataSize, responseSize)) &&
+		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
 	return statusCode;
@@ -112,28 +112,13 @@ bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCo
 		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
 }
 
-bool SIM808::readHttpResponse(char *response, size_t responseSize)
+bool SIM808::readHttpResponse(char *response, size_t responseSize, size_t dataSize)
 {
-	int16_t length;
-	int16_t i = 0;
+	size_t readSize = min(responseSize - 1, dataSize);
 
-	sendFormatAT(TO_F(AT_COMMAND_HTTP_READ), 0, responseSize);
+	sendFormatAT(TO_F(AT_COMMAND_HTTP_READ), 0, readSize);
+	if(waitResponse(TO_F(TOKEN_HTTP_READ)) != 0) return false;
 
-	if(waitResponse(TO_F(TOKEN_HTTP_READ)) != 0 ||
-		!parseReply(',', 0, &length))
-		return false;
-
-	while (length > 0) {
-		while (available()) {
-			char c = read();
-			*response = c;
-			response++;
-			length--;
-			if (!length) break;
-		}
-	}
-
-	*response = '\0';
-
+	readNext(response, readSize + 1); // taking in account the string term
 	return waitResponse() == 0;
 }

@@ -61,12 +61,12 @@ bool SIM808::setEcho(SIM808_ECHO mode)
 	return waitResponse() == 0;
 }
 
-size_t SIM808::sendCommand(const char *cmd, char *response)
+size_t SIM808::sendCommand(const char *cmd, char *response, size_t responseSize)
 {
 	sendAT(cmd);
 	
 	if(waitResponse() != 0) return 0;
-	return copyCurrentLine(response);
+	return copyCurrentLine(response, responseSize);
 }
 
 #pragma endregion

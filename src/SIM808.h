@@ -30,7 +30,7 @@ private:
 	/**
 	 * Read the last HTTP response body into response.
 	 */
-	bool readHttpResponse(char *response, size_t responseSize);	
+	bool readHttpResponse(char *response, size_t responseSize, size_t dataSize);	
 	bool setHttpParameter(ATConstStr parameter, ATConstStr value);
 	bool setHttpParameter(ATConstStr parameter, const char * value);
 	bool setHttpParameter(ATConstStr parameter, uint8_t value);
@@ -88,7 +88,7 @@ public:
 	/**
 	 * Send an already formatted command and read a single line response. Useful for unimplemented commands.
 	 */
-	size_t sendCommand(const char* cmd, char* response);
+	size_t sendCommand(const char* cmd, char* response, size_t responseSize);
 
 	bool setEcho(SIM808_ECHO mode);
 	/**
@@ -98,11 +98,11 @@ public:
 	/**
 	 * Get a string indicating the current sim state.
 	 */
-	size_t getSimState(char* state);
+	size_t getSimState(char* state, size_t stateSize);
 	/**
 	 * Get the device IMEI number.
 	 */
-	size_t getImei(char* imei);
+	size_t getImei(char* imei, size_t imeiSize);
 
 	/**
 	 * Get current GSM signal quality, estimated attenuation in dB and error rate.
@@ -151,7 +151,7 @@ public:
 	 * If a fix is acquired, FIX or ACCURATE_FIX will be returned depending on 
 	 * wether or not the satellites used is greater than minSatellitesForAccurateFix.
 	 */
-	SIM808_GPS_STATUS getGpsStatus(char * response, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
+	SIM808_GPS_STATUS getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
 	/**
 	 * Extract the specified field from the GPS parsed sequence as a uint16_t.
 	 */
@@ -167,7 +167,7 @@ public:
 	/**
 	 * Get and return the latest GPS parsed sequence.
 	 */
-	bool getGpsPosition(char* response);
+	bool getGpsPosition(char* response, size_t responseSize);
 
 
 	/**
