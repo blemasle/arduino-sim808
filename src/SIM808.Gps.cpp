@@ -49,7 +49,6 @@ bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* re
 	return true;
 }
 
-__attribute__((__optimize__("O2")))
 SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES)
 {	
 	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;

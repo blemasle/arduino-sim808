@@ -67,7 +67,6 @@ uint16_t SIM808::httpPost(const char *url, ATConstStr contentType, const char *b
 	return statusCode;
 }
 
-__attribute__((__optimize__("O2"))) //workaround for compiler bug about 'NO_REGS'
 bool SIM808::setupHttpRequest(const char* url)
 {
 	httpEnd();
