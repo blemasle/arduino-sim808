@@ -9,7 +9,7 @@ bool SIM808::powerOnOffGps(bool power)
 	if(!getGpsPowerState(&currentState) || (currentState == power)) return false;
 
 	sendAT(TO_F(TOKEN_GPS_POWER), TO_F(TOKEN_WRITE), (uint8_t)power);
-	return  waitResponse() == 0;
+	return waitResponse() == 0;
 }
 
 bool SIM808::getGpsPosition(char *response, size_t responseSize)

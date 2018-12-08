@@ -10,7 +10,8 @@ bool SIM808::powered()
 
 bool SIM808::powerOnOff(bool power)
 {
-	if (powered() == power) return false;
+	bool currentlyPowered = powered();
+	if (currentlyPowered == power) return false;
 
 	SIM808_PRINT_P("powerOnOff: %t", power);
 
@@ -18,10 +19,19 @@ bool SIM808::powerOnOff(bool power)
 		digitalWrite(_pwrKeyPin, LOW);
 		delay(2000);
 		digitalWrite(_pwrKeyPin, HIGH);
+	} else {
+		sendAT(S_F("+CPOWD=1"));
+		waitResponse(S_F("NORMAL POWER DOWN"));
+	}
+
+	uint16_t timeout = 2000;
+	do {
 		delay(150);
-	} else sendAT(S_F("+CPOWD=1"));
-	
-	return true;
+		timeout -= 150;
+		currentlyPowered = powered();
+	} while(currentlyPowered != power && timeout > 0);
+
+	return currentlyPowered == power;
 }
 
 SIM808ChargingStatus SIM808::getChargingState()

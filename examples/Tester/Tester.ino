@@ -38,6 +38,9 @@
 const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s" NL;
 const char UNKNOWN[] S_PROGMEM = "Unknown value";
 
+const char YES[] S_PROGMEM = "YES";
+const char NO[] S_PROGMEM = "NO";
+
 const char SUCCESS[] S_PROGMEM = "SUCCESS";
 const char FAILED[] S_PROGMEM = "FAILED";
 const char ERROR[] S_PROGMEM = "ERROR";
@@ -173,8 +176,14 @@ void power() {
     else if(BUFFER_IS_P(ON)) {
         readNext();
 
-        if(BUFFER_IS_P(MAIN)) sim808.powerOnOff(true);
-        else if(BUFFER_IS_P(GPS)) sim808.powerOnOffGps(true);
+        if(BUFFER_IS_P(MAIN)) {
+            bool poweredOn = sim808.powerOnOff(true);
+            Log.notice(S_F("powered on %S : %S" NL), TO_F(MAIN), poweredOn ? TO_F(YES) : TO_F(NO));
+        } 
+        else if(BUFFER_IS_P(GPS)) {
+            bool poweredOn = sim808.powerOnOffGps(true);
+            Log.notice(S_F("powered on %S : %S" NL), TO_F(GPS), poweredOn ? TO_F(YES) : TO_F(NO));
+        }
         else if(BUFFER_IS_P(NETWORK)) {
             char apn[15], user[15], pass[15];
             char *userP = NULL, *passP = NULL;
@@ -206,8 +215,15 @@ void power() {
     else if(BUFFER_IS_P(OFF)) {
         readNext();
 
-        if(BUFFER_IS_P(MAIN)) sim808.powerOnOff(false);
-        else if(BUFFER_IS_P(GPS)) sim808.powerOnOffGps(false);
+        if(BUFFER_IS_P(MAIN)) {
+            bool poweredOff = sim808.powerOnOff(false);
+            Log.notice(S_F("powered off %S : %S" NL), TO_F(MAIN), poweredOff ? TO_F(YES) : TO_F(NO));
+        }
+        else if(BUFFER_IS_P(GPS)) {
+            bool poweredOff = sim808.powerOnOffGps(false);
+            Log.notice(S_F("powered off %S : %S" NL), TO_F(GPS), poweredOff ? TO_F(YES) : TO_F(NO));
+
+        }
         else if(BUFFER_IS_P(NETWORK)) sim808.disableGprs();
         else {
             unrecognized();

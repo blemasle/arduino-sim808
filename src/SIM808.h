@@ -57,6 +57,9 @@ public:
 	bool powered();
 	/**
 	 * Power on or off the device only if the requested state is different than the actual state.
+	 * Returns true if the power state has been changed has a result of this call.
+	 * 
+	 * See powered()
 	 */
 	bool powerOnOff(bool power);
 	/**
@@ -133,6 +136,7 @@ public:
 	bool getGpsPowerState(bool *state);
 	/**
 	 * Power on or off the gps only if the requested state is different than the actual state.
+	 * Returns true if the power state has been changed has a result of this call. 
 	 */
 	bool powerOnOffGps(bool power);
 	/**
