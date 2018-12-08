@@ -507,7 +507,8 @@ void send() {
 
         PRINT("[message] ?");
         readNext(true); //read the whole line into buffer
-        sim808.sendSms(number, buffer);
+        bool success = sim808.sendSms(number, buffer);
+        Log.notice(S_F("send SMS : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
     }
     else if(BUFFER_IS("HTTP")) return sendHttp();
     else if(BUFFER_IS("AT")) {

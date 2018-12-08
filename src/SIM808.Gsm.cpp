@@ -86,5 +86,5 @@ bool SIM808::sendSms(const char *addr, const char *msg)
 	print((char)0x1A);
 
 	return waitResponse(60000L, TO_F(TOKEN_CMGS)) == 0 &&
-		waitResponse();
+		waitResponse() == 0;
 }
