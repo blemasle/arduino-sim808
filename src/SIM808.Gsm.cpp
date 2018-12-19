@@ -1,63 +1,60 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(SET_CPIN, "AT+CPIN=%s");
-SIM808_COMMAND(GET_CPIN, "AT+CPIN?");
+AT_COMMAND(SEND_SMS, "+CMGS=\"%s\"");
 
-SIM808_COMMAND(GET_IMEI, "AT+GSN");
-
-SIM808_COMMAND(GET_SIGNAL_QUALITY, "AT+CSQ");
-
-SIM808_COMMAND(SET_SMS_MESSAGE_FORMAT, "AT+CMGF=%d");
-SIM808_COMMAND(SEND_SMS, "AT+CMGS=\"%s\"");
-
-const char SIM808_COMMAND_SEND_SMS_RESPONSE[] PROGMEM = "+CMGS:";
-const char SIM808_COMMAND_GET_SIGNAL_QUALITY_RESPONSE[] PROGMEM = "+CSQ:";
+TOKEN_TEXT(CPIN, "+CPIN");
+TOKEN_TEXT(CSQ, "+CSQ");
+TOKEN_TEXT(CMGS, "+CMGS");
 
 bool SIM808::simUnlock(const char* pin)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_CPIN), pin);
+	sendAT(TO_F(TOKEN_CPIN), TO_F(TOKEN_WRITE), pin);
 
-	return sendAssertResponse(_ok, 5000);
+	return waitResponse(5000L) == 0;
 }
 
-size_t SIM808::getSimState(char *state)
+size_t SIM808::getSimState(char *state, size_t stateSize)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_CPIN));
-	sendGetResponse(state);
+	sendAT(TO_F(TOKEN_CPIN), TO_F(TOKEN_READ));
+	if(waitResponse(5000L, TO_F(TOKEN_CPIN)) != 0) return 0;
 
-	readLine();
-	return strlen(state);
+	copyCurrentLine(state, stateSize, strlen_P(TOKEN_CPIN) + 2);
+
+	return waitResponse() == 0 ?
+		strlen(state) :
+		0;
 }
 
-size_t SIM808::getImei(char *imei)
+size_t SIM808::getImei(char *imei, size_t imeiSize)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_IMEI));
-	sendGetResponse(imei);
+	//AT+GSN does not have a response prefix, so we need to flush input
+	//before sending the command
+	flushInput();
 
-	readLine();
-	return assertResponse(_ok) ?
+	sendAT(S_F("+GSN"));	
+	waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL); //consuming an extra line before the response. Undocumented
+
+	if(waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, NULL) != 0) return 0;
+	copyCurrentLine(imei, imeiSize);
+
+	return waitResponse() == 0?
 		strlen(imei) :
 		0;
 }
 
 SIM808SignalQualityReport SIM808::getSignalQuality()
 {
-	SIM808SignalQualityReport report = {99, 99, 1};
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_GET_SIGNAL_QUALITY));
-
-	send();
-	readLine();
-
-	if (strstr_P(replyBuffer, SIM808_COMMAND_GET_SIGNAL_QUALITY_RESPONSE) == 0) return report;
-
 	uint8_t quality;
 	uint8_t errorRate;
-	if (!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
-		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate)) return report;
+
+	SIM808SignalQualityReport report = {99, 99, 1};
+
+	sendAT(TO_F(TOKEN_CSQ));
+	if(waitResponse(TO_F(TOKEN_CSQ)) != 0 ||
+		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
+		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate) ||
+		waitResponse())
+		return report;
 
 	report.rssi = quality;
 	report.ber = errorRate;
@@ -73,31 +70,21 @@ SIM808SignalQualityReport SIM808::getSignalQuality()
 
 bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SET_SMS_MESSAGE_FORMAT), format);
-
-	return sendAssertResponse(_ok);
+	sendAT(S_F("+CMGF="), (uint8_t)format);
+	return waitResponse() == 0;
 }
 
 bool SIM808::sendSms(const char *addr, const char *msg)
 {
 	if (!setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT::TEXT)) return false;
+	sendFormatAT(TO_F(AT_COMMAND_SEND_SMS), addr);
+
+	if (!waitResponse(S_F(">")) == 0) return false;
 
 	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_SEND_SMS), addr);
-
-	if (!sendAssertResponse(F("> "))) return false;
-
-	SENDARROW;
-	println(msg);
-	flushInput(); //flushing all "> " that might have come because of a multiline message
+	print(msg);
 	print((char)0x1A);
 
-	readLine(10000);
-	if (strstr_P(replyBuffer, SIM808_COMMAND_SEND_SMS_RESPONSE) == 0) return false;
-
-	readLine();
-	if (!assertResponse(_ok)) return false;
-
-	return true;
+	return waitResponse(60000L, TO_F(TOKEN_CMGS)) == 0 &&
+		waitResponse() == 0;
 }

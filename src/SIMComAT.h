@@ -2,33 +2,29 @@
 
 #include <Arduino.h>
 #include <ArduinoLog.h>
-#include "SIM808_Commands.h"
+#include "SIMComAT.Common.h"
 
 #define _SIM808_DEBUG _DEBUG
 
 #if _SIM808_DEBUG
+	#define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
+	#define SIM808_PRINT_CHAR(x) Serial.print((char)x)
+	#define SIM808_PRINT_P(fmt, ...) _debug.verbose(S_F(fmt "\n"), __VA_ARGS__)
+	#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(S_F(fmt "\n"))
 
-const char ARROW_LEFT[] PROGMEM = "<--";
-const char ARROW_RIGHT[] PROGMEM = "-->";
-
-#define SIM808_PRINT(...) _debug.verbose(__VA_ARGS__)
-#define SIM808_PRINT_CHAR(x) Serial.print((char)x)
-#define SIM808_PRINT_P(fmt, ...) _debug.verbose(F(fmt "\n"), __VA_ARGS__)
-#define SIM808_PRINT_SIMPLE_P(fmt) _debug.verbose(F(fmt "\n"))
-
-#define RECEIVEARROW _debug.verbose(PSTRPTR(ARROW_LEFT))
-#define SENDARROW _debug.verbose(PSTRPTR(ARROW_RIGHT))
+	#define RECEIVEARROW _debug.verbose(S_F("<--"))
+	#define SENDARROW _debug.verbose(S_F("\n-->"))
 #else
-#define SIM808_PRINT(...)
-#define SIM808_PRINT_CHAR(x)
-#define SIM808_PRINT_P(x, ...)
-#define SIM808_PRINT_SIMPLE_P(x)
-#define RECEIVEARROW 
-#define SENDARROW
+	#define SIM808_PRINT(...)
+	#define SIM808_PRINT_CHAR(x)
+	#define SIM808_PRINT_P(x, ...)
+	#define SIM808_PRINT_SIMPLE_P(x)
+	
+	#define RECEIVEARROW 
+	#define SENDARROW
 #endif // _DEBUG
 
-//TODO : the buffer size could be greatly reduced (around 64 bytes) if SIM808.Gps.cpp is reworked
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 64
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
 class SIMComAT : public Stream
@@ -44,55 +40,65 @@ protected:
 
 	char replyBuffer[BUFFER_SIZE];
 	
+	template<typename T> void writeStream(T last)
+	{
+		print(last);
+	}
+
+	template<typename T, typename... Args> void writeStream(T head, Args... tail)
+	{
+		print(head);
+		writeStream(tail...);
+	}
+
+	template<typename... Args> void sendAT(Args... cmd)
+	{
+		SENDARROW;
+		writeStream(TO_F(TOKEN_AT), cmd..., TO_F(TOKEN_NL));
+	}
+
+	template<typename T, typename... Args> void sendFormatAT(T format, Args... args)
+	{
+		SENDARROW;
+		writeStream(TO_F(TOKEN_AT));
+		_output.verbose(format, args...);
+		writeStream(TO_F(TOKEN_NL));
+	}
+
 	/**
-	 * Flush all lines currently in the buffer.
+	 * Read and discard all content already waiting to be parsed. 
 	 */
 	void flushInput();
 	/**
-	 * Send a line return, effectively validating the current command. 
+	 * Read at max size available chars into buffer until either the timeout is exhausted or
+	 * the stop character is encountered. timeout and char are optional
+	 * 
 	 */
-	void send();
+	size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
+	int8_t waitResponse(
+		ATConstStr s1 = TO_F(TOKEN_OK),
+		ATConstStr s2 = TO_F(TOKEN_ERROR),
+		ATConstStr s3 = NULL,
+		ATConstStr s4 = NULL) {
+			return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT, s1, s2, s3, s4);
+		};
 
+	int8_t waitResponse(uint16_t timeout, 
+		ATConstStr s1 = TO_F(TOKEN_OK),
+		ATConstStr s2 = TO_F(TOKEN_ERROR),
+		ATConstStr s3 = NULL,
+		ATConstStr s4 = NULL);
+		
 	/**
-	 * Read the next line into replyBuffer or bail out after timeout.
+	 * Read the current response line and copy it in response. Start at replyBuffer + shift
 	 */
-	size_t readLine(uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	size_t sendGetResponse(const __FlashStringHelper* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT); //TODO : use templates (like ArduinoLog) ?
-	/**
-	 * Send a command and wait for a response back.
-	 */
-	size_t sendGetResponse(const char* msg, char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and wait for a response back.
-	 */
-	size_t sendGetResponse(char* response, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Copy the content of response into replyBuffer.
-	 */
-	size_t copyResponse(char *response);
+	size_t copyCurrentLine(char *dst, size_t dstSize, uint16_t shift = 0);
+	size_t safeCopy(const char *src, char *dst, size_t dstSize);
 	
-	/**
-	 * Send a command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *msg, const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-	/**
-	 * Validate the current command and check that the response matches the expectedResponse.
-	 */
-	bool sendAssertResponse(const __FlashStringHelper *expectedResponse, uint16_t timeout = SIMCOMAT_DEFAULT_TIMEOUT);
-
-	/**
-	 * Check that replyBuffer matches expectedResponse.
-	 */
-	bool assertResponse(const __FlashStringHelper *expectedResponse);
-
 	/**
 	 * Find and return a pointer to the nth field of a string.
 	 */
-	char* find(const char* str, char divider, uint8_t index); //TODO : rename
-
+	char* find(const char* str, char divider, uint8_t index);
 	/**
 	 * Parse the nth field of a string as a uint8_t.
 	 */

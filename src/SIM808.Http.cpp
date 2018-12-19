@@ -1,22 +1,43 @@
 #include "SIM808.h"
 
-SIM808_COMMAND(HTTP_SET_PARAMETER_STRING, "AT+HTTPPARA=\"%S\",\"%s\"");
-SIM808_COMMAND(HTTP_SET_PARAMETER_STRING_PROGMEM, "AT+HTTPPARA=\"%S\",\"%S\"");
-SIM808_COMMAND(HTTP_SET_PARAMETER_INT, "AT+HTTPPARA=\"%S\",\"%d\"");
-SIM808_COMMAND(HTTP_SET_HTTP_DATA, "AT+HTTPDATA=%d,%d");
-SIM808_COMMAND(HTTP_ACTION, "AT+HTTPACTION=%d");
-SIM808_COMMAND(HTTP_READ, "AT+HTTPREAD=%d,%d");
-SIM808_COMMAND(HTTP_INIT, "AT+HTTPINIT");
-SIM808_COMMAND(HTTP_SSL, "AT+HTTPSSL=1");
-SIM808_COMMAND(HTTP_END, "AT+HTTPTERM");
+AT_COMMAND(SET_HTTP_PARAMETER_STRING, "+HTTPPARA=\"%S\",\"%s\"");
+AT_COMMAND(SET_HTTP_PARAMETER_STRING_PROGMEM, "+HTTPPARA=\"%S\",\"%S\"");
+AT_COMMAND(SET_HTTP_PARAMETER_INT, "+HTTPPARA=\"%S\",\"%d\"");
+AT_COMMAND(HTTP_DATA, "+HTTPDATA=%d,%d");
+AT_COMMAND(HTTP_READ, "+HTTPREAD=%d,%d");
 
-SIM808_COMMAND_PARAMETER(HTTP, CONTENT);
-SIM808_COMMAND_PARAMETER(HTTP, REDIR);
-SIM808_COMMAND_PARAMETER(HTTP, CID);
-SIM808_COMMAND_PARAMETER(HTTP, URL);
-SIM808_COMMAND_PARAMETER(HTTP, UA);
+TOKEN_TEXT(HTTP_DATA, "+HTTPDATA");
+TOKEN_TEXT(HTTP_ACTION, "+HTTPACTION");
+TOKEN_TEXT(HTTP_READ, "+HTTPREAD");
+TOKEN_TEXT(HTTP_INIT, "+HTTPINIT");
+TOKEN_TEXT(HTTP_SSL, "+HTTPSSL");
+TOKEN_TEXT(HTTP_TERM, "+HTTPTERM");
+TOKEN(DOWNLOAD);
 
-SIM808_TOKEN(DOWNLOAD);
+AT_COMMAND_PARAMETER(HTTP, CONTENT);
+AT_COMMAND_PARAMETER(HTTP, REDIR);
+AT_COMMAND_PARAMETER(HTTP, CID);
+AT_COMMAND_PARAMETER(HTTP, URL);
+AT_COMMAND_PARAMETER(HTTP, UA);
+
+
+bool SIM808::setHttpParameter(ATConstStr parameter, ATConstStr value)
+{
+	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_STRING_PROGMEM), parameter, value);
+	return waitResponse() == 0;
+}
+
+bool SIM808::setHttpParameter(ATConstStr parameter, const char * value)
+{
+	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_STRING), parameter, value);
+	return waitResponse() == 0;
+}
+
+bool SIM808::setHttpParameter(ATConstStr parameter, uint8_t value)
+{
+	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_INT), parameter, value);
+	return waitResponse() == 0;
+}
 
 uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 {
@@ -25,123 +46,78 @@ uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 
 	bool result = setupHttpRequest(url) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::GET, &statusCode, &dataSize) &&
-		readHttpResponse(response, min(responseSize, dataSize)) &&
+		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
 	return statusCode;
 }
 
-uint16_t SIM808::httpPost(const char *url, const __FlashStringHelper *contentType, const char *body, char *response, size_t responseSize)
+uint16_t SIM808::httpPost(const char *url, ATConstStr contentType, const char *body, char *response, size_t responseSize)
 {
 	uint16_t statusCode = 0;
 	size_t dataSize = 0;
 
 	bool result = setupHttpRequest(url) &&
-		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
 		setHttpBody(body) &&
 		fireHttpRequest(SIM808_HTTP_ACTION::POST, &statusCode, &dataSize) &&
-		readHttpResponse(response, min(dataSize, responseSize)) &&
+		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
 	return statusCode;
 }
 
-__attribute__((__optimize__("O2"))) //workaround for compiler bug about 'NO_REGS'
 bool SIM808::setupHttpRequest(const char* url)
 {
 	httpEnd();
 
 	return httpInit() &&
-		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
-		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_CID), 1) &&
-		setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_URL), url) &&
-		(url[4] != 's' || sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_SSL), _ok)) &&
-		(_userAgent == NULL || setHttpParameter(PSTRPTR(SIM808_COMMAND_PARAMETER_HTTP_UA), _userAgent));
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_REDIR), 1) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CID), 1) &&
+		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_URL), url) &&
+		(url[4] != 's' || (sendAT(TO_F(TOKEN_HTTP_SSL), TO_F(TOKEN_WRITE), 1), waitResponse() == 0)) &&
+		(_userAgent == NULL || setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_UA), _userAgent));
 }
 
 bool SIM808::httpInit()
 {
-	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_INIT), _ok);
+	return (sendAT(TO_F(TOKEN_HTTP_INIT)), waitResponse() == 0);
 }
 
 bool SIM808::httpEnd()
 {
-	return sendAssertResponse(PSTRPTR(SIM808_COMMAND_HTTP_END), _ok);
-}
-
-bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const __FlashStringHelper* value)
-{
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING_PROGMEM), parameter, value);
-
-	return sendAssertResponse(_ok);
-}
-
-bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const char* value)
-{
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_STRING), parameter, value);
-
-	return sendAssertResponse(_ok);
-}
-
-bool SIM808::setHttpParameter(const __FlashStringHelper* parameter, const int8_t value)
-{
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_PARAMETER_INT), parameter, value);
-
-	return sendAssertResponse(_ok);
+	return (sendAT(TO_F(TOKEN_HTTP_TERM)), waitResponse() == 0);
 }
 
 bool SIM808::setHttpBody(const char* body)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_SET_HTTP_DATA), strlen(body), (uint16_t)10000);
-
-	if (!sendAssertResponse(PSTRPTR(SIM808_TOKEN_DOWNLOAD))) return false;
+	sendFormatAT(TO_F(AT_COMMAND_HTTP_DATA), strlen(body), 10000L);
+	
+	if(waitResponse(TO_F(TOKEN_DOWNLOAD)) != 0) return false;		
 
 	SENDARROW;
 	print(body);
 
-	readLine();
-	return assertResponse(_ok);
+	if(waitResponse() != 0) return false;
+	return true;
 }
 
 bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_ACTION), action);
+	sendAT(TO_F(TOKEN_HTTP_ACTION), TO_F(TOKEN_WRITE), (uint8_t)action);
 
-	if (!sendAssertResponse(_ok)) return false;
-
-	readLine(HTTP_TIMEOUT);
-
-	return parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
+	return waitResponse(HTTP_TIMEOUT, TO_F(TOKEN_HTTP_ACTION)) == 0 &&
+		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
 		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
 }
 
-bool SIM808::readHttpResponse(char *response, size_t responseSize)
+bool SIM808::readHttpResponse(char *response, size_t responseSize, size_t dataSize)
 {
-	SENDARROW;
-	_output.verbose(PSTRPTR(SIM808_COMMAND_HTTP_READ), (uint8_t)0, responseSize);
+	size_t readSize = min(responseSize - 1, dataSize);
 
-	send();
-	readLine();
+	sendFormatAT(TO_F(AT_COMMAND_HTTP_READ), 0, readSize);
+	if(waitResponse(TO_F(TOKEN_HTTP_READ)) != 0) return false;
 
-	int16_t length = responseSize;
-	int16_t i = 0;
-	while (length > 0) {
-		while (available()) {
-			char c = read();
-			*response = c;
-			response++;
-			length--;
-			if (!length) break;
-		}
-	}
-
-	*response = '\0';
-
-	readLine();
-	return assertResponse(_ok);
+	readNext(response, readSize + 1); // taking in account the string term
+	return waitResponse() == 0;
 }
