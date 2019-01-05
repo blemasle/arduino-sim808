@@ -18,6 +18,7 @@ script:
  - arduino --verify --board arduino:avr:uno $PWD/examples/AcquireGPSPosition/AcquireGPSPosition.ino
  - arduino --verify --board arduino:avr:uno $PWD/examples/GeneralInformation/GeneralInformation.ino
  - arduino --verify --board arduino:avr:uno $PWD/examples/HttpPost/HttpPost.ino
+ - arduino --verify --board arduino:avr:uno $PWD/examples/Tester/Tester.ino
 notifications:
   email:
     on_success: change

@@ -16,17 +16,15 @@ really easy, and avoid successive prints or string concatenation.
  * Reading of the device states (battery, gps, network)
 
 ## Why another library ?
-Their is a number of libraries out there which support this modem ([Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA), [TinyGSM](https://github.com/vshymanskyy/TinyGSM) for instance), so why build another one ? None fit the needs I had for a project. FONA is more a giant example for testing commands individually and I was getting unreliable results with it. TinyGSM seems great but what it gains in chips support it lacks in fine grained control 
-over each modules, which I needed.
+Their is a number of libraries out there which support this modem ([Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA), [TinyGSM](https://github.com/vshymanskyy/TinyGSM) for instance), so why build another one ? None fit the needs I had for a project. FONA is more a giant example for testing commands individually and I was getting unreliable results with it. TinyGSM seems great but what it gains in chips support it lacks in fine grained control over each modules, which I needed.
 
-This library is then greatly inspired by FONA, which served as the reference implementation, but mostly only support the features I needed for my project and has been
-tested thoroughly and successfully in that configuration. It also tries to reduce the final HEX size as this was a real problem for the project it was built (currently using 30660 bytes out of 30720).  
+This library is then greatly inspired by FONA, which served as the reference implementation, but mostly only support the features I needed for my project and has been tested thoroughly and successfully in that configuration. It also tries to reduce the final HEX size as this was a real problem for the project it was built for.
 
 It does *not* have the pretention to become the new SIM808 standard library, but can be useful to others as a source of inspiration or documentation to understand how AT commands works.
 
 ## Debugging
  If you need to debug the communication with the SIM808 module, you can either define `_DEBUG` to `1`, or directly change `_SIM808_DEBUG` to `1` in [SIMComAT.h](/src/SIMComAT.h).
- > Be aware that it will greatly increase the final hex size as debug strings are stored in flash.
+ > Be aware that it will increase the final hex size as debug strings are stored in flash.
 
  ## Usage
  No default instance is created when the library is included. It's up to you to create one with the appropriate parameters.
