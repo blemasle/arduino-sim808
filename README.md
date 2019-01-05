@@ -1,12 +1,12 @@
 # SIM808
-This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GSM module. It requires at least 3 pins (power, status and reset pins) to work and a TTL Serial.
+This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GPRS module. It requires at least 3 pins (power, status and reset pins) to work and a TTL Serial.
 
-The library tries to reduces memory consumption as much as possible, but nonetheless use a 128 bytes buffer to communicate with the SIM808 module. When available, SIM808 responses are parsed to ensure that commands are correctly executed by the module. Commands timeouts are also set according to SIMCOM documentation.  
+The library tries to reduces memory consumption as much as possible, but nonetheless use a 64 bytes buffer to communicate with the SIM808 module. When available, SIM808 responses are parsed to ensure that commands are correctly executed by the module. Commands timeouts are also set according to SIMCOM documentation.  
 
 > No default instance is created when the library is included
 
 [Arduino-Log](https://github.com/thijse/Arduino-Log) is used to output formatted commands in a `printf` style. This make implementation of new commands
-really easy, and avoid successive prints or string concatenation.
+really easy, and avoid successive prints or string concatenation on complex commands.
 
 ## Features
  * Fine control over the module power management
@@ -58,7 +58,7 @@ void loop() {
  ```
 See examples for further usage.
 
-## A note about https
+## A note about HTTPS
 
-While technically, SIM808 module support HTTPS requests, it is particularly unreliable and sketchy. 7 times out of 10, the request won't succeed. This is a bummer
-and I strongly recommand to stick with HTTP requests if you need reliability.
+While technically, SIM808 module support HTTPS requests through the HTTP service, it is particularly unreliable and sketchy. 7 times out of 10, the request won't succeed.  
+In the future, I hope to find the time to make HTTPS work with the TCP service. In the meantime I strongly (and sadly) recommend to stick with HTTP requests if you need reliability.
