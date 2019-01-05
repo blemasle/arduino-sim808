@@ -1,4 +1,7 @@
 # SIM808
+[![Build Status](https://travis-ci.org/blemasle/arduino-sim808.svg?branch=master)](https://travis-ci.org/blemasle/arduino-sim808)
+[![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](http://doge.mit-license.org)
+
 This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GPRS module. It requires at least 3 pins (power, status and reset pins) to work and a TTL Serial.
 
 The library tries to reduces memory consumption as much as possible, but nonetheless use a 64 bytes buffer to communicate with the SIM808 module. When available, SIM808 responses are parsed to ensure that commands are correctly executed by the module. Commands timeouts are also set according to SIMCOM documentation.  
