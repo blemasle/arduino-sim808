@@ -1,5 +1,6 @@
 #include "SIM808.h"
 
+AT_COMMAND(SET_BEARER_SETTING_CONTYPE_GPRS, "+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
 AT_COMMAND(SET_BEARER_SETTING, "+SAPBR=%d,%d");
 AT_COMMAND(GPRS_START_TASK, "+CSTT=\"%s\",\"%s\",\"%s\"");
 AT_COMMAND(GPRS_ATTACH, "+CGATT=%d");
@@ -29,6 +30,9 @@ bool SIM808::enableGprs(const char *apn, const char* user = NULL, const char *pa
 	return 
 		(sendAT(TO_F(TOKEN_CIPSHUT)), waitResponse(65000L, TO_F(TOKEN_SHUT_OK)) == 0) &&					//AT+CIPSHUT
 		(sendFormatAT(TO_F(AT_COMMAND_GPRS_ATTACH), 1), waitResponse(10000L) == 0) &&						//AT+CGATT=1
+
+		(sendFormatAT(TO_F(AT_COMMAND_SET_BEARER_SETTING), 0, 1), waitResponse(65000L) != -1) &&			//AT+SAPBR=0,1
+		(sendAT(TO_F(AT_COMMAND_SET_BEARER_SETTING_CONTYPE_GPRS)), waitResponse() == 0) && 					//AT+SAPBR=3,1,"CONTYPE","GPRS"
 
 		(sendFormatAT(TO_F(AT_COMMAND_GPRS_START_TASK), apn, user, password), waitResponse() == 0) &&		//AT+CSTT="apn","user","password"
 		(sendFormatAT(TO_F(AT_COMMAND_SET_BEARER_SETTING), 1, 1), waitResponse(65000L) == 0);				//AT+SAPBR=1,1
