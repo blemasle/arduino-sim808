@@ -15,9 +15,11 @@ bool SIM808::powered()
 
 bool SIM808::powerOnOff(bool power)
 {
+	if (_pwrKeyPin == SIM808_UNAVAILABLE_PIN) return false;
+
 	bool currentlyPowered = powered();
 	if (currentlyPowered == power) return false;
-
+	
 	SIM808_PRINT_P("powerOnOff: %t", power);
 
 	digitalWrite(_pwrKeyPin, LOW);
