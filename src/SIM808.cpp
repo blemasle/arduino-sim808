@@ -10,7 +10,7 @@ SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 
 	pinMode(_resetPin, OUTPUT);
 	pinMode(_pwrKeyPin, OUTPUT);
-	pinMode(_statusPin, INPUT);
+	if (_statusPin != SIM808_UNAVAILABLE_PIN) pinMode(_statusPin, INPUT);
 	
 	digitalWrite(_pwrKeyPin, HIGH);
 	digitalWrite(_resetPin, HIGH);

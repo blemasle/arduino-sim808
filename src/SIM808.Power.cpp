@@ -5,6 +5,11 @@ TOKEN_TEXT(CFUN, "+CFUN");
 
 bool SIM808::powered()
 {
+	if(_statusPin == SIM808_UNAVAILABLE_PIN) {
+		sendAT();
+		return waitResponse(SIMCOMAT_DEFAULT_TIMEOUT) != -1;
+	}
+	
 	return digitalRead(_statusPin) == HIGH;
 }
 
