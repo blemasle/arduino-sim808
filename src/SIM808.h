@@ -54,11 +54,13 @@ public:
 
 	/**
 	 * Get a boolean indicating wether or not the device is currently powered on.
+	 * The power state is read from either the statusPin if set, or from a test AT command response.
 	 */
 	bool powered();
 	/**
 	 * Power on or off the device only if the requested state is different than the actual state.
-	 * Returns true if the power state has been changed has a result of this call.
+	 * Returns true if the power state has been changed as a result of this call.
+	 * Unavailable and returns false in all cases if pwrKeyPin is not set.
 	 * 
 	 * See powered()
 	 */
