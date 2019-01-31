@@ -2,7 +2,7 @@
 
 TOKEN(RDY);
 
-SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
+SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin = SIM808_UNAVAILABLE_PIN, uint8_t statusPin = SIM808_UNAVAILABLE_PIN)
 {
 	_resetPin = resetPin;
 	_pwrKeyPin = pwrKeyPin;
