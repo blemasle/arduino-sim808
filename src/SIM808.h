@@ -46,6 +46,10 @@ private:
 	 * Terminate the HTTP service.
 	 */
 	bool httpEnd();
+	/**
+	 * Set one of the bearer settings for application based on IP.
+	 */
+	bool setBearerSetting(ATConstStr parameter, const char* value);
 
 public:
 	SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin);
