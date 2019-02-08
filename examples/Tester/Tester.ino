@@ -272,7 +272,9 @@ void sim() {
         Log.notice(S_F("SIM status : \"%s\"" NL), buffer);
     }
     else if(BUFFER_IS("UNLOCK")) {
-        size_t length = readNext();
+        readNext();
+        
+        size_t length = strlen(buffer);
         if(length != 4) {
             Log.error(S_F("4 digit pin code required" NL));
             return;
