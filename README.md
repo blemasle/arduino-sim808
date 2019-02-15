@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/blemasle/arduino-sim808.svg?branch=master)](https://travis-ci.org/blemasle/arduino-sim808)
 [![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](http://doge.mit-license.org)
 
-This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GPRS module. It requires at least 3 pins (power, status and reset pins) to work and a TTL Serial.
+This library allows to access some of the features of the [SIM808](https://simcom.ee/documents/?dir=SIM808) GPS & GPRS module. It requires only the `RESET` pin to work and a TTL Serial. `STATUS` pin can be wired to enhance the module power status detection, while wiring the `PWRKEY` adds the ability to turn the module on & off.
 
 The library tries to reduces memory consumption as much as possible, but nonetheless use a 64 bytes buffer to communicate with the SIM808 module. When available, SIM808 responses are parsed to ensure that commands are correctly executed by the module. Commands timeouts are also set according to SIMCOM documentation.  
 
@@ -46,17 +46,19 @@ It does *not* have the pretention to become the new SIM808 standard library, but
 
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX)
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
+// SIM808 sim808 = SIM808(SIM_RST); // if you only have the RESET pin wired
+// SIM808 sim808 = SIM808(SIM_RST, SIM_PWR); // if you only have the RESET and PWRKEY pins wired
 
 void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    sim808.powerOnOff(true);    //power on the SIM808
+    sim808.powerOnOff(true);    //power on the SIM808. Unavailable without the PWRKEY pin wired
     sim808.init();
 }
 
 void loop() {
-    //whatever you need to do
+    // whatever you need to do
 }
  ```
 See examples for further usage.

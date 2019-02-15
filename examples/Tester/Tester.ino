@@ -171,7 +171,7 @@ void power() {
             return;
         }
 
-        Log.notice(S_F("%s : %S"), buffer, status ? TO_F(ON) : TO_F(OFF));
+        Log.notice(S_F("%s : %S" NL), buffer, status ? TO_F(ON) : TO_F(OFF));
     }
     else if(BUFFER_IS_P(ON)) {
         readNext();
