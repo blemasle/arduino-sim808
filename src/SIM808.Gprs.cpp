@@ -36,7 +36,7 @@ bool SIM808::getGprsPowerState(bool *state)
 	return true;
 }
 
-bool SIM808::enableGprs(const char *apn, const char* user = NULL, const char *password = NULL)
+bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 {
 	char gprsToken[5];
 	strcpy_P(gprsToken, TOKEN_GPRS);

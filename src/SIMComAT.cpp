@@ -17,7 +17,7 @@ void SIMComAT::flushInput() {
 }
 
 
-size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = '\0')
+size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout, char stop)
 {
 	size_t i = 0;
 	bool exit = false;
@@ -52,10 +52,10 @@ size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL,
 }
 
 int8_t SIMComAT::waitResponse(uint16_t timeout, 
-	ATConstStr s1 = TO_F(TOKEN_OK),
-	ATConstStr s2 = TO_F(TOKEN_ERROR),
-	ATConstStr s3 = NULL,
-	ATConstStr s4 = NULL)
+	ATConstStr s1, 
+	ATConstStr s2,
+	ATConstStr s3,
+	ATConstStr s4)
 {
 	ATConstStr wantedTokens[4] = { s1, s2, s3, s4 };
 	size_t length;
@@ -78,7 +78,7 @@ int8_t SIMComAT::waitResponse(uint16_t timeout,
 	return -1;
 }
 
-size_t SIMComAT::copyCurrentLine(char *dst, size_t dstSize, uint16_t shift = 0)
+size_t SIMComAT::copyCurrentLine(char *dst, size_t dstSize, uint16_t shift)
 {
 	char *p = dst;
 	char *p1;
