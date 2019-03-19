@@ -74,7 +74,7 @@ protected:
 	 * the stop character is encountered. timeout and char are optional
 	 * 
 	 */
-	size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
+	size_t readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
 	int8_t waitResponse(
 		ATConstStr s1 = TO_F(TOKEN_OK),
 		ATConstStr s2 = TO_F(TOKEN_ERROR),
