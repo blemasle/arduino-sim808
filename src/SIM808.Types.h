@@ -59,7 +59,7 @@ enum class SIM808_PHONE_FUNCTIONALITY : int8_t
 	FAIL = -1,		///< Reading the current phone functionality has failed.
 	MINIMUM = 0,	///< Minimum functionality.
 	FULL = 1,		///< Full functionality (default on device power on).
-	DISABLED = 4	///< Disable phone both transmit and receive RF circuit.
+	RF_DISABLED = 4	///< Disable phone both transmit and receive RF circuit.
 };
 
 enum class SIM808_GPS_STATUS : int8_t

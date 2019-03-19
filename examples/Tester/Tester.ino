@@ -56,7 +56,7 @@ const char NETWORK[] S_PROGMEM = "NETWORK";
 
 const char MINIMUM[] S_PROGMEM = "MINIMUM";
 const char FULL[] S_PROGMEM = "FULL";
-const char DISABLED[] S_PROGMEM = "DISABLED";
+const char RF_DISABLED[] S_PROGMEM = "RF_DISABLED";
 
 const char SEND[] S_PROGMEM = "SEND";
 const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
@@ -89,7 +89,7 @@ void usage() {
     PRINT_LN("");
 
     PRINT_LN("network functionality\t\t\t\tGet the current network functionality");
-    PRINT_LN("network functionality [minimum|full|disabled]\tSet the current network functionality");
+    PRINT_LN("network functionality [minimum|full|rf_disabled]\tSet the current network functionality");
     PRINT_LN("network status\t\t\t\t\tGet the current network status");
     PRINT_LN("network quality\t\t\t\t\tGet the current network quality report");
 
@@ -352,8 +352,8 @@ void network() {
                 case SIM808_PHONE_FUNCTIONALITY::FULL:
                     state = TO_F(FULL);
                     break;
-                case SIM808_PHONE_FUNCTIONALITY::DISABLED:
-                    state = TO_F(DISABLED);
+                case SIM808_PHONE_FUNCTIONALITY::RF_DISABLED:
+                    state = TO_F(RF_DISABLED);
                     break;
                 default:
                     state = TO_F(UNKNOWN);
@@ -368,7 +368,7 @@ void network() {
             readNext();
             if(BUFFER_IS_P(MINIMUM)) fun = SIM808_PHONE_FUNCTIONALITY::MINIMUM;
             else if(BUFFER_IS_P(FULL)) fun = SIM808_PHONE_FUNCTIONALITY::FULL;
-            else if(BUFFER_IS_P(DISABLED)) fun = SIM808_PHONE_FUNCTIONALITY::DISABLED;
+            else if(BUFFER_IS_P(RF_DISABLED)) fun = SIM808_PHONE_FUNCTIONALITY::RF_DISABLED;
             else {
                 unrecognized();
                 return;
