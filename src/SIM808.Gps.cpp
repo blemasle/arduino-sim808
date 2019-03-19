@@ -63,7 +63,7 @@ SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, size_t responseSize, uin
 	if(replyBuffer[shift] == '0') result = SIM808_GPS_STATUS::OFF;
 	if(replyBuffer[shift + 2] == '1') // fix acquired
 	{
-		int16_t satellitesUsed;
+		uint16_t satellitesUsed;
 		getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed);
 
 		result = satellitesUsed > minSatellitesForAccurateFix ?
