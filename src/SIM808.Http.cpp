@@ -27,11 +27,15 @@ bool SIM808::setHttpParameter(ATConstStr parameter, ATConstStr value)
 	return waitResponse() == 0;
 }
 
+#if defined(__AVR__)
+
 bool SIM808::setHttpParameter(ATConstStr parameter, const char * value)
 {
 	sendFormatAT(TO_F(AT_COMMAND_SET_HTTP_PARAMETER_STRING), parameter, value);
 	return waitResponse() == 0;
 }
+
+#endif
 
 bool SIM808::setHttpParameter(ATConstStr parameter, uint8_t value)
 {

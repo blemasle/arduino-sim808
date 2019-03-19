@@ -33,7 +33,9 @@ private:
 	 */
 	bool readHttpResponse(char *response, size_t responseSize, size_t dataSize);	
 	bool setHttpParameter(ATConstStr parameter, ATConstStr value);
+#if defined(__AVR__)
 	bool setHttpParameter(ATConstStr parameter, const char * value);
+#endif
 	bool setHttpParameter(ATConstStr parameter, uint8_t value);
 	/**
 	 * Set the HTTP body of the next request to be fired.
