@@ -24,6 +24,10 @@
 	#define SENDARROW
 #endif // _DEBUG
 
+#if SIZE_MAX > UINT16_MAX
+	#define NEED_SIZE_T_OVERLOADS
+#endif
+
 #define BUFFER_SIZE 64
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
@@ -111,6 +115,12 @@ protected:
 	 * Parse the nth field of a string as a uint16_t.
 	 */
 	bool parse(const char* str, char divider, uint8_t index, uint16_t* result);
+#ifdef NEED_SIZE_T_OVERLOADS
+	/**
+	 * Parse the nth field of a string as a size_t.
+	 */
+	bool parse(const char* str, char divider, uint8_t index, size_t* result);
+#endif
 	/**
 	 * Parse the nth field of a string as a int16_t.
 	 */
@@ -132,6 +142,12 @@ protected:
 	 * Parse the nth field of the reply buffer as a uint16_t.
 	 */
 	bool parseReply(char divider, uint8_t index, uint16_t* result) { return parse(replyBuffer, divider, index, result); }
+#ifdef NEED_SIZE_T_OVERLOADS
+	/**
+	 * Parse the nth field of the reply buffer as a size_t.
+	 */
+	bool parseReply(char divider, uint8_t index, size_t* result) { return parse(replyBuffer, divider, index, result); }
+#endif	
 	/**
 	 * Parse the nth field of the reply buffer as a int16_t.
 	 */

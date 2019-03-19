@@ -151,6 +151,18 @@ bool SIMComAT::parse(const char* str, char divider, uint8_t index, uint16_t* res
 	return errno == 0;
 }
 
+#ifdef NEED_SIZE_T_OVERLOADS
+bool SIMComAT::parse(const char* str, char divider, uint8_t index, size_t* result) { 
+	char* p = find(str, divider, index);
+	if (p == NULL) return false;
+
+	errno = 0;
+	*result = strtoull(p, NULL, 10);
+	
+	return errno == 0; 
+}
+#endif
+
 bool SIMComAT::parse(const char* str, char divider, uint8_t index, int16_t* result)
 {	
 	char* p = find(str, divider, index);
