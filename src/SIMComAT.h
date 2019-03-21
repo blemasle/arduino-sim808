@@ -115,7 +115,7 @@ protected:
 	 * Parse the nth field of a string as a uint16_t.
 	 */
 	bool parse(const char* str, char divider, uint8_t index, uint16_t* result);
-#ifdef NEED_SIZE_T_OVERLOADS
+#if defined(NEED_SIZE_T_OVERLOADS)
 	/**
 	 * Parse the nth field of a string as a size_t.
 	 */
@@ -142,7 +142,7 @@ protected:
 	 * Parse the nth field of the reply buffer as a uint16_t.
 	 */
 	bool parseReply(char divider, uint8_t index, uint16_t* result) { return parse(replyBuffer, divider, index, result); }
-#ifdef NEED_SIZE_T_OVERLOADS
+#if defined(NEED_SIZE_T_OVERLOADS)
 	/**
 	 * Parse the nth field of the reply buffer as a size_t.
 	 */
