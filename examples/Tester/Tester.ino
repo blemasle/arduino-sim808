@@ -56,7 +56,7 @@ const char NETWORK[] S_PROGMEM = "NETWORK";
 
 const char MINIMUM[] S_PROGMEM = "MINIMUM";
 const char FULL[] S_PROGMEM = "FULL";
-const char RF_DISABLED[] S_PROGMEM = "RF_DISABLED";
+const char RF_DISABLED[] S_PROGMEM = "DISABLED";
 
 const char SEND[] S_PROGMEM = "SEND";
 const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
@@ -89,7 +89,7 @@ void usage() {
     PRINT_LN("");
 
     PRINT_LN("network functionality\t\t\t\tGet the current network functionality");
-    PRINT_LN("network functionality [minimum|full|rf_disabled]\tSet the current network functionality");
+    PRINT_LN("network functionality [minimum|full|disabled]\tSet the current network functionality");
     PRINT_LN("network status\t\t\t\t\tGet the current network status");
     PRINT_LN("network quality\t\t\t\t\tGet the current network quality report");
 
@@ -241,16 +241,16 @@ void charge() {
     __FlashStringHelper * state;
 
     switch(status.state) {
-        case SIM808ChargingState::ERROR:
+        case SIM808ChargingState::Error:
             state = TO_F(ERROR);
             break;
-        case SIM808ChargingState::NOT_CHARGING:
+        case SIM808ChargingState::NotCharging:
             state = S_F("NOT_CHARGING");
             break;
-        case SIM808ChargingState::CHARGING:
+        case SIM808ChargingState::Charging:
             state = S_F("CHARGING");
             break;
-        case SIM808ChargingState::CHARGING_DONE:
+        case SIM808ChargingState::ChargingDone:
             state = S_F("CHARGING_DONE");
             break;
         default:
@@ -302,25 +302,25 @@ void network() {
         SIM808NetworkRegistrationState status = sim808.getNetworkRegistrationStatus();
 
         switch(status) {
-            case SIM808NetworkRegistrationState::ERROR:
+            case SIM808NetworkRegistrationState::Error:
                 state = TO_F(ERROR);
                 break;
-            case SIM808NetworkRegistrationState::NOT_SEARCHING:
+            case SIM808NetworkRegistrationState::NotSearching:
                 state = S_F("NOT_SEARCHING");
                 break;
-            case SIM808NetworkRegistrationState::REGISTERED:
+            case SIM808NetworkRegistrationState::Registered:
                 state = S_F("REGISTERED");
                 break;
-            case SIM808NetworkRegistrationState::SEARCHING:
+            case SIM808NetworkRegistrationState::Searching:
                 state = S_F("SEARCHING");
                 break;
-            case SIM808NetworkRegistrationState::DENIED:
+            case SIM808NetworkRegistrationState::Denied:
                 state = S_F("DENIED");
                 break;
-            case SIM808NetworkRegistrationState::UNKNOWN:
+            case SIM808NetworkRegistrationState::Unknown:
                 state = S_F("UNKNOWN");
                 break;
-            case SIM808NetworkRegistrationState::ROAMING:
+            case SIM808NetworkRegistrationState::Roaming:
                 state = S_F("ROAMING");
                 break;
             default:
@@ -343,16 +343,16 @@ void network() {
         if(last) { //get
             SIM808PhoneFunctionality fun = sim808.getPhoneFunctionality();
             switch(fun) {
-                case SIM808PhoneFunctionality::FAIL:
+                case SIM808PhoneFunctionality::Fail:
                     state = TO_F(FAILED);
                     break;
-                case SIM808PhoneFunctionality::MINIMUM:
+                case SIM808PhoneFunctionality::Minimum:
                     state = TO_F(MINIMUM);
                     break;
-                case SIM808PhoneFunctionality::FULL:
+                case SIM808PhoneFunctionality::Full:
                     state = TO_F(FULL);
                     break;
-                case SIM808PhoneFunctionality::RF_DISABLED:
+                case SIM808PhoneFunctionality::Disabled:
                     state = TO_F(RF_DISABLED);
                     break;
                 default:
@@ -366,9 +366,9 @@ void network() {
             SIM808PhoneFunctionality fun;
 
             readNext();
-            if(BUFFER_IS_P(MINIMUM)) fun = SIM808PhoneFunctionality::MINIMUM;
-            else if(BUFFER_IS_P(FULL)) fun = SIM808PhoneFunctionality::FULL;
-            else if(BUFFER_IS_P(RF_DISABLED)) fun = SIM808PhoneFunctionality::RF_DISABLED;
+            if(BUFFER_IS_P(MINIMUM)) fun = SIM808PhoneFunctionality::Minimum;
+            else if(BUFFER_IS_P(FULL)) fun = SIM808PhoneFunctionality::Full;
+            else if(BUFFER_IS_P(RF_DISABLED)) fun = SIM808PhoneFunctionality::Disabled;
             else {
                 unrecognized();
                 return;
@@ -401,19 +401,19 @@ void gps() {
         __FlashStringHelper * state;
 
         switch(status) {
-            case SIM808GpsStatus::FAIL:
+            case SIM808GpsStatus::Fail:
                 state = TO_F(FAILED);
                 break;
-            case SIM808GpsStatus::OFF:
+            case SIM808GpsStatus::Off:
                 state = TO_F(OFF);
                 break;
-            case SIM808GpsStatus::NO_FIX:
+            case SIM808GpsStatus::NoFix:
                 state = S_F("NO_FIX");
                 break;
-            case SIM808GpsStatus::FIX:
+            case SIM808GpsStatus::Fix:
                 state = S_F("FIX");
                 break;
-            case SIM808GpsStatus::ACCURATE_FIX:
+            case SIM808GpsStatus::AccurateFix:
                 state = S_F("ACCURATE_FIX");
                 break;
             default:
@@ -426,49 +426,49 @@ void gps() {
         readNext();
         if(BUFFER_IS_P(ALL) || BUFFER_IS("TIME")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::UTC, &timeStr);
+            sim808.getGpsField(position, SIM808GpsField::Utc, &timeStr);
             Log.notice(S_F("time\t\t\t: %s" NL), timeStr);
         }
         
         if(BUFFER_IS_P(ALL) || BUFFER_IS("LAT")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::LATITUDE, &tmpFloat);
+            sim808.getGpsField(position, SIM808GpsField::Latitude, &tmpFloat);
             Log.notice(S_F("latitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("LON")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::LONGITUDE, &tmpFloat);
+            sim808.getGpsField(position, SIM808GpsField::Longitude, &tmpFloat);
             Log.notice(S_F("longitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("ALT")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::ALTITUDE, &tmpFloat);
+            sim808.getGpsField(position, SIM808GpsField::Altitude, &tmpFloat);
             Log.notice(S_F("altitude\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SPEED")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::SPEED, &tmpFloat);
+            sim808.getGpsField(position, SIM808GpsField::Speed, &tmpFloat);
             Log.notice(S_F("speed\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("COURSE")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::COURSE, &tmpFloat);
+            sim808.getGpsField(position, SIM808GpsField::Course, &tmpFloat);
             Log.notice(S_F("course\t\t: %F" NL), tmpFloat);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SATVIEW")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::GPS_IN_VIEW, &tmpInt);
+            sim808.getGpsField(position, SIM808GpsField::GpsInView, &tmpInt);
             Log.notice(S_F("satellites in view\t: %d" NL), tmpInt);
         }
 
         if(BUFFER_IS_P(ALL) || BUFFER_IS("SATUSED")) {
             oneField = true;
-            sim808.getGpsField(position, SIM808GpsField::GNSS_USED, &tmpInt);
+            sim808.getGpsField(position, SIM808GpsField::GnssUsed, &tmpInt);
             Log.notice(S_F("satellites used\t: %d" NL), tmpInt);
         }
 

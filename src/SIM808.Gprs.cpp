@@ -68,9 +68,9 @@ SIM808NetworkRegistrationState SIM808::getNetworkRegistrationStatus()
 	sendAT(TO_F(TOKEN_CGREG), TO_F(TOKEN_READ));
 	
 	if(waitResponse(TO_F(TOKEN_CGREG)) != 0 ||
-		!parseReply(',', (uint8_t)SIM808RegistrationStatusResponse::STAT, &stat) ||
+		!parseReply(',', (uint8_t)SIM808RegistrationStatusResponse::Stat, &stat) ||
 		waitResponse() != 0)
-		return SIM808NetworkRegistrationState::ERROR;
+		return SIM808NetworkRegistrationState::Error;
 
 	return (SIM808NetworkRegistrationState)stat;
 }

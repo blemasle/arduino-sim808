@@ -50,7 +50,7 @@ void loop() {
     SIM808SignalQualityReport report = sim808.getSignalQuality();
 
     bool isAvailable = static_cast<int8_t>(status) &
-        (static_cast<int8_t>(SIM808NetworkRegistrationState::REGISTERED) | static_cast<int8_t>(SIM808NetworkRegistrationState::ROAMING))
+        (static_cast<int8_t>(SIM808NetworkRegistrationState::Registered) | static_cast<int8_t>(SIM808NetworkRegistrationState::Roaming))
         != 0;
 
     if(!isAvailable) {

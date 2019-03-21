@@ -28,7 +28,7 @@ void SIM808::init()
 	waitForReady();
 	delay(1500);
 
-	setEcho(SIM808Echo::OFF);
+	setEcho(SIM808Echo::Off);
 }
 
 void SIM808::reset()
