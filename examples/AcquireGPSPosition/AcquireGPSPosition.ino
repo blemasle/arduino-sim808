@@ -40,9 +40,9 @@ void setup() {
 }
 
 void loop() {
-    SIM808_GPS_STATUS status = sim808.getGpsStatus(position, POSITION_SIZE);
+    SIM808GpsStatus status = sim808.getGpsStatus(position, POSITION_SIZE);
     
-    if(status < SIM808_GPS_STATUS::FIX) {
+    if(status < SIM808GpsStatus::FIX) {
         Log.notice(S_F("No fix yet..." NL));
         delay(NO_FIX_GPS_DELAY);
         return;
@@ -52,12 +52,12 @@ void loop() {
     float lat, lon;
     __FlashStringHelper * state;
 
-    if(status == SIM808_GPS_STATUS::FIX) state = S_F("Normal");
+    if(status == SIM808GpsStatus::FIX) state = S_F("Normal");
     else state = S_F("Accurate");
 
-    sim808.getGpsField(position, SIM808_GPS_FIELD::GNSS_USED, &sattelites);
-    sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &lat);
-    sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &lon);
+    sim808.getGpsField(position, SIM808GpsField::GNSS_USED, &sattelites);
+    sim808.getGpsField(position, SIM808GpsField::LATITUDE, &lat);
+    sim808.getGpsField(position, SIM808GpsField::LONGITUDE, &lon);
 
     Log.notice(S_F("%s" NL), position);
     Log.notice(S_F("Fix type: %S" NL), state);

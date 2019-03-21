@@ -27,7 +27,7 @@ private:
 	/**
 	 * Fire a HTTP request and return the server response code and body size.
 	 */
-	bool fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize);
+	bool fireHttpRequest(const SIM808HttpAction action, uint16_t *statusCode, size_t *dataSize);
 	/**
 	 * Read the last HTTP response body into response.
 	 */
@@ -79,15 +79,15 @@ public:
 	/**
 	 * Get current phone functionality mode.
 	 */
-	SIM808_PHONE_FUNCTIONALITY getPhoneFunctionality();
+	SIM808PhoneFunctionality getPhoneFunctionality();
 	/**
 	 * Set the phone functionality mode.
 	 */
-	bool setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun);
+	bool setPhoneFunctionality(SIM808PhoneFunctionality fun);
 	/**
 	 * Configure slow clock, allowing the device to enter sleep mode.
 	 */
-	bool setSlowClock(SIM808_SLOW_CLOCK mode);
+	bool setSlowClock(SIM808SlowClock mode);
 
 	void init();
 	void reset();
@@ -97,7 +97,7 @@ public:
 	 */
 	size_t sendCommand(const char* cmd, char* response, size_t responseSize);
 
-	bool setEcho(SIM808_ECHO mode);
+	bool setEcho(SIM808Echo mode);
 	/**
 	 * Unlock the SIM card using the provided pin. Beware of failed attempts !
 	 */
@@ -116,7 +116,7 @@ public:
 	 */
 	SIM808SignalQualityReport getSignalQuality();
 
-	bool setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format);
+	bool setSmsMessageFormat(SIM808SmsMessageFormat format);
 	/**
 	 * Send a SMS to the provided number.
 	 */
@@ -137,7 +137,7 @@ public:
 	/**
 	 * Get the device current network registration status.
 	 */
-	SIM808_NETWORK_REGISTRATION_STATE getNetworkRegistrationStatus();
+	SIM808NetworkRegistrationState getNetworkRegistrationStatus();
 
 	/**
 	 * Get a boolean indicating wether or not GPS is currently powered on.
@@ -155,19 +155,19 @@ public:
 	 * If a fix is acquired, FIX or ACCURATE_FIX will be returned depending on 
 	 * wether or not the satellites used is greater than minSatellitesForAccurateFix.
 	 */
-	SIM808_GPS_STATUS getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
+	SIM808GpsStatus getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES);
 	/**
 	 * Extract the specified field from the GPS parsed sequence as a uint16_t.
 	 */
-	bool getGpsField(const char* response, SIM808_GPS_FIELD field, uint16_t* result);
+	bool getGpsField(const char* response, SIM808GpsField field, uint16_t* result);
 	/**
 	 * Extract the specified field from the GPS parsed sequence as a float.
 	 */
-	bool getGpsField(const char* response, SIM808_GPS_FIELD field, float* result);
+	bool getGpsField(const char* response, SIM808GpsField field, float* result);
 	/**
 	 * Return a pointer to the specified field from the GPS parsed sequence.
 	 */
-	void getGpsField(const char* response, SIM808_GPS_FIELD field, char** result);
+	void getGpsField(const char* response, SIM808GpsField field, char** result);
 	/**
 	 * Get and return the latest GPS parsed sequence.
 	 */

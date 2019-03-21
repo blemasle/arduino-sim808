@@ -46,11 +46,11 @@ void loop() {
         return;
     }
 
-    SIM808_NETWORK_REGISTRATION_STATE status = sim808.getNetworkRegistrationStatus();
+    SIM808NetworkRegistrationState status = sim808.getNetworkRegistrationStatus();
     SIM808SignalQualityReport report = sim808.getSignalQuality();
 
     bool isAvailable = static_cast<int8_t>(status) &
-        (static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::REGISTERED) | static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::ROAMING))
+        (static_cast<int8_t>(SIM808NetworkRegistrationState::REGISTERED) | static_cast<int8_t>(SIM808NetworkRegistrationState::ROAMING))
         != 0;
 
     if(!isAvailable) {

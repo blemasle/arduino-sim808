@@ -45,16 +45,16 @@ SIM808ChargingStatus SIM808::getChargingState()
 	sendAT(TO_F(TOKEN_CBC));
 
 	if (waitResponse(TO_F(TOKEN_CBC)) == 0 &&
-		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCS, &state) &&
-		parseReply(',', (uint8_t)SIM808_BATTERY_CHARGE_FIELD::BCL, &level) &&
-		parseReply(',', (uint16_t)SIM808_BATTERY_CHARGE_FIELD::VOLTAGE, &voltage) &&
+		parseReply(',', (uint8_t)SIM808BatteryChargeField::BCS, &state) &&
+		parseReply(',', (uint8_t)SIM808BatteryChargeField::BCL, &level) &&
+		parseReply(',', (uint16_t)SIM808BatteryChargeField::VOLTAGE, &voltage) &&
 		waitResponse() == 0)
-		return { (SIM808_CHARGING_STATE)state, level, voltage };
+		return { (SIM808ChargingState)state, level, voltage };
 			
-	return { SIM808_CHARGING_STATE::ERROR, 0, 0 };
+	return { SIM808ChargingState::ERROR, 0, 0 };
 }
 
-SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
+SIM808PhoneFunctionality SIM808::getPhoneFunctionality()
 {
 	uint8_t state;
 
@@ -63,19 +63,19 @@ SIM808_PHONE_FUNCTIONALITY SIM808::getPhoneFunctionality()
 	if (waitResponse(10000L, TO_F(TOKEN_CFUN)) == 0 &&
 		parseReply(',', 0, &state) &&
 		waitResponse() == 0)
-		return (SIM808_PHONE_FUNCTIONALITY)state;
+		return (SIM808PhoneFunctionality)state;
 	
-	return SIM808_PHONE_FUNCTIONALITY::FAIL;
+	return SIM808PhoneFunctionality::FAIL;
 }
 
-bool SIM808::setPhoneFunctionality(SIM808_PHONE_FUNCTIONALITY fun)
+bool SIM808::setPhoneFunctionality(SIM808PhoneFunctionality fun)
 {
 	sendAT(TO_F(TOKEN_CFUN), TO_F(TOKEN_WRITE), (uint8_t)fun);
 
 	return waitResponse(10000L) == 0;
 }
 
-bool SIM808::setSlowClock(SIM808_SLOW_CLOCK mode)
+bool SIM808::setSlowClock(SIM808SlowClock mode)
 {
 	sendAT(S_F("+CSCLK"), TO_F(TOKEN_WRITE), (uint8_t)mode);
 

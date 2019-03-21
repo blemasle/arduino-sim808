@@ -49,7 +49,7 @@ uint16_t SIM808::httpGet(const char *url, char *response, size_t responseSize)
 	size_t dataSize = 0;
 
 	bool result = setupHttpRequest(url) &&
-		fireHttpRequest(SIM808_HTTP_ACTION::GET, &statusCode, &dataSize) &&
+		fireHttpRequest(SIM808HttpAction::GET, &statusCode, &dataSize) &&
 		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
@@ -64,7 +64,7 @@ uint16_t SIM808::httpPost(const char *url, ATConstStr contentType, const char *b
 	bool result = setupHttpRequest(url) &&
 		setHttpParameter(TO_F(AT_COMMAND_PARAMETER_HTTP_CONTENT), contentType) &&
 		setHttpBody(body) &&
-		fireHttpRequest(SIM808_HTTP_ACTION::POST, &statusCode, &dataSize) &&
+		fireHttpRequest(SIM808HttpAction::POST, &statusCode, &dataSize) &&
 		readHttpResponse(response, responseSize, dataSize) &&
 		httpEnd();
 
@@ -106,13 +106,13 @@ bool SIM808::setHttpBody(const char* body)
 	return true;
 }
 
-bool SIM808::fireHttpRequest(const SIM808_HTTP_ACTION action, uint16_t *statusCode, size_t *dataSize)
+bool SIM808::fireHttpRequest(const SIM808HttpAction action, uint16_t *statusCode, size_t *dataSize)
 {
 	sendAT(TO_F(TOKEN_HTTP_ACTION), TO_F(TOKEN_WRITE), (uint8_t)action);
 
 	return waitResponse(HTTP_TIMEOUT, TO_F(TOKEN_HTTP_ACTION)) == 0 &&
-		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::STATUS_CODE, statusCode) &&
-		parseReply(',', (uint8_t)SIM808_HTTP_ACTION_RESPONSE::DATA_LEN, dataSize);
+		parseReply(',', (uint8_t)SIM808HttpActionResponse::STATUS_CODE, statusCode) &&
+		parseReply(',', (uint8_t)SIM808HttpActionResponse::DATA_LEN, dataSize);
 }
 
 bool SIM808::readHttpResponse(char *response, size_t responseSize, size_t dataSize)
