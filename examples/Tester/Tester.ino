@@ -23,8 +23,8 @@
     #define BUFFER_IS(s) STRING_IS(buffer, s)
     #define BUFFER_IS_P(s) strcasecmp_P(buffer, s) == 0
 
-    #define PRINT(s) Serial.print(F(s))
-    #define PRINT_LN(s) Serial.println(F(s))
+    #define PRINT(s) Serial.print(S_F(s))
+    #define PRINT_LN(s) Serial.println(S_F(s))
 #else
     #define BUFFER_IS(s) strcasecmp(buffer, s) == 0
     #define BUFFER_IS(s) STRING_IS(buffer, s)
@@ -550,7 +550,7 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();
 
@@ -575,5 +575,5 @@ void loop() {
         return;
     }
 
-    Log.notice(F("Done" NL));
+    Log.notice(S_F("Done" NL));
 }

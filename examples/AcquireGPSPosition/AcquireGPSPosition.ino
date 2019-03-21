@@ -31,11 +31,11 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();
 
-    Log.notice(F("Powering on SIM808's GPS..." NL));
+    Log.notice(S_F("Powering on SIM808's GPS..." NL));
 	sim808.powerOnOffGps(true);
 }
 
@@ -43,7 +43,7 @@ void loop() {
     SIM808_GPS_STATUS status = sim808.getGpsStatus(position, POSITION_SIZE);
     
     if(status < SIM808_GPS_STATUS::FIX) {
-        Log.notice(F("No fix yet..." NL));
+        Log.notice(S_F("No fix yet..." NL));
         delay(NO_FIX_GPS_DELAY);
         return;
     }
@@ -59,11 +59,11 @@ void loop() {
     sim808.getGpsField(position, SIM808_GPS_FIELD::LATITUDE, &lat);
     sim808.getGpsField(position, SIM808_GPS_FIELD::LONGITUDE, &lon);
 
-    Log.notice(F("%s" NL), position);
-    Log.notice(F("Fix type: %S" NL), state);
-    Log.notice(F("Sattelites used : %d" NL), sattelites);
-    Log.notice(F("Latitude : %F" NL), lat);
-    Log.notice(F("Longitude : %F" NL), lon);
+    Log.notice(S_F("%s" NL), position);
+    Log.notice(S_F("Fix type: %S" NL), state);
+    Log.notice(S_F("Sattelites used : %d" NL), sattelites);
+    Log.notice(S_F("Latitude : %F" NL), lat);
+    Log.notice(S_F("Longitude : %F" NL), lon);
     
     delay(FIX_GPS_DELAY);
 }

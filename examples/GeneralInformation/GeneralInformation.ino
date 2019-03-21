@@ -31,15 +31,15 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();
 
     sim808.getImei(buffer, BUFFER_SIZE);
-    Log.notice(F("IMEI : \"%s\"" NL), buffer);
+    Log.notice(S_F("IMEI : \"%s\"" NL), buffer);
 
     sim808.getSimState(buffer, BUFFER_SIZE);
-    Log.notice(F("SIM card state : \"%s\"" NL), buffer);
+    Log.notice(S_F("SIM card state : \"%s\"" NL), buffer);
 
     SIM808ChargingStatus charging = sim808.getChargingState();
     switch(charging.state) {
@@ -56,11 +56,11 @@ void setup() {
         strcpy_P(buffer, PSTR("NOT_CHARGING"));
         break;
     }
-    Log.notice(F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);
+    Log.notice(S_F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);
 
     //you can also send unimplemented simple commands
     sim808.sendCommand("I", buffer, BUFFER_SIZE);
-    Log.notice(F("ATI response : \"%s\"" NL), buffer);
+    Log.notice(S_F("ATI response : \"%s\"" NL), buffer);
 }
 
 void loop() { }

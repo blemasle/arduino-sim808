@@ -35,7 +35,7 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();    
 }
@@ -54,26 +54,26 @@ void loop() {
         != 0;
 
     if(!isAvailable) {
-        Log.notice(F("No network yet..." NL));
+        Log.notice(S_F("No network yet..." NL));
         delay(NETWORK_DELAY);
         return;
     }
 
-    Log.notice(F("Network is ready." NL));
-    Log.notice(F("Attenuation : %d dBm, Estimated quality : %d" NL), report.attenuation, report.rssi);
+    Log.notice(S_F("Network is ready." NL));
+    Log.notice(S_F("Attenuation : %d dBm, Estimated quality : %d" NL), report.attenuation, report.rssi);
 
     bool enabled = false;
 	do {
-        Log.notice(F("Powering on SIM808's GPRS..." NL));
+        Log.notice(S_F("Powering on SIM808's GPRS..." NL));
         enabled = sim808.enableGprs(GPRS_APN, GPRS_USER, GPRS_PASS);        
     } while(!enabled);
     
-    Log.notice(F("Sending HTTP request..." NL));
+    Log.notice(S_F("Sending HTTP request..." NL));
     strncpy_P(buffer, PSTR("This is the body"), BUFFER_SIZE);
     //notice that we're using the same buffer for both body and response
-    uint16_t responseCode = sim808.httpPost("http://httpbin.org/anything", F("text/plain"), buffer, buffer, BUFFER_SIZE);
+    uint16_t responseCode = sim808.httpPost("http://httpbin.org/anything", S_F("text/plain"), buffer, buffer, BUFFER_SIZE);
 
-    Log.notice(F("Server responsed : %d" NL), responseCode);
+    Log.notice(S_F("Server responsed : %d" NL), responseCode);
     Log.notice(buffer);
 
     done = true;
