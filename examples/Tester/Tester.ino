@@ -34,32 +34,33 @@
     #define PRINT_LN(s) Serial.println(s)
 #endif
 
+namespace strings {
+    const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s" NL;
+    const char UNKNOWN[] S_PROGMEM = "Unknown value";
 
-const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s" NL;
-const char UNKNOWN[] S_PROGMEM = "Unknown value";
+    const char YES[] S_PROGMEM = "Yes";
+    const char NO[] S_PROGMEM = "No";
 
-const char YES[] S_PROGMEM = "Yes";
-const char NO[] S_PROGMEM = "No";
+    const char SUCCESS[] S_PROGMEM = "Success";
+    const char FAILED[] S_PROGMEM = "Failed";
+    const char ERROR[] S_PROGMEM = "Error";
 
-const char SUCCESS[] S_PROGMEM = "Success";
-const char FAILED[] S_PROGMEM = "Failed";
-const char ERROR[] S_PROGMEM = "Error";
+    const char ON[] S_PROGMEM = "On";
+    const char OFF[] S_PROGMEM = "Off";
+    const char STATUS[] S_PROGMEM = "Status";
+    const char ALL[] S_PROGMEM = "All";
 
-const char ON[] S_PROGMEM = "On";
-const char OFF[] S_PROGMEM = "Off";
-const char STATUS[] S_PROGMEM = "Status";
-const char ALL[] S_PROGMEM = "All";
+    const char MAIN[] S_PROGMEM = "Main";
+    const char GPS[] S_PROGMEM = "Gps";
+    const char NETWORK[] S_PROGMEM = "Network";
 
-const char MAIN[] S_PROGMEM = "Main";
-const char GPS[] S_PROGMEM = "Gps";
-const char NETWORK[] S_PROGMEM = "Network";
+    const char MINIMUM[] S_PROGMEM = "Minimum";
+    const char FULL[] S_PROGMEM = "Full";
+    const char RF_DISABLED[] S_PROGMEM = "Disabled";
 
-const char MINIMUM[] S_PROGMEM = "Minimum";
-const char FULL[] S_PROGMEM = "Full";
-const char RF_DISABLED[] S_PROGMEM = "Disabled";
-
-const char SEND[] S_PROGMEM = "Send";
-const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
+    const char SEND[] S_PROGMEM = "Send";
+    const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
+};
 
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
@@ -158,33 +159,33 @@ void init_() {
 void power() {
     readNext();
 
-    if(BUFFER_IS_P(STATUS)) {
+    if(BUFFER_IS_P(strings::STATUS)) {
         bool status;
         __FlashStringHelper * statusText;
         readNext();
         
-        if(BUFFER_IS_P(MAIN)) status = sim808.powered();
-        else if (BUFFER_IS_P(GPS)) sim808.getGpsPowerState(&status);
-        else if (BUFFER_IS_P(NETWORK)) sim808.getGprsPowerState(&status);
+        if(BUFFER_IS_P(strings::MAIN)) status = sim808.powered();
+        else if (BUFFER_IS_P(strings::GPS)) sim808.getGpsPowerState(&status);
+        else if (BUFFER_IS_P(strings::NETWORK)) sim808.getGprsPowerState(&status);
         else {
             unrecognized();
             return;
         }
 
-        Log.notice(S_F("%s : %S" NL), buffer, status ? TO_F(ON) : TO_F(OFF));
+        Log.notice(S_F("%s : %S" NL), buffer, status ? TO_F(strings::ON) : TO_F(strings::OFF));
     }
-    else if(BUFFER_IS_P(ON)) {
+    else if(BUFFER_IS_P(strings::ON)) {
         readNext();
 
-        if(BUFFER_IS_P(MAIN)) {
+        if(BUFFER_IS_P(strings::MAIN)) {
             bool poweredOn = sim808.powerOnOff(true);
-            Log.notice(S_F("powered on %S : %S" NL), TO_F(MAIN), poweredOn ? TO_F(YES) : TO_F(NO));
+            Log.notice(S_F("powered on %S : %S" NL), TO_F(strings::MAIN), poweredOn ? TO_F(strings::YES) : TO_F(strings::NO));
         } 
-        else if(BUFFER_IS_P(GPS)) {
+        else if(BUFFER_IS_P(strings::GPS)) {
             bool poweredOn = sim808.powerOnOffGps(true);
-            Log.notice(S_F("powered on %S : %S" NL), TO_F(GPS), poweredOn ? TO_F(YES) : TO_F(NO));
+            Log.notice(S_F("powered on %S : %S" NL), TO_F(strings::GPS), poweredOn ? TO_F(strings::YES) : TO_F(strings::NO));
         }
-        else if(BUFFER_IS_P(NETWORK)) {
+        else if(BUFFER_IS_P(strings::NETWORK)) {
             char apn[15], user[15], pass[15];
             char *userP = NULL, *passP = NULL;
             
@@ -205,26 +206,26 @@ void power() {
             }
 
             bool success = sim808.enableGprs(apn, userP, passP);
-            Log.notice(S_F("enable GPRS : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
+            Log.notice(S_F("enable GPRS : %S" NL), success ? TO_F(strings::SUCCESS) : TO_F(strings::FAILED));
         }
         else {
             unrecognized();
             return;
         }
     }
-    else if(BUFFER_IS_P(OFF)) {
+    else if(BUFFER_IS_P(strings::OFF)) {
         readNext();
 
-        if(BUFFER_IS_P(MAIN)) {
+        if(BUFFER_IS_P(strings::MAIN)) {
             bool poweredOff = sim808.powerOnOff(false);
-            Log.notice(S_F("powered off %S : %S" NL), TO_F(MAIN), poweredOff ? TO_F(YES) : TO_F(NO));
+            Log.notice(S_F("powered off %S : %S" NL), TO_F(strings::MAIN), poweredOff ? TO_F(strings::YES) : TO_F(strings::NO));
         }
-        else if(BUFFER_IS_P(GPS)) {
+        else if(BUFFER_IS_P(strings::GPS)) {
             bool poweredOff = sim808.powerOnOffGps(false);
-            Log.notice(S_F("powered off %S : %S" NL), TO_F(GPS), poweredOff ? TO_F(YES) : TO_F(NO));
+            Log.notice(S_F("powered off %S : %S" NL), TO_F(strings::GPS), poweredOff ? TO_F(strings::YES) : TO_F(strings::NO));
 
         }
-        else if(BUFFER_IS_P(NETWORK)) sim808.disableGprs();
+        else if(BUFFER_IS_P(strings::NETWORK)) sim808.disableGprs();
         else {
             unrecognized();
             return;
@@ -242,7 +243,7 @@ void charge() {
 
     switch(status.state) {
         case SIM808ChargingState::Error:
-            state = TO_F(ERROR);
+            state = TO_F(strings::ERROR);
             break;
         case SIM808ChargingState::NotCharging:
             state = S_F("NotCharging");
@@ -254,7 +255,7 @@ void charge() {
             state = S_F("ChargingDone");
             break;
         default:
-            state = TO_F(UNKNOWN);
+            state = TO_F(strings::UNKNOWN);
             break;
     }
 
@@ -267,7 +268,7 @@ void charge() {
 void sim() {
     readNext();
 
-    if(BUFFER_IS_P(STATUS)) {
+    if(BUFFER_IS_P(strings::STATUS)) {
         sim808.getSimState(buffer, BUFFER_SIZE);
         Log.notice(S_F("SIM status : \"%s\"" NL), buffer);
     }
@@ -281,7 +282,7 @@ void sim() {
         }
 
         bool success = sim808.simUnlock(buffer);
-        Log.notice(S_F("SIM unlock : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
+        Log.notice(S_F("SIM unlock : %S" NL), success ? TO_F(strings::SUCCESS) : TO_F(strings::FAILED));
     }
     else {
         unrecognized();
@@ -298,12 +299,12 @@ void network() {
     bool last = readNext();
     __FlashStringHelper * state;
 
-    if(BUFFER_IS_P(STATUS)) {
+    if(BUFFER_IS_P(strings::STATUS)) {
         SIM808NetworkRegistrationState status = sim808.getNetworkRegistrationStatus();
 
         switch(status) {
             case SIM808NetworkRegistrationState::Error:
-                state = TO_F(ERROR);
+                state = TO_F(strings::ERROR);
                 break;
             case SIM808NetworkRegistrationState::NotSearching:
                 state = S_F("NotSearching");
@@ -324,7 +325,7 @@ void network() {
                 state = S_F("Roaming");
                 break;
             default:
-                state = TO_F(UNKNOWN);
+                state = TO_F(strings::UNKNOWN);
                 break;
         }
 
@@ -344,19 +345,19 @@ void network() {
             SIM808PhoneFunctionality fun = sim808.getPhoneFunctionality();
             switch(fun) {
                 case SIM808PhoneFunctionality::Fail:
-                    state = TO_F(FAILED);
+                    state = TO_F(strings::FAILED);
                     break;
                 case SIM808PhoneFunctionality::Minimum:
-                    state = TO_F(MINIMUM);
+                    state = TO_F(strings::MINIMUM);
                     break;
                 case SIM808PhoneFunctionality::Full:
-                    state = TO_F(FULL);
+                    state = TO_F(strings::FULL);
                     break;
                 case SIM808PhoneFunctionality::Disabled:
-                    state = TO_F(RF_DISABLED);
+                    state = TO_F(strings::RF_DISABLED);
                     break;
                 default:
-                    state = TO_F(UNKNOWN);
+                    state = TO_F(strings::UNKNOWN);
                     break;
             }
 
@@ -366,16 +367,16 @@ void network() {
             SIM808PhoneFunctionality fun;
 
             readNext();
-            if(BUFFER_IS_P(MINIMUM)) fun = SIM808PhoneFunctionality::Minimum;
-            else if(BUFFER_IS_P(FULL)) fun = SIM808PhoneFunctionality::Full;
-            else if(BUFFER_IS_P(RF_DISABLED)) fun = SIM808PhoneFunctionality::Disabled;
+            if(BUFFER_IS_P(strings::MINIMUM)) fun = SIM808PhoneFunctionality::Minimum;
+            else if(BUFFER_IS_P(strings::FULL)) fun = SIM808PhoneFunctionality::Full;
+            else if(BUFFER_IS_P(strings::RF_DISABLED)) fun = SIM808PhoneFunctionality::Disabled;
             else {
                 unrecognized();
                 return;
             }
 
             bool success = sim808.setPhoneFunctionality(fun);
-            Log.notice(S_F("phone functionality : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));            
+            Log.notice(S_F("phone functionality : %S" NL), success ? TO_F(strings::SUCCESS) : TO_F(strings::FAILED));            
         }
     }
 }
@@ -402,10 +403,10 @@ void gps() {
 
         switch(status) {
             case SIM808GpsStatus::Fail:
-                state = TO_F(FAILED);
+                state = TO_F(strings::FAILED);
                 break;
             case SIM808GpsStatus::Off:
-                state = TO_F(OFF);
+                state = TO_F(strings::OFF);
                 break;
             case SIM808GpsStatus::NoFix:
                 state = S_F("NoFix");
@@ -417,56 +418,56 @@ void gps() {
                 state = S_F("AccurateFix");
                 break;
             default:
-                state = TO_F(UNKNOWN);
+                state = TO_F(strings::UNKNOWN);
                 break;
         }
 
         Log.notice(S_F("status\t\t: %S" NL), state);
 
         readNext();
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("TIME")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("TIME")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Utc, &timeStr);
             Log.notice(S_F("time\t\t\t: %s" NL), timeStr);
         }
         
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("LAT")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("LAT")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Latitude, &tmpFloat);
             Log.notice(S_F("latitude\t\t: %F" NL), tmpFloat);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("LON")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("LON")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Longitude, &tmpFloat);
             Log.notice(S_F("longitude\t\t: %F" NL), tmpFloat);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("ALT")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("ALT")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Altitude, &tmpFloat);
             Log.notice(S_F("altitude\t\t: %F" NL), tmpFloat);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("SPEED")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("SPEED")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Speed, &tmpFloat);
             Log.notice(S_F("speed\t\t: %F" NL), tmpFloat);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("COURSE")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("COURSE")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::Course, &tmpFloat);
             Log.notice(S_F("course\t\t: %F" NL), tmpFloat);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("SATVIEW")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("SATVIEW")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::GpsInView, &tmpInt);
             Log.notice(S_F("satellites in view\t: %d" NL), tmpInt);
         }
 
-        if(BUFFER_IS_P(ALL) || BUFFER_IS("SATUSED")) {
+        if(BUFFER_IS_P(strings::ALL) || BUFFER_IS("SATUSED")) {
             oneField = true;
             sim808.getGpsField(position, SIM808GpsField::GnssUsed, &tmpInt);
             Log.notice(S_F("satellites used\t: %d" NL), tmpInt);
@@ -526,7 +527,7 @@ void send() {
         PRINT("[message] ?");
         readNext(true); //read the whole line into buffer
         bool success = sim808.sendSms(number, buffer);
-        Log.notice(S_F("send SMS : %S" NL), success ? TO_F(SUCCESS) : TO_F(FAILED));
+        Log.notice(S_F("send SMS : %S" NL), success ? TO_F(strings::SUCCESS) : TO_F(strings::FAILED));
     }
     else if(BUFFER_IS("HTTP")) return sendHttp();
     else if(BUFFER_IS("AT")) {
@@ -568,8 +569,8 @@ void loop() {
     else if(BUFFER_IS("sim")) sim();
     else if(BUFFER_IS("imei")) imei();
     else if(BUFFER_IS("send")) send();
-    else if(BUFFER_IS_P(NETWORK)) network();
-    else if(BUFFER_IS_P(GPS)) gps();
+    else if(BUFFER_IS_P(strings::NETWORK)) network();
+    else if(BUFFER_IS_P(strings::GPS)) gps();
     else {
         unrecognized();
         return;
