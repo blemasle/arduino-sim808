@@ -38,27 +38,27 @@
 const char UNRECOGNIZED[] S_PROGMEM = "Unrecognized : %s" NL;
 const char UNKNOWN[] S_PROGMEM = "Unknown value";
 
-const char YES[] S_PROGMEM = "YES";
-const char NO[] S_PROGMEM = "NO";
+const char YES[] S_PROGMEM = "Yes";
+const char NO[] S_PROGMEM = "No";
 
-const char SUCCESS[] S_PROGMEM = "SUCCESS";
-const char FAILED[] S_PROGMEM = "FAILED";
-const char ERROR[] S_PROGMEM = "ERROR";
+const char SUCCESS[] S_PROGMEM = "Success";
+const char FAILED[] S_PROGMEM = "Failed";
+const char ERROR[] S_PROGMEM = "Error";
 
-const char ON[] S_PROGMEM = "ON";
-const char OFF[] S_PROGMEM = "OFF";
-const char STATUS[] S_PROGMEM = "STATUS";
-const char ALL[] S_PROGMEM = "ALL";
+const char ON[] S_PROGMEM = "On";
+const char OFF[] S_PROGMEM = "Off";
+const char STATUS[] S_PROGMEM = "Status";
+const char ALL[] S_PROGMEM = "All";
 
-const char MAIN[] S_PROGMEM = "MAIN";
-const char GPS[] S_PROGMEM = "GPS";
-const char NETWORK[] S_PROGMEM = "NETWORK";
+const char MAIN[] S_PROGMEM = "Main";
+const char GPS[] S_PROGMEM = "Gps";
+const char NETWORK[] S_PROGMEM = "Network";
 
-const char MINIMUM[] S_PROGMEM = "MINIMUM";
-const char FULL[] S_PROGMEM = "FULL";
-const char RF_DISABLED[] S_PROGMEM = "DISABLED";
+const char MINIMUM[] S_PROGMEM = "Minimum";
+const char FULL[] S_PROGMEM = "Full";
+const char RF_DISABLED[] S_PROGMEM = "Disabled";
 
-const char SEND[] S_PROGMEM = "SEND";
+const char SEND[] S_PROGMEM = "Send";
 const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
 
 SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
@@ -245,13 +245,13 @@ void charge() {
             state = TO_F(ERROR);
             break;
         case SIM808ChargingState::NotCharging:
-            state = S_F("NOT_CHARGING");
+            state = S_F("NotCharging");
             break;
         case SIM808ChargingState::Charging:
-            state = S_F("CHARGING");
+            state = S_F("Charging");
             break;
         case SIM808ChargingState::ChargingDone:
-            state = S_F("CHARGING_DONE");
+            state = S_F("ChargingDone");
             break;
         default:
             state = TO_F(UNKNOWN);
@@ -306,22 +306,22 @@ void network() {
                 state = TO_F(ERROR);
                 break;
             case SIM808NetworkRegistrationState::NotSearching:
-                state = S_F("NOT_SEARCHING");
+                state = S_F("NotSearching");
                 break;
             case SIM808NetworkRegistrationState::Registered:
-                state = S_F("REGISTERED");
+                state = S_F("Registered");
                 break;
             case SIM808NetworkRegistrationState::Searching:
-                state = S_F("SEARCHING");
+                state = S_F("Searching");
                 break;
             case SIM808NetworkRegistrationState::Denied:
-                state = S_F("DENIED");
+                state = S_F("Denied");
                 break;
             case SIM808NetworkRegistrationState::Unknown:
-                state = S_F("UNKNOWN");
+                state = S_F("Unknown");
                 break;
             case SIM808NetworkRegistrationState::Roaming:
-                state = S_F("ROAMING");
+                state = S_F("Roaming");
                 break;
             default:
                 state = TO_F(UNKNOWN);
@@ -408,13 +408,13 @@ void gps() {
                 state = TO_F(OFF);
                 break;
             case SIM808GpsStatus::NoFix:
-                state = S_F("NO_FIX");
+                state = S_F("NoFix");
                 break;
             case SIM808GpsStatus::Fix:
-                state = S_F("FIX");
+                state = S_F("Fix");
                 break;
             case SIM808GpsStatus::AccurateFix:
-                state = S_F("ACCURATE_FIX");
+                state = S_F("AccurateFix");
                 break;
             default:
                 state = TO_F(UNKNOWN);

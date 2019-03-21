@@ -44,16 +44,16 @@ void setup() {
     SIM808ChargingStatus charging = sim808.getChargingState();
     switch(charging.state) {
         case SIM808ChargingState::Charging:
-        strcpy_P(buffer, PSTR("CHARGING"));
+        strcpy_P(buffer, PSTR("Charging"));
         break;
         case SIM808ChargingState::ChargingDone:
-        strcpy_P(buffer, PSTR("CHARGING_DONE"));
+        strcpy_P(buffer, PSTR("ChargingDone"));
         break;
         case SIM808ChargingState::Error:
-        strcpy_P(buffer, PSTR("ERROR"));
+        strcpy_P(buffer, PSTR("Error"));
         break;
         case SIM808ChargingState::NotCharging:
-        strcpy_P(buffer, PSTR("NOT_CHARGING"));
+        strcpy_P(buffer, PSTR("NotCharging"));
         break;
     }
     Log.notice(S_F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);
