@@ -2,9 +2,18 @@
  * Provides a serial interface to test functions of the SIM808 library
  */
 
-#include <SoftwareSerial.h>
 #include <SIM808.h>
 #include <ArduinoLog.h>
+
+#if defined(__AVR__)
+    #include <SoftwareSerial.h>
+    #define SIM_SERIAL_TYPE	SoftwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(SIM_TX, SIM_RX)	///< Definition of the instance that holds the Serial communication with SIM808    
+#else
+    #include <HardwareSerial.h>
+    #define SIM_SERIAL_TYPE	HardwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(2)	            ///< Definition of the instance that holds the Serial communication with SIM808    
+#endif
 
 #define SIM_RST		5	///< SIM808 RESET
 #define SIM_RX		6	///< SIM808 RXD
@@ -19,19 +28,27 @@
 #define NL "\n"
 
 #if defined(__AVR__)
-    #define STRING_IS(s1, s2) strcasecmp_P(buffer, PSTR(s2)) == 0
+    typedef __FlashStringHelper* __StrPtr;
+
+    #define STRING_IS(s1, s2) strcasecmp_P(s1, PSTR(s2)) == 0
     #define BUFFER_IS(s) STRING_IS(buffer, s)
     #define BUFFER_IS_P(s) strcasecmp_P(buffer, s) == 0
 
     #define PRINT(s) Serial.print(S_F(s))
     #define PRINT_LN(s) Serial.println(S_F(s))
+
+    #define STRLCPY_P(s1, s2, size) strlcpy_P(s1, s2, size)
 #else
-    #define BUFFER_IS(s) strcasecmp(buffer, s) == 0
+    typedef const char* __StrPtr;
+
+    #define STRING_IS(s1, s2) strcasecmp(s1, s2) == 0
     #define BUFFER_IS(s) STRING_IS(buffer, s)
     #define BUFFER_IS_P(s) strcasecmp(buffer, s) == 0
 
     #define PRINT(s) Serial.print(s)
     #define PRINT_LN(s) Serial.println(s)
+
+    #define STRLCPY_P(s1, s2, size) strlcpy(s1, s2, size)
 #endif
 
 namespace strings {
@@ -62,7 +79,7 @@ namespace strings {
     const char DEFAULT_URL[] S_PROGMEM = "http://httpbin.org/anything";
 };
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
+SIM_SERIAL_TYPE simSerial = SIM_SERIAL;
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 char buffer[BUFFER_SIZE];
 
@@ -142,7 +159,7 @@ bool readNext(bool line = false) {
 }
 
 void unrecognized() {
-    Log.error(TO_F(UNRECOGNIZED), buffer);
+    Log.error(TO_F(strings::UNRECOGNIZED), buffer);
     while(Serial.available()) Serial.read();
 }
 
@@ -161,7 +178,7 @@ void power() {
 
     if(BUFFER_IS_P(strings::STATUS)) {
         bool status;
-        __FlashStringHelper * statusText;
+        __StrPtr statusText;
         readNext();
         
         if(BUFFER_IS_P(strings::MAIN)) status = sim808.powered();
@@ -196,13 +213,13 @@ void power() {
             if(!last) {
                 last = readNext();
                 strncpy(user, buffer, 15);
-                userP = *user;
+                userP = &user[0];
             }
 
             if(!last) {
                 last = readNext();
                 strncpy(pass, buffer, 15);
-                passP = *pass;
+                passP = &pass[0];
             }
 
             bool success = sim808.enableGprs(apn, userP, passP);
@@ -239,7 +256,7 @@ void power() {
 
 void charge() {
     SIM808ChargingStatus status = sim808.getChargingState();
-    __FlashStringHelper * state;
+    __StrPtr state;
 
     switch(status.state) {
         case SIM808ChargingState::Error:
@@ -297,7 +314,7 @@ void imei() {
 
 void network() {
     bool last = readNext();
-    __FlashStringHelper * state;
+    __StrPtr state;
 
     if(BUFFER_IS_P(strings::STATUS)) {
         SIM808NetworkRegistrationState status = sim808.getNetworkRegistrationStatus();
@@ -399,7 +416,7 @@ void gps() {
         bool oneField;
 
         SIM808GpsStatus status = sim808.getGpsStatus(position, 128);
-        __FlashStringHelper * state;
+        __StrPtr state;
 
         switch(status) {
             case SIM808GpsStatus::Fail:
@@ -487,7 +504,7 @@ void sendHttp() {
 
     strlcpy(action, buffer, 5);
 
-    if(defaultUrl) strlcpy_P(url, DEFAULT_URL, 50);
+    if(defaultUrl) STRLCPY_P(url, strings::DEFAULT_URL, 50);
     else {
         readNext();
         strlcpy(url, buffer, 50);
