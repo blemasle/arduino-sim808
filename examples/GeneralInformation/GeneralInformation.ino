@@ -4,7 +4,20 @@
 
 #include <SIM808.h>
 #include <ArduinoLog.h>
-#include <SoftwareSerial.h>
+
+#if defined(__AVR__)
+    #include <SoftwareSerial.h>
+    #define SIM_SERIAL_TYPE	SoftwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(SIM_TX, SIM_RX)	///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy_P(s1, s2, BUFFER_SIZE)
+#else
+    #include <HardwareSerial.h>
+    #define SIM_SERIAL_TYPE	HardwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(2)	            ///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy(s1, s2, BUFFER_SIZE)
+#endif
 
 #define SIM_RST		5	///< SIM808 RESET
 #define SIM_RX		6	///< SIM808 RXD
@@ -19,7 +32,7 @@
 #define BUFFER_SIZE 512         ///< Size of the buffer
 #define NL  "\n"
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
+SIM_SERIAL_TYPE simSerial = SIM_SERIAL;
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 bool done = false;
 char buffer[BUFFER_SIZE];
@@ -44,16 +57,16 @@ void setup() {
     SIM808ChargingStatus charging = sim808.getChargingState();
     switch(charging.state) {
         case SIM808ChargingState::Charging:
-        strcpy_P(buffer, PSTR("Charging"));
+            STRLCPY_P(buffer, PSTR("Charging"));
         break;
         case SIM808ChargingState::ChargingDone:
-        strcpy_P(buffer, PSTR("ChargingDone"));
+            STRLCPY_P(buffer, PSTR("ChargingDone"));
         break;
         case SIM808ChargingState::Error:
-        strcpy_P(buffer, PSTR("Error"));
+            STRLCPY_P(buffer, PSTR("Error"));
         break;
         case SIM808ChargingState::NotCharging:
-        strcpy_P(buffer, PSTR("NotCharging"));
+            STRLCPY_P(buffer, PSTR("NotCharging"));
         break;
     }
     Log.notice(S_F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);

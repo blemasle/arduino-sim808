@@ -4,7 +4,16 @@
 
 #include <SIM808.h>
 #include <ArduinoLog.h>
-#include <SoftwareSerial.h>
+
+#if defined(__AVR__)
+    #include <SoftwareSerial.h>
+    #define SIM_SERIAL_TYPE	SoftwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(SIM_TX, SIM_RX)	///< Definition of the instance that holds the Serial communication with SIM808    
+#else
+    #include <HardwareSerial.h>
+    #define SIM_SERIAL_TYPE	HardwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(2)	            ///< Definition of the instance that holds the Serial communication with SIM808    
+#endif
 
 #define SIM_RST		5	///< SIM808 RESET
 #define SIM_RX		6	///< SIM808 RXD
@@ -20,7 +29,13 @@
 #define POSITION_SIZE   128     ///< Size of the position buffer
 #define NL  "\n"
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
+#if defined(__AVR__)
+    typedef __FlashStringHelper* __StrPtr;
+#else
+    typedef const char* __StrPtr;
+#endif
+
+SIM_SERIAL_TYPE simSerial = SIM_SERIAL;
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 char position[POSITION_SIZE];
 
@@ -50,7 +65,7 @@ void loop() {
 
     uint16_t sattelites;
     float lat, lon;
-    __FlashStringHelper * state;
+    __StrPtr state;
 
     if(status == SIM808GpsStatus::Fix) state = S_F("Normal");
     else state = S_F("Accurate");
