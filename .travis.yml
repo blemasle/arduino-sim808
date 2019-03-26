@@ -5,8 +5,8 @@ env:
     - ARDUINO_ESP32_VERSION="1.0.1"
     - LIBRARY_NAME="SIM808"
   matrix:
-    - BOARD="arduino:avr:uno"
-    - BOARD="esp32:esp3:pico32"
+    - ESP32=false BOARD="arduino:avr:uno"
+    - ESP32=true BOARD="esp32:esp32:pico32"
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
   - sleep 3
@@ -16,7 +16,7 @@ before_install:
   - sudo mv arduino-$ARDUINO_IDE_VERSION /usr/local/share/arduino
   - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
   - arduino --pref boardsmanager.additional.urls=https://dl.espressif.com/dl/package_esp32_index.json --save-prefs
-  - arduino --install-boards esp32:esp32:$ARDUINO_ESP32_VERSION
+  - if $ESP32 then; arduino --install-boards esp32:esp32:$ARDUINO_ESP32_VERSION; fi
 install:
  - ln -s $PWD /usr/local/share/arduino/libraries/$LIBRARY_NAME
  - arduino --install-library "ArduinoLog"
