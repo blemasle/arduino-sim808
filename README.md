@@ -19,7 +19,7 @@ really easy, and avoid successive prints or string concatenation on complex comm
  * Reading of the device states (battery, gps, network)
 
 ## Why another library ?
-Their is a number of libraries out there which support this modem ([Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA), [TinyGSM](https://github.com/vshymanskyy/TinyGSM) for instance), so why build another one ? None fit the needs I had for a project. FONA is more a giant example for testing commands individually and I was getting unreliable results with it. TinyGSM seems great but what it gains in chips support it lacks in fine grained control over each modules, which I needed.
+There is a number of libraries out there which support this modem ([Adafruit's FONA](https://github.com/adafruit/Adafruit_FONA), [TinyGSM](https://github.com/vshymanskyy/TinyGSM) for instance), so why build another one ? None fit the needs I had for a project. FONA is more a giant example for testing commands individually and I was getting unreliable results with it. TinyGSM seems great but what it gains in chips support it lacks in fine grained control over each modules, which I needed.
 
 This library is then greatly inspired by FONA, which served as the reference implementation, but mostly only support the features I needed for my project and has been tested thoroughly and successfully in that configuration. It also tries to reduce the final HEX size as this was a real problem for the project it was built for.
 
