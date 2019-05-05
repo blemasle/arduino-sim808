@@ -36,7 +36,7 @@ bool SIM808::getGprsPowerState(bool *state)
 	return true;
 }
 
-bool SIM808::enableGprs(const char *apn, const char* user = NULL, const char *password = NULL)
+bool SIM808::enableGprs(const char *apn, const char* user, const char *password)
 {
 	char gprsToken[5];
 	strcpy_P(gprsToken, TOKEN_GPRS);
@@ -62,15 +62,15 @@ bool SIM808::disableGprs()
 		(sendFormatAT(TO_F(AT_COMMAND_GPRS_ATTACH), 0), waitResponse(10000L) == 0);							//AT+CGATT=0
 }
 
-SIM808_NETWORK_REGISTRATION_STATE SIM808::getNetworkRegistrationStatus()
+SIM808NetworkRegistrationState SIM808::getNetworkRegistrationStatus()
 {
 	uint8_t stat;
 	sendAT(TO_F(TOKEN_CGREG), TO_F(TOKEN_READ));
 	
 	if(waitResponse(TO_F(TOKEN_CGREG)) != 0 ||
-		!parseReply(',', (uint8_t)SIM808_REGISTRATION_STATUS_RESPONSE::STAT, &stat) ||
+		!parseReply(',', (uint8_t)SIM808RegistrationStatusResponse::Stat, &stat) ||
 		waitResponse() != 0)
-		return SIM808_NETWORK_REGISTRATION_STATE::ERROR;
+		return SIM808NetworkRegistrationState::Error;
 
-	return (SIM808_NETWORK_REGISTRATION_STATE)stat;
+	return (SIM808NetworkRegistrationState)stat;
 }

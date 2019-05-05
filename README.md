@@ -44,7 +44,7 @@ It does *not* have the pretention to become the new SIM808 standard library, but
 
 #define SIM808_BAUDRATE 4800    ///< Control the baudrate use to communicate with the SIM808 module
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX)
+SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 // SIM808 sim808 = SIM808(SIM_RST); // if you only have the RESET pin wired
 // SIM808 sim808 = SIM808(SIM_RST, SIM_PWR); // if you only have the RESET and PWRKEY pins wired

@@ -51,8 +51,8 @@ SIM808SignalQualityReport SIM808::getSignalQuality()
 
 	sendAT(TO_F(TOKEN_CSQ));
 	if(waitResponse(TO_F(TOKEN_CSQ)) != 0 ||
-		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::SIGNAL_STRENGTH, &quality) ||
-		!parseReply(',', (uint8_t)SIM808_SIGNAL_QUALITY_RESPONSE::BIT_ERROR_RATE, &errorRate) ||
+		!parseReply(',', (uint8_t)SIM808SignalQualityResponse::SignalStrength, &quality) ||
+		!parseReply(',', (uint8_t)SIM808SignalQualityResponse::BitErrorrate, &errorRate) ||
 		waitResponse())
 		return report;
 
@@ -68,7 +68,7 @@ SIM808SignalQualityReport SIM808::getSignalQuality()
 	return report;
 }
 
-bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
+bool SIM808::setSmsMessageFormat(SIM808SmsMessageFormat format)
 {
 	sendAT(S_F("+CMGF="), (uint8_t)format);
 	return waitResponse() == 0;
@@ -76,7 +76,7 @@ bool SIM808::setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT format)
 
 bool SIM808::sendSms(const char *addr, const char *msg)
 {
-	if (!setSmsMessageFormat(SIM808_SMS_MESSAGE_FORMAT::TEXT)) return false;
+	if (!setSmsMessageFormat(SIM808SmsMessageFormat::Text)) return false;
 	sendFormatAT(TO_F(AT_COMMAND_SEND_SMS), addr);
 
 	if (!waitResponse(S_F(">")) == 0) return false;

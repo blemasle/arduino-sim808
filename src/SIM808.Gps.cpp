@@ -23,57 +23,57 @@ bool SIM808::getGpsPosition(char *response, size_t responseSize)
 	copyCurrentLine(response, responseSize, strlen_P(TOKEN_GPS_INFO) + 2);
 }
 
-void SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, char** result) 
+void SIM808::getGpsField(const char* response, SIM808GpsField field, char** result) 
 {
 	char *pTmp = find(response, ',', (uint8_t)field);
 	*result = pTmp;
 }
 
-bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, uint16_t* result)
+bool SIM808::getGpsField(const char* response, SIM808GpsField field, uint16_t* result)
 {
-	if (field < SIM808_GPS_FIELD::SPEED) return false;
+	if (field < SIM808GpsField::Speed) return false;
 
 	parse(response, ',', (uint8_t)field, result);
 	return true;
 }
 
-bool SIM808::getGpsField(const char* response, SIM808_GPS_FIELD field, float* result)
+bool SIM808::getGpsField(const char* response, SIM808GpsField field, float* result)
 {
-	if (field != SIM808_GPS_FIELD::COURSE && 
-		field != SIM808_GPS_FIELD::LATITUDE &&
-		field != SIM808_GPS_FIELD::LONGITUDE &&
-		field != SIM808_GPS_FIELD::ALTITUDE &&
-		field != SIM808_GPS_FIELD::SPEED) return false;
+	if (field != SIM808GpsField::Course && 
+		field != SIM808GpsField::Latitude &&
+		field != SIM808GpsField::Longitude &&
+		field != SIM808GpsField::Altitude &&
+		field != SIM808GpsField::Speed) return false;
 
 	parse(response, ',', (uint8_t)field, result);
 	return true;
 }
 
-SIM808_GPS_STATUS SIM808::getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix = GPS_ACCURATE_FIX_MIN_SATELLITES)
+SIM808GpsStatus SIM808::getGpsStatus(char * response, size_t responseSize, uint8_t minSatellitesForAccurateFix)
 {	
-	SIM808_GPS_STATUS result = SIM808_GPS_STATUS::NO_FIX;
+	SIM808GpsStatus result = SIM808GpsStatus::NoFix;
 
 	sendAT(TO_F(TOKEN_GPS_INFO));
 
 	if(waitResponse(TO_F(TOKEN_GPS_INFO)) != 0)
-		return SIM808_GPS_STATUS::FAIL;
+		return SIM808GpsStatus::Fail;
 
 	uint16_t shift = strlen_P(TOKEN_GPS_INFO) + 2;
 
-	if(replyBuffer[shift] == '0') result = SIM808_GPS_STATUS::OFF;
+	if(replyBuffer[shift] == '0') result = SIM808GpsStatus::Off;
 	if(replyBuffer[shift + 2] == '1') // fix acquired
 	{
-		int16_t satellitesUsed;
-		getGpsField(replyBuffer, SIM808_GPS_FIELD::GNSS_USED, &satellitesUsed);
+		uint16_t satellitesUsed;
+		getGpsField(replyBuffer, SIM808GpsField::GnssUsed, &satellitesUsed);
 
 		result = satellitesUsed > minSatellitesForAccurateFix ?
-			SIM808_GPS_STATUS::ACCURATE_FIX :
-			SIM808_GPS_STATUS::FIX;
+			SIM808GpsStatus::AccurateFix :
+			SIM808GpsStatus::Fix;
 
 		copyCurrentLine(response, responseSize, shift);
 	}
 
-	if(waitResponse() != 0) return SIM808_GPS_STATUS::FAIL;
+	if(waitResponse() != 0) return SIM808GpsStatus::Fail;
 
 	return result;
 }

@@ -2,7 +2,7 @@
 
 TOKEN(RDY);
 
-SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin = SIM808_UNAVAILABLE_PIN, uint8_t statusPin = SIM808_UNAVAILABLE_PIN)
+SIM808::SIM808(uint8_t resetPin, uint8_t pwrKeyPin, uint8_t statusPin)
 {
 	_resetPin = resetPin;
 	_pwrKeyPin = pwrKeyPin;
@@ -28,7 +28,7 @@ void SIM808::init()
 	waitForReady();
 	delay(1500);
 
-	setEcho(SIM808_ECHO::OFF);
+	setEcho(SIM808Echo::Off);
 }
 
 void SIM808::reset()
@@ -54,7 +54,7 @@ void SIM808::waitForReady()
 	while (waitResponse(TO_F(TOKEN_RDY)) != 0);
 }
 
-bool SIM808::setEcho(SIM808_ECHO mode)
+bool SIM808::setEcho(SIM808Echo mode)
 {
 	sendAT(S_F("E"), (uint8_t)mode);
 

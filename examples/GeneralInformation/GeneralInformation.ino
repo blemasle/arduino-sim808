@@ -4,7 +4,20 @@
 
 #include <SIM808.h>
 #include <ArduinoLog.h>
-#include <SoftwareSerial.h>
+
+#if defined(__AVR__)
+    #include <SoftwareSerial.h>
+    #define SIM_SERIAL_TYPE	SoftwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(SIM_TX, SIM_RX)	///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy_P(s1, s2, BUFFER_SIZE)
+#else
+    #include <HardwareSerial.h>
+    #define SIM_SERIAL_TYPE	HardwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(2)	            ///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy(s1, s2, BUFFER_SIZE)
+#endif
 
 #define SIM_RST		5	///< SIM808 RESET
 #define SIM_RX		6	///< SIM808 RXD
@@ -19,7 +32,7 @@
 #define BUFFER_SIZE 512         ///< Size of the buffer
 #define NL  "\n"
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
+SIM_SERIAL_TYPE simSerial = SIM_SERIAL;
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 bool done = false;
 char buffer[BUFFER_SIZE];
@@ -31,36 +44,36 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();
 
     sim808.getImei(buffer, BUFFER_SIZE);
-    Log.notice(F("IMEI : \"%s\"" NL), buffer);
+    Log.notice(S_F("IMEI : \"%s\"" NL), buffer);
 
     sim808.getSimState(buffer, BUFFER_SIZE);
-    Log.notice(F("SIM card state : \"%s\"" NL), buffer);
+    Log.notice(S_F("SIM card state : \"%s\"" NL), buffer);
 
     SIM808ChargingStatus charging = sim808.getChargingState();
     switch(charging.state) {
-        case SIM808_CHARGING_STATE::CHARGING:
-        strcpy_P(buffer, PSTR("CHARGING"));
+        case SIM808ChargingState::Charging:
+            STRLCPY_P(buffer, PSTR("Charging"));
         break;
-        case SIM808_CHARGING_STATE::CHARGING_DONE:
-        strcpy_P(buffer, PSTR("CHARGING_DONE"));
+        case SIM808ChargingState::ChargingDone:
+            STRLCPY_P(buffer, PSTR("ChargingDone"));
         break;
-        case SIM808_CHARGING_STATE::ERROR:
-        strcpy_P(buffer, PSTR("ERROR"));
+        case SIM808ChargingState::Error:
+            STRLCPY_P(buffer, PSTR("Error"));
         break;
-        case SIM808_CHARGING_STATE::NOT_CHARGING:
-        strcpy_P(buffer, PSTR("NOT_CHARGING"));
+        case SIM808ChargingState::NotCharging:
+            STRLCPY_P(buffer, PSTR("NotCharging"));
         break;
     }
-    Log.notice(F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);
+    Log.notice(S_F("Charging state : %s, %d%% @ %dmV" NL), buffer, charging.level, charging.voltage);
 
     //you can also send unimplemented simple commands
     sim808.sendCommand("I", buffer, BUFFER_SIZE);
-    Log.notice(F("ATI response : \"%s\"" NL), buffer);
+    Log.notice(S_F("ATI response : \"%s\"" NL), buffer);
 }
 
 void loop() { }

@@ -24,6 +24,10 @@
 	#define SENDARROW
 #endif // _DEBUG
 
+#if SIZE_MAX > UINT16_MAX
+	#define NEED_SIZE_T_OVERLOADS
+#endif
+
 #define BUFFER_SIZE 64
 #define SIMCOMAT_DEFAULT_TIMEOUT 1000
 
@@ -74,7 +78,7 @@ protected:
 	 * the stop character is encountered. timeout and char are optional
 	 * 
 	 */
-	size_t SIMComAT::readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
+	size_t readNext(char * buffer, size_t size, uint16_t * timeout = NULL, char stop = 0);
 	int8_t waitResponse(
 		ATConstStr s1 = TO_F(TOKEN_OK),
 		ATConstStr s2 = TO_F(TOKEN_ERROR),
@@ -111,6 +115,12 @@ protected:
 	 * Parse the nth field of a string as a uint16_t.
 	 */
 	bool parse(const char* str, char divider, uint8_t index, uint16_t* result);
+#if defined(NEED_SIZE_T_OVERLOADS)
+	/**
+	 * Parse the nth field of a string as a size_t.
+	 */
+	bool parse(const char* str, char divider, uint8_t index, size_t* result);
+#endif
 	/**
 	 * Parse the nth field of a string as a int16_t.
 	 */
@@ -132,6 +142,12 @@ protected:
 	 * Parse the nth field of the reply buffer as a uint16_t.
 	 */
 	bool parseReply(char divider, uint8_t index, uint16_t* result) { return parse(replyBuffer, divider, index, result); }
+#if defined(NEED_SIZE_T_OVERLOADS)
+	/**
+	 * Parse the nth field of the reply buffer as a size_t.
+	 */
+	bool parseReply(char divider, uint8_t index, size_t* result) { return parse(replyBuffer, divider, index, result); }
+#endif	
 	/**
 	 * Parse the nth field of the reply buffer as a int16_t.
 	 */

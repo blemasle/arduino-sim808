@@ -4,7 +4,20 @@
 
 #include <SIM808.h>
 #include <ArduinoLog.h>
-#include <SoftwareSerial.h>
+
+#if defined(__AVR__)
+    #include <SoftwareSerial.h>
+    #define SIM_SERIAL_TYPE	SoftwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(SIM_TX, SIM_RX)	///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy_P(s1, s2, BUFFER_SIZE)
+#else
+    #include <HardwareSerial.h>
+    #define SIM_SERIAL_TYPE	HardwareSerial					///< Type of variable that holds the Serial communication with SIM808
+    #define SIM_SERIAL		SIM_SERIAL_TYPE(2)	            ///< Definition of the instance that holds the Serial communication with SIM808    
+    
+    #define STRLCPY_P(s1, s2) strlcpy(s1, s2, BUFFER_SIZE)
+#endif
 
 #define SIM_RST		5	///< SIM808 RESET
 #define SIM_RX		6	///< SIM808 RXD
@@ -23,7 +36,7 @@
 #define BUFFER_SIZE 512         ///< Side of the response buffer
 #define NL  "\n"
 
-SoftwareSerial simSerial = SoftwareSerial(SIM_TX, SIM_RX);
+SIM_SERIAL_TYPE simSerial = SIM_SERIAL;
 SIM808 sim808 = SIM808(SIM_RST, SIM_PWR, SIM_STATUS);
 bool done = false;
 char buffer[BUFFER_SIZE];
@@ -35,7 +48,7 @@ void setup() {
     simSerial.begin(SIM808_BAUDRATE);
     sim808.begin(simSerial);
 
-    Log.notice(F("Powering on SIM808..." NL));
+    Log.notice(S_F("Powering on SIM808..." NL));
     sim808.powerOnOff(true);
     sim808.init();    
 }
@@ -46,34 +59,34 @@ void loop() {
         return;
     }
 
-    SIM808_NETWORK_REGISTRATION_STATE status = sim808.getNetworkRegistrationStatus();
+    SIM808NetworkRegistrationState status = sim808.getNetworkRegistrationStatus();
     SIM808SignalQualityReport report = sim808.getSignalQuality();
 
     bool isAvailable = static_cast<int8_t>(status) &
-        (static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::REGISTERED) | static_cast<int8_t>(SIM808_NETWORK_REGISTRATION_STATE::ROAMING))
+        (static_cast<int8_t>(SIM808NetworkRegistrationState::Registered) | static_cast<int8_t>(SIM808NetworkRegistrationState::Roaming))
         != 0;
 
     if(!isAvailable) {
-        Log.notice(F("No network yet..." NL));
+        Log.notice(S_F("No network yet..." NL));
         delay(NETWORK_DELAY);
         return;
     }
 
-    Log.notice(F("Network is ready." NL));
-    Log.notice(F("Attenuation : %d dBm, Estimated quality : %d" NL), report.attenuation, report.rssi);
+    Log.notice(S_F("Network is ready." NL));
+    Log.notice(S_F("Attenuation : %d dBm, Estimated quality : %d" NL), report.attenuation, report.rssi);
 
     bool enabled = false;
 	do {
-        Log.notice(F("Powering on SIM808's GPRS..." NL));
+        Log.notice(S_F("Powering on SIM808's GPRS..." NL));
         enabled = sim808.enableGprs(GPRS_APN, GPRS_USER, GPRS_PASS);        
     } while(!enabled);
     
-    Log.notice(F("Sending HTTP request..." NL));
-    strncpy_P(buffer, PSTR("This is the body"), BUFFER_SIZE);
+    Log.notice(S_F("Sending HTTP request..." NL));
+    STRLCPY_P(buffer, PSTR("This is the body"));
     //notice that we're using the same buffer for both body and response
-    uint16_t responseCode = sim808.httpPost("http://httpbin.org/anything", F("text/plain"), buffer, buffer, BUFFER_SIZE);
+    uint16_t responseCode = sim808.httpPost("http://httpbin.org/anything", S_F("text/plain"), buffer, buffer, BUFFER_SIZE);
 
-    Log.notice(F("Server responsed : %d" NL), responseCode);
+    Log.notice(S_F("Server responsed : %d" NL), responseCode);
     Log.notice(buffer);
 
     done = true;
