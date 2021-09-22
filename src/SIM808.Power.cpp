@@ -26,7 +26,7 @@ bool SIM808::powerOnOff(bool power)
 	delay(2000);
 	digitalWrite(_pwrKeyPin, HIGH);
 
-	uint16_t timeout = 2000;
+	int16_t timeout = 2000;
 	do {
 		delay(150);
 		timeout -= 150;
